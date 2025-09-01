@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Dimensions, ScrollView } from 'react-native';
 import { MotiView } from 'moti';
-import { TrendingUp, Zap, Target, BarChart3 } from 'lucide-react-native';
+import { TrendingUp, Zap, Target, ChartBar as BarChart3 } from 'lucide-react-native';
 import Svg, { Line, Circle, Text as SvgText, Defs, LinearGradient, Stop, Path } from 'react-native-svg';
 import missionData from '@/data/mentor-flight-path-data.json';
 
