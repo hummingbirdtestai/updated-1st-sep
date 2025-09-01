@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { MotiView, AnimatePresence } from 'moti';
-import { GitBranch, Target, Clock, X, Info, Lightbulb, AlertTriangle, ChevronRight, Zap } from 'lucide-react-native';
+import { GitBranch, Target, Clock, X, Info, Lightbulb, TriangleAlert as AlertTriangle, ChevronRight, Zap } from 'lucide-react-native';
 import * as d3 from 'd3';
 import mockRootCausesData from '@/data/mockRootCausesData.json';
 
