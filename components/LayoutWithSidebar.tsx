@@ -4,6 +4,7 @@ import Sidebar from "@/components/Sidebar";
 import HomePage from "@/components/HomePage";
 import AdaptiveChat from "@/components/AdaptiveChat";
 import AnalyticsPage from "@/components/AnalyticsPage";
+import ConceptPrerequisiteMap from "@/components/ConceptPrerequisiteMap";
 
 export default function LayoutWithSidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -12,6 +13,7 @@ export default function LayoutWithSidebar() {
   const sidebarWidth = 240;
 
   const [currentView, setCurrentView] = useState<"home" | "exam" | "subject" | "analytics">("analytics");
+  const [currentView, setCurrentView] = useState<"home" | "exam" | "subject" | "analytics" | "concept-map">("analytics");
   const [analyticsRoute, setAnalyticsRoute] = useState("/analytics/prep-overview");
   const [examId, setExamId] = useState<string | null>(null);
   const [subjectId, setSubjectId] = useState<string | null>(null);
@@ -46,6 +48,10 @@ export default function LayoutWithSidebar() {
           setCurrentView("analytics");
           if (isMobile) setSidebarOpen(false);
         }}
+        onConceptMapNavigate={() => {
+          setCurrentView("concept-map");
+          if (isMobile) setSidebarOpen(false);
+        }}
       />
 
       {/* Main Content */}
@@ -66,6 +72,7 @@ export default function LayoutWithSidebar() {
         >
           {currentView === "home" && <HomePage />}
           {currentView === "analytics" && <AnalyticsPage route={analyticsRoute} />}
+          {currentView === "concept-map" && <ConceptPrerequisiteMap />}
           {(currentView === "exam" || currentView === "subject") && (
             <AdaptiveChat examId={examId || ""} subjectId={subjectId || ""} />
           )}

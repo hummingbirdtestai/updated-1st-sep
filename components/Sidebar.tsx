@@ -108,6 +108,7 @@ interface SidebarProps {
   isMobile: boolean;
   onHomeClick?: () => void;
   onAnalyticsNavigate?: (route: string) => void;
+  onConceptMapNavigate?: () => void;
 }
 
 export default function Sidebar({
@@ -119,6 +120,7 @@ export default function Sidebar({
   isMobile,
   onHomeClick,
   onAnalyticsNavigate,
+  onConceptMapNavigate,
 }: SidebarProps) {
   const [isExamsExpanded, setIsExamsExpanded] = useState(false);
   const [isSubjectsExpanded, setIsSubjectsExpanded] = useState(false);
@@ -468,6 +470,18 @@ export default function Sidebar({
                 ))}
             </>
           )}
+
+          {/* Concept Prerequisite Map */}
+          <Pressable
+            onPress={() => {
+              onConceptMapNavigate?.();
+              if (isMobile) onToggle(false);
+            }}
+            className="flex-row items-center p-3 mt-2 bg-slate-800/40 rounded-xl"
+          >
+            <GitBranch size={16} color="#94a3b8" />
+            <Text className="ml-2 text-slate-300">Concept Map</Text>
+          </Pressable>
 
           {/* Profile */}
           <Pressable
