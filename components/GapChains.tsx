@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { GitBranch, Target, TrendingUp, Filter, ChevronDown, X, CircleCheck as CheckCircle, CircleX as XCircle, Circle, TriangleAlert as AlertTriangle, Award, Clock, ChartBar as BarChart3 } from 'lucide-react-native';
+import { GitBranch, Target, TrendingUp, Filter, ChevronDown, X, CircleCheck as CheckCircle, CircleX as XCircle, Circle, TriangleAlert as AlertTriangle, Award, Clock, ChartBar as BarChart3, Play, BookOpen, Video, RotateCcw, ExternalLink, Lightbulb } from 'lucide-react-native';
 import Svg, { Circle as SvgCircle, Line, Text as SvgText, Path, Defs, LinearGradient, Stop, G } from 'react-native-svg';
 import gapChainsData from '@/data/gap-chains-data.json';
 
@@ -18,6 +18,18 @@ interface GapChain {
   chain: ChainLink[];
   chain_health_score: number;
   time_credit_minutes: number;
+}
+
+interface AISuggestion {
+  type: 'flashcard' | 'video' | 'mcq_retry';
+  title: string;
+  link: string;
+}
+
+interface AIFixData {
+  pyq_id: string;
+  broken_link: string;
+  suggestions: AISuggestion[];
 }
 
 interface ChainTooltipProps {
@@ -203,6 +215,30 @@ export default function GapChains() {
     setSelectedChain({ chain, position: { x, y } });
   };
 
+  const handleWeakChainPress = (chain: GapChain) => {
+    if (chain.chain_health_score < 60) {
+      setSelectedWeakChain(chain);
+      setShowAISuggestions(true);
+    }
+  };
+
+  const getSuggestionIcon = (type: string) => {
+    switch (type) {
+      case 'flashcard': return <BookOpen size={16} color="#ffffff" />;
+      case 'video': return <Video size={16} color="#ffffff" />;
+      case 'mcq_retry': return <RotateCcw size={16} color="#ffffff" />;
+      default: return <Play size={16} color="#ffffff" />;
+    }
+  };
+
+  const getSuggestionColor = (type: string) => {
+    switch (type) {
+      case 'flashcard': return 'from-blue-600 to-indigo-600';
+      case 'video': return 'from-purple-600 to-violet-600';
+      case 'mcq_retry': return 'from-emerald-600 to-teal-600';
+      default: return 'from-slate-600 to-slate-700';
+    }
+  };
   return (
     <View className="flex-1 bg-slate-900">
       {/* Header */}
@@ -649,19 +685,11 @@ export default function GapChains() {
                       </Text>
                     </View>
                     
-                    {/* Health Score Badge */}
-                    <View 
-                      className="w-16 h-16 rounded-full border-4 items-center justify-center"
-                      style={{ borderColor: colors.color }}
-                    >
-                      <Text className="text-lg font-bold" style={{ color: colors.color }}>
-                        {chain.chain_health_score}
-                      </Text>
-                      <Text className="text-xs text-slate-400">health</Text>
-                    </View>
-
                     {/* Circular Health Score Visualization */}
-                    <View className="ml-4">
+                    <Pressable
+                      onPress={() => handleWeakChainPress(chain)}
+                      className={`ml-4 ${chain.chain_health_score < 60 ? 'active:scale-95' : ''}`}
+                    >
                       <View className="relative w-20 h-20">
                         {/* Background Circle */}
                         <View className="absolute inset-0 rounded-full border-4 border-slate-700/60" />
@@ -687,6 +715,25 @@ export default function GapChains() {
                           </Text>
                           <Text className="text-slate-500 text-xs">health</Text>
                         </View>
+                        
+                        {/* AI Fix Indicator for Weak Chains */}
+                        {chain.chain_health_score < 60 && (
+                          <MotiView
+                            from={{ scale: 0, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            transition={{ type: 'spring', duration: 400, delay: index * 100 + 1400 }}
+                            className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-amber-500 to-orange-600 rounded-full items-center justify-center shadow-lg"
+                            style={{
+                              shadowColor: '#f59e0b',
+                              shadowOffset: { width: 0, height: 2 },
+                              shadowOpacity: 0.3,
+                              shadowRadius: 4,
+                              elevation: 4,
+                            }}
+                          >
+                            <Lightbulb size={12} color="#ffffff" />
+                          </MotiView>
+                        )}
                       </View>
                       
                       {/* Health Category Label */}
@@ -698,7 +745,14 @@ export default function GapChains() {
                          chain.chain_health_score >= 60 ? 'Good' :
                          chain.chain_health_score >= 40 ? 'Fair' : 'Poor'}
                       </Text>
-                    </View>
+                      
+                      {/* AI Fix Hint for Weak Chains */}
+                      {chain.chain_health_score < 60 && (
+                        <Text className="text-xs text-amber-400 text-center mt-1 font-medium">
+                          💡 Tap for AI fixes
+                        </Text>
+                      )}
+                    </Pressable>
                   </View>
 
                   {/* Chain Visualization */}
@@ -848,6 +902,187 @@ export default function GapChains() {
           </View>
         </MotiView>
       </ScrollView>
+
+      {/* AI Reroute Fix Suggestions Side Panel */}
+      {showAISuggestions && selectedWeakChain && (
+        <MotiView
+          from={{ opacity: 0, translateX: 300 }}
+          animate={{ opacity: 1, translateX: 0 }}
+          transition={{ type: 'spring', duration: 600 }}
+          className="absolute right-0 top-0 bottom-0 w-80 bg-slate-800/95 border-l border-slate-700/50 p-6 shadow-2xl z-50"
+          style={{
+            shadowColor: '#f59e0b',
+            shadowOffset: { width: -4, height: 0 },
+            shadowOpacity: 0.2,
+            shadowRadius: 12,
+            elevation: 10,
+          }}
+        >
+          {/* Panel Header */}
+          <View className="flex-row items-center justify-between mb-6">
+            <View className="flex-1">
+              <Text className="text-xl font-bold text-slate-100 mb-1">
+                AI Reroute Fixes
+              </Text>
+              <Text className="text-sm text-amber-400">
+                {selectedWeakChain.subject} • {selectedWeakChain.topic}
+              </Text>
+              <Text className="text-xs text-slate-500 mt-1">
+                Health Score: {selectedWeakChain.chain_health_score}/100
+              </Text>
+            </View>
+            <Pressable
+              onPress={() => {
+                setShowAISuggestions(false);
+                setSelectedWeakChain(null);
+              }}
+              className="w-8 h-8 rounded-full bg-slate-700/50 items-center justify-center"
+            >
+              <X size={16} color="#94a3b8" />
+            </Pressable>
+          </View>
+
+          <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+            {/* Problem Analysis */}
+            <View className="mb-6">
+              <View className="flex-row items-center mb-3">
+                <AlertTriangle size={16} color="#ef4444" />
+                <Text className="text-slate-100 font-semibold ml-2">Problem Analysis</Text>
+              </View>
+              <View className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                <Text className="text-red-200 text-sm">
+                  Chain failed at <Text className="font-bold">
+                    {(() => {
+                      const firstWrong = selectedWeakChain.chain.findIndex(link => !link.is_correct);
+                      return firstWrong >= 0 ? `MCQ ${firstWrong + 1}` : 'MCQ 1';
+                    })()}
+                  </Text>. This indicates a fundamental knowledge gap that needs targeted intervention.
+                </Text>
+              </View>
+            </View>
+
+            {/* AI Suggestions */}
+            <View className="mb-6">
+              <View className="flex-row items-center mb-3">
+                <Lightbulb size={16} color="#fbbf24" />
+                <Text className="text-slate-100 font-semibold ml-2">Recommended Fixes</Text>
+              </View>
+              
+              <View className="space-y-3">
+                {(() => {
+                  const aiData = getAIFixSuggestions(selectedWeakChain);
+                  return aiData.suggestions.map((suggestion, index) => (
+                    <MotiView
+                      key={`${suggestion.type}-${index}`}
+                      from={{ opacity: 0, translateX: 20 }}
+                      animate={{ opacity: 1, translateX: 0 }}
+                      transition={{ type: 'spring', duration: 400, delay: index * 100 + 200 }}
+                    >
+                      <Pressable
+                        onPress={() => {
+                          // Handle suggestion action
+                          console.log(`Opening ${suggestion.type}:`, suggestion.link);
+                        }}
+                        className={`bg-gradient-to-r ${getSuggestionColor(suggestion.type)} rounded-xl p-4 shadow-lg active:scale-95 border border-white/10`}
+                        style={{
+                          shadowColor: suggestion.type === 'flashcard' ? '#3b82f6' : 
+                                     suggestion.type === 'video' ? '#8b5cf6' : '#10b981',
+                          shadowOffset: { width: 0, height: 4 },
+                          shadowOpacity: 0.3,
+                          shadowRadius: 8,
+                          elevation: 4,
+                        }}
+                      >
+                        <View className="flex-row items-center">
+                          <View className="w-10 h-10 bg-white/20 rounded-full items-center justify-center mr-3">
+                            {getSuggestionIcon(suggestion.type)}
+                          </View>
+                          <View className="flex-1">
+                            <Text className="text-white font-semibold text-base mb-1">
+                              {suggestion.title}
+                            </Text>
+                            <Text className="text-white/80 text-sm">
+                              {suggestion.type === 'flashcard' && 'Review key concepts with spaced repetition'}
+                              {suggestion.type === 'video' && 'Watch visual explanation and examples'}
+                              {suggestion.type === 'mcq_retry' && 'Practice similar questions to reinforce learning'}
+                            </Text>
+                          </View>
+                          <ExternalLink size={14} color="#ffffff" style={{ opacity: 0.7 }} />
+                        </View>
+                      </Pressable>
+                    </MotiView>
+                  ));
+                })()}
+              </View>
+            </View>
+
+            {/* Chain Breakdown */}
+            <View className="mb-6">
+              <View className="flex-row items-center mb-3">
+                <GitBranch size={16} color="#06b6d4" />
+                <Text className="text-slate-100 font-semibold ml-2">Chain Breakdown</Text>
+              </View>
+              <View className="bg-slate-700/40 rounded-lg p-3 border border-slate-600/30">
+                <View className="space-y-2">
+                  <Text className="text-slate-300 text-sm">
+                    <Text className="font-bold text-cyan-400">Chain Length:</Text> {selectedWeakChain.chain.length} MCQs
+                  </Text>
+                  <Text className="text-slate-300 text-sm">
+                    <Text className="font-bold text-cyan-400">First Failure:</Text> {(() => {
+                      const firstWrong = selectedWeakChain.chain.findIndex(link => !link.is_correct);
+                      return firstWrong >= 0 ? `MCQ ${firstWrong + 1}` : 'None';
+                    })()}
+                  </Text>
+                  <Text className="text-slate-300 text-sm">
+                    <Text className="font-bold text-cyan-400">Solved At:</Text> {(() => {
+                      const correctIndex = selectedWeakChain.chain.findIndex(link => link.is_correct);
+                      return correctIndex >= 0 ? `MCQ ${correctIndex + 1}` : 'Unsolved';
+                    })()}
+                  </Text>
+                  <Text className="text-slate-300 text-sm">
+                    <Text className="font-bold text-cyan-400">Time Credit:</Text> {selectedWeakChain.time_credit_minutes} minutes
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Study Plan */}
+            <View>
+              <View className="flex-row items-center mb-3">
+                <Target size={16} color="#10b981" />
+                <Text className="text-slate-100 font-semibold ml-2">Suggested Study Plan</Text>
+              </View>
+              <View className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4">
+                <View className="space-y-2">
+                  <Text className="text-emerald-200 text-sm">
+                    <Text className="font-bold">1.</Text> Start with the flashcard to review fundamentals
+                  </Text>
+                  <Text className="text-emerald-200 text-sm">
+                    <Text className="font-bold">2.</Text> Watch the video for visual reinforcement
+                  </Text>
+                  <Text className="text-emerald-200 text-sm">
+                    <Text className="font-bold">3.</Text> Retry similar MCQs to test understanding
+                  </Text>
+                  <Text className="text-emerald-200 text-sm">
+                    <Text className="font-bold">4.</Text> Return to original PYQ when confident
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+        </MotiView>
+      )}
+
+      {/* Overlay for AI Suggestions Panel */}
+      {showAISuggestions && (
+        <Pressable
+          onPress={() => {
+            setShowAISuggestions(false);
+            setSelectedWeakChain(null);
+          }}
+          className="absolute inset-0 bg-black/30 z-40"
+        />
+      )}
 
       {/* Chain Tooltip */}
       {selectedChain && (
