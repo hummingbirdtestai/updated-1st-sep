@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { Clock, Target, Award, BookOpen, CheckCircle, Circle } from 'lucide-react-native';
+import { Clock, Target, Award, BookOpen, CircleCheck as CheckCircle, Circle } from 'lucide-react-native';
 import missionData from '@/data/mentor-flight-path-data.json';
 
 interface MissionCardProps {
