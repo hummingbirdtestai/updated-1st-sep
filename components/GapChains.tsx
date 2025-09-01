@@ -5,10 +5,6 @@ import { GitBranch, Target, TrendingUp, Filter, ChevronDown, X, CircleCheck as C
 import Svg, { Circle as SvgCircle, Line, Text as SvgText, Path, Defs, LinearGradient, Stop, G } from 'react-native-svg';
 import gapChainsData from '@/data/gap-chains-data.json';
 
-const [showAISuggestions, setShowAISuggestions] = useState(false);
-const [selectedWeakChain, setSelectedWeakChain] = useState<GapChain | null>(null);
-
-
 interface ChainLink {
   mcq_id: string;
   is_correct: boolean;
@@ -138,6 +134,8 @@ function ChainTooltip({ chain, position, onClose }: ChainTooltipProps) {
 
 export default function GapChains() {
   const { width } = Dimensions.get('window');
+  const [showAISuggestions, setShowAISuggestions] = useState(false);
+  const [selectedWeakChain, setSelectedWeakChain] = useState<GapChain | null>(null);
   const isMobile = width < 768;
   
   const [selectedSubject, setSelectedSubject] = useState<string>('all');
@@ -576,15 +574,17 @@ export default function GapChains() {
                         />
                         
                         {/* Main bubble */}
-                        <SvgCircle
-                          cx={position.x}
-                          cy={position.y}
-                          r={bubbleSize}
-                          fill={colors.color}
-                          stroke={subjectColor}
-                          strokeWidth="2"
-                          onPress={() => handleChainPress(chain, position.x, position.y)}
-                        />
+                        <Pressable onPress={() => handleChainPress(chain, position.x, position.y)}>
+                          <SvgCircle
+                            cx={position.x}
+                            cy={position.y}
+                            r={bubbleSize}
+                            fill={colors.color}
+                            stroke={subjectColor}
+                            strokeWidth="2"
+                          />
+                        </Pressable>
+
 
                         {/* Chain length indicator */}
                         <SvgText
