@@ -415,10 +415,4 @@ export default function NeuralRadar() {
       </View>
     </View>
   );
-
-  // Helper function to format momentum
-  function formatMomentum(score: number): string {
-    const sign = score >= 0 ? '+' : '';
-    return `${sign}${score.toFixed(1)}% weekly improvement`;
-  }
 }
