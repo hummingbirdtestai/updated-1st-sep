@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, Dimensions, ScrollView } from 'react-native';
 import { MotiView } from 'moti';
 import Svg, { Circle, Line, Text as SvgText, G, Defs, RadialGradient, Stop, Filter, FeGaussianBlur, Path } from 'react-native-svg';
-import { Radar, X, ZoomIn, ZoomOut, ChevronRight, TriangleAlert as AlertTriangle, Lightbulb, Target } from 'lucide-react-native';
+import { Radar, X, ZoomIn, ZoomOut, ChevronRight, TriangleAlert as AlertTriangle, Lightbulb, Target, Play, Pause, SkipBack, SkipForward } from 'lucide-react-native';
+import Slider from '@react-native-community/slider';
 
 interface Topic {
   id: string;
@@ -45,7 +46,60 @@ interface SidePanelData {
   type: 'subject' | 'chapter' | 'topic';
 }
 
+interface Snapshot {
+  day: string;
+  subjects: Array<{
+    id: string;
+    momentumScore: number;
+    gapDensity?: number;
+  }>;
+}
+
 type ZoomLevel = 'subjects' | 'chapters' | 'topics';
+
+// Dummy time-lapse data
+const snapshots: Snapshot[] = [
+  { 
+    day: 'Day 1', 
+    subjects: [
+      { id: '1', momentumScore: 10, gapDensity: 0.3 }, 
+      { id: '2', momentumScore: -5, gapDensity: 0.6 },
+      { id: '3', momentumScore: 15, gapDensity: 0.2 }
+    ] 
+  },
+  { 
+    day: 'Day 2', 
+    subjects: [
+      { id: '1', momentumScore: 20, gapDensity: 0.25 }, 
+      { id: '2', momentumScore: -10, gapDensity: 0.65 },
+      { id: '3', momentumScore: 18, gapDensity: 0.15 }
+    ] 
+  },
+  { 
+    day: 'Day 3', 
+    subjects: [
+      { id: '1', momentumScore: 25, gapDensity: 0.2 }, 
+      { id: '2', momentumScore: -15, gapDensity: 0.7 },
+      { id: '3', momentumScore: 22, gapDensity: 0.1 }
+    ] 
+  },
+  { 
+    day: 'Day 4', 
+    subjects: [
+      { id: '1', momentumScore: 30, gapDensity: 0.15 }, 
+      { id: '2', momentumScore: -8, gapDensity: 0.55 },
+      { id: '3', momentumScore: 28, gapDensity: 0.08 }
+    ] 
+  },
+  { 
+    day: 'Day 5', 
+    subjects: [
+      { id: '1', momentumScore: 35, gapDensity: 0.1 }, 
+      { id: '2', momentumScore: 5, gapDensity: 0.4 },
+      { id: '3', momentumScore: 32, gapDensity: 0.05 }
+    ] 
+  }
+];
 
 const hierarchicalData: Subject[] = [
   {
@@ -131,28 +185,43 @@ export default function NeuralRadar() {
   const [zoomLevel, setZoomLevel] = useState<ZoomLevel>('subjects');
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [selectedChapter, setSelectedChapter] = useState<Chapter | null>(null);
+  const [currentSnapshotIndex, setCurrentSnapshotIndex] = useState(snapshots.length - 1);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [playbackSpeed, setPlaybackSpeed] = useState(1000); // ms between frames
 
-  // Simulate momentum changes every 3 seconds for demo
+  // Time-lapse playback effect
   useEffect(() => {
+    if (!isPlaying) return;
+
     const interval = setInterval(() => {
-      // Update momentum scores for animation
-      hierarchicalData.forEach(subject => {
-        subject.momentumScore += (Math.random() - 0.5) * 5;
-        subject.chapters.forEach(chapter => {
-          if (chapter.momentumScore !== undefined) {
-            chapter.momentumScore += (Math.random() - 0.5) * 8;
-          }
-          chapter.topics.forEach(topic => {
-            if (topic.momentumScore !== undefined) {
-              topic.momentumScore += (Math.random() - 0.5) * 10;
-            }
-          });
-        });
+      setCurrentSnapshotIndex(prev => {
+        const next = prev + 1;
+        if (next >= snapshots.length) {
+          setIsPlaying(false);
+          return snapshots.length - 1;
+        }
+        return next;
       });
-    }, 3000);
+    }, playbackSpeed);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [isPlaying, playbackSpeed]);
+
+  // Update hierarchical data based on current snapshot
+  useEffect(() => {
+    const currentSnapshot = snapshots[currentSnapshotIndex];
+    if (currentSnapshot) {
+      currentSnapshot.subjects.forEach(snapshotSubject => {
+        const subject = hierarchicalData.find(s => s.id === snapshotSubject.id);
+        if (subject) {
+          subject.momentumScore = snapshotSubject.momentumScore;
+          if (snapshotSubject.gapDensity !== undefined) {
+            subject.gapDensity = snapshotSubject.gapDensity;
+          }
+        }
+      });
+    }
+  }, [currentSnapshotIndex]);
 
   // Pulse animation for high-density items
   useEffect(() => {
@@ -251,6 +320,22 @@ export default function NeuralRadar() {
   };
 
   const currentData = getCurrentData();
+  const currentSnapshot = snapshots[currentSnapshotIndex];
+
+  // Time-lapse control handlers
+  const handlePlay = () => setIsPlaying(!isPlaying);
+  const handlePrevious = () => {
+    setIsPlaying(false);
+    setCurrentSnapshotIndex(prev => Math.max(0, prev - 1));
+  };
+  const handleNext = () => {
+    setIsPlaying(false);
+    setCurrentSnapshotIndex(prev => Math.min(snapshots.length - 1, prev + 1));
+  };
+  const handleSliderChange = (value: number) => {
+    setIsPlaying(false);
+    setCurrentSnapshotIndex(Math.round(value));
+  };
 
   // Mock data for side panel
   const getMockSidePanelData = (item: any, type: string) => {
@@ -288,6 +373,12 @@ export default function NeuralRadar() {
               {zoomLevel === 'subjects' ? 'Subject Overview' : 
                zoomLevel === 'chapters' ? `${selectedSubject?.name} Chapters` :
                `${selectedChapter?.name} Topics`}
+            </Text>
+          </View>
+          <View className="flex-row items-center mr-4">
+            <Text className="text-xs text-slate-500 mr-2">Time-lapse:</Text>
+            <Text className="text-sm font-semibold text-cyan-400">
+              {currentSnapshot?.day || 'Current'}
             </Text>
           </View>
         </View>
@@ -751,6 +842,127 @@ export default function NeuralRadar() {
           </MotiView>
         )}
       </View>
+
+      {/* Time-lapse Controls */}
+      <MotiView
+        from={{ opacity: 0, translateY: 20 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: 'spring', duration: 600, delay: 400 }}
+        className="bg-slate-800/90 border-t border-slate-700/50 p-4"
+      >
+        {/* Control Header */}
+        <View className="flex-row items-center justify-between mb-4">
+          <Text className="text-slate-100 font-semibold">Time-lapse Playback</Text>
+          <View className="flex-row items-center space-x-2">
+            <Text className="text-xs text-slate-400">Speed:</Text>
+            <Pressable
+              onPress={() => setPlaybackSpeed(2000)}
+              className={`px-2 py-1 rounded ${playbackSpeed === 2000 ? 'bg-cyan-600' : 'bg-slate-700'}`}
+            >
+              <Text className="text-xs text-white">0.5x</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setPlaybackSpeed(1000)}
+              className={`px-2 py-1 rounded ${playbackSpeed === 1000 ? 'bg-cyan-600' : 'bg-slate-700'}`}
+            >
+              <Text className="text-xs text-white">1x</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setPlaybackSpeed(500)}
+              className={`px-2 py-1 rounded ${playbackSpeed === 500 ? 'bg-cyan-600' : 'bg-slate-700'}`}
+            >
+              <Text className="text-xs text-white">2x</Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Playback Controls */}
+        <View className="flex-row items-center space-x-4 mb-4">
+          {/* Previous */}
+          <Pressable
+            onPress={handlePrevious}
+            disabled={currentSnapshotIndex === 0}
+            className={`w-10 h-10 rounded-full items-center justify-center ${
+              currentSnapshotIndex === 0 ? 'bg-slate-700/30' : 'bg-slate-700/60'
+            }`}
+          >
+            <SkipBack size={16} color={currentSnapshotIndex === 0 ? '#64748b' : '#94a3b8'} />
+          </Pressable>
+
+          {/* Play/Pause */}
+          <Pressable
+            onPress={handlePlay}
+            className="w-12 h-12 rounded-full bg-gradient-to-br from-cyan-500 to-blue-600 items-center justify-center shadow-lg active:scale-95"
+            style={{
+              shadowColor: '#06b6d4',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.3,
+              shadowRadius: 8,
+              elevation: 4,
+            }}
+          >
+            {isPlaying ? (
+              <Pause size={20} color="#ffffff" />
+            ) : (
+              <Play size={20} color="#ffffff" style={{ marginLeft: 2 }} />
+            )}
+          </Pressable>
+
+          {/* Next */}
+          <Pressable
+            onPress={handleNext}
+            disabled={currentSnapshotIndex === snapshots.length - 1}
+            className={`w-10 h-10 rounded-full items-center justify-center ${
+              currentSnapshotIndex === snapshots.length - 1 ? 'bg-slate-700/30' : 'bg-slate-700/60'
+            }`}
+          >
+            <SkipForward size={16} color={currentSnapshotIndex === snapshots.length - 1 ? '#64748b' : '#94a3b8'} />
+          </Pressable>
+
+          {/* Timeline Slider */}
+          <View className="flex-1 mx-4">
+            <Slider
+              style={{ width: '100%', height: 40 }}
+              minimumValue={0}
+              maximumValue={snapshots.length - 1}
+              step={1}
+              value={currentSnapshotIndex}
+              onValueChange={handleSliderChange}
+              minimumTrackTintColor="#06b6d4"
+              maximumTrackTintColor="#475569"
+              thumbStyle={{
+                backgroundColor: '#06b6d4',
+                width: 20,
+                height: 20,
+              }}
+            />
+            <View className="flex-row justify-between mt-1">
+              <Text className="text-xs text-slate-400">Day 1</Text>
+              <Text className="text-xs text-cyan-400 font-semibold">
+                {currentSnapshot?.day || 'Current'}
+              </Text>
+              <Text className="text-xs text-slate-400">Day {snapshots.length}</Text>
+            </View>
+          </View>
+        </View>
+
+        {/* Progress Indicators */}
+        <View className="flex-row justify-center space-x-2">
+          {snapshots.map((_, index) => (
+            <Pressable
+              key={index}
+              onPress={() => handleSliderChange(index)}
+              className={`w-2 h-2 rounded-full ${
+                index === currentSnapshotIndex 
+                  ? 'bg-cyan-400' 
+                  : index < currentSnapshotIndex 
+                    ? 'bg-cyan-600/60' 
+                    : 'bg-slate-600'
+              }`}
+            />
+          ))}
+        </View>
+      </MotiView>
     </View>
   );
 }
