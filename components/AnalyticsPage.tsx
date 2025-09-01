@@ -205,6 +205,7 @@ export default function AnalyticsPage({ route }: AnalyticsPageProps) {
         >
           <DeepWorkRatio />
           <SubjectTimeAllocation />
+          <SessionTimelineView />
         </ScrollView>
       </View>
     );
