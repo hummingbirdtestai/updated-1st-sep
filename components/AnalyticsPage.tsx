@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
 import { Chrome as Home, Map, GitBranch, CircleAlert as AlertCircle, Radar, Clock, Navigation, ChartBar as BarChart3, Zap, Target, RotateCcw, BookMarked, Award, Users, UserCheck, UsersRound, Heart, TrendingUp } from 'lucide-react-native';
 import PrepOverviewPage from './PrepOverviewPage';
+import NeuralRadar from './NeuralRadar';
 
 interface AnalyticsPageProps {
   route: string;
@@ -118,6 +119,113 @@ export default function AnalyticsPage({ route }: AnalyticsPageProps) {
   // Special case for Prep Overview - render the full dashboard
   if (route === '/analytics/prep-overview') {
     return <PrepOverviewPage />;
+  }
+  
+  // Special case for Neural Radar - render the radar component
+  if (route === '/analytics/neural-radar') {
+    // Mock data for demonstration
+    const mockSubjects = [
+      { id: '1', name: 'Anatomy', momentumScore: 0.85, gapDensity: 0.2 },
+      { id: '2', name: 'Biochemistry', momentumScore: 0.72, gapDensity: 0.4 },
+      { id: '3', name: 'Pharmacology', momentumScore: 0.45, gapDensity: 0.8 },
+      { id: '4', name: 'Pathology', momentumScore: 0.68, gapDensity: 0.5 },
+      { id: '5', name: 'Medicine', momentumScore: 0.35, gapDensity: 0.9 },
+      { id: '6', name: 'Surgery', momentumScore: 0.55, gapDensity: 0.6 },
+      { id: '7', name: 'Pediatrics', momentumScore: 0.78, gapDensity: 0.3 },
+      { id: '8', name: 'Gynecology', momentumScore: 0.42, gapDensity: 0.7 },
+    ];
+
+    return (
+      <View className="flex-1 bg-slate-900">
+        {/* Sticky Header */}
+        <MotiView
+          from={{ opacity: 0, translateY: -20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'spring', duration: 600 }}
+          className="sticky top-0 z-10 bg-slate-900/95 backdrop-blur-sm border-b border-slate-700/50 px-6 py-4"
+        >
+          <View className="flex-row items-center">
+            <View className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl items-center justify-center mr-4 shadow-lg">
+              <Radar size={20} color="#ffffff" />
+            </View>
+            <View className="flex-1">
+              <Text className="text-2xl font-bold text-slate-100">
+                Neural Radar
+              </Text>
+              <Text className="text-sm text-slate-400 mt-1">
+                Radar/heatmap of subjects (weak ↔ strong)
+              </Text>
+            </View>
+          </View>
+        </MotiView>
+
+        {/* Content Area */}
+        <ScrollView 
+          className="flex-1"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingHorizontal: isMobile ? 16 : 24,
+            paddingVertical: 24,
+            alignItems: 'center',
+          }}
+        >
+          <MotiView
+            from={{ opacity: 0, translateY: 30, scale: 0.95 }}
+            animate={{ opacity: 1, translateY: 0, scale: 1 }}
+            transition={{ type: 'spring', duration: 800, delay: 200 }}
+            className="w-full max-w-2xl"
+          >
+            {/* Description */}
+            <View className="bg-slate-800/60 rounded-xl p-6 mb-6 border border-slate-700/40">
+              <Text className="text-slate-100 text-lg font-semibold mb-2">
+                Subject Strength Visualization
+              </Text>
+              <Text className="text-slate-300 text-base leading-6">
+                Each subject appears as a blip on the radar. Distance from center indicates momentum score, 
+                while color represents gap density. Larger blips show higher learning velocity.
+              </Text>
+            </View>
+
+            {/* Neural Radar Component */}
+            <View className="items-center">
+              <NeuralRadar subjects={mockSubjects} size={isMobile ? 280 : 350} />
+            </View>
+
+            {/* Subject Details */}
+            <View className="mt-6 space-y-3">
+              <Text className="text-slate-100 text-lg font-semibold mb-4">Subject Analysis</Text>
+              {mockSubjects.map((subject, index) => (
+                <MotiView
+                  key={subject.id}
+                  from={{ opacity: 0, translateX: -20 }}
+                  animate={{ opacity: 1, translateX: 0 }}
+                  transition={{ type: 'spring', duration: 600, delay: 600 + index * 100 }}
+                  className="bg-slate-800/60 rounded-xl p-4 border border-slate-700/40"
+                >
+                  <View className="flex-row items-center justify-between">
+                    <View className="flex-1">
+                      <Text className="text-slate-100 font-semibold">{subject.name}</Text>
+                      <View className="flex-row space-x-4 mt-1">
+                        <Text className="text-slate-400 text-sm">
+                          Momentum: {(subject.momentumScore * 100).toFixed(0)}%
+                        </Text>
+                        <Text className="text-slate-400 text-sm">
+                          Gap Density: {(subject.gapDensity * 100).toFixed(0)}%
+                        </Text>
+                      </View>
+                    </View>
+                    <View 
+                      className="w-4 h-4 rounded-full"
+                      style={{ backgroundColor: getBlipColor(subject.gapDensity) }}
+                    />
+                  </View>
+                </MotiView>
+              ))}
+            </View>
+          </MotiView>
+        </ScrollView>
+      </View>
+    );
   }
   
   const config = routeConfig[route] || {
