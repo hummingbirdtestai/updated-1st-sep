@@ -9,6 +9,7 @@ import FlightPathOverview from './FlightPathOverview';
 import DeepWorkRatio from './DeepWorkRatio';
 import SubjectTimeAllocation from './SubjectTimeAllocation';
 import SessionTimelineView from './SessionTimelineView';
+import GapSentenceMapping from './GapSentenceMapping';
 
 interface AnalyticsPageProps {
   route: string;
@@ -207,6 +208,7 @@ export default function AnalyticsPage({ route }: AnalyticsPageProps) {
           <DeepWorkRatio />
           <SubjectTimeAllocation />
           <SessionTimelineView />
+          <GapSentenceMapping />
         </ScrollView>
       </View>
     );

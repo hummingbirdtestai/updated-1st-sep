@@ -1,0 +1,56 @@
+{
+  "sessions": [
+    {
+      "id": "s1",
+      "date": "2025-01-25",
+      "subject": "Physiology",
+      "learning_gap_sentences": [
+        "Sodium-Potassium Pump",
+        "Neural Crest Cells",
+        "Sodium-Potassium Pump",
+        "Blood-Brain Barrier",
+        "Action Potential Propagation",
+        "Membrane Potential"
+      ]
+    },
+    {
+      "id": "s2",
+      "date": "2025-01-26",
+      "subject": "Anatomy",
+      "learning_gap_sentences": [
+        "Renin-Angiotensin System",
+        "Sodium-Potassium Pump",
+        "Action Potential",
+        "Action Potential",
+        "Brachial Plexus",
+        "Neural Crest Cells"
+      ]
+    },
+    {
+      "id": "s3",
+      "date": "2025-01-27",
+      "subject": "Biochemistry",
+      "learning_gap_sentences": [
+        "Glycolysis Pathway",
+        "Sodium-Potassium Pump",
+        "Enzyme Kinetics",
+        "Action Potential",
+        "Krebs Cycle",
+        "Electron Transport Chain"
+      ]
+    },
+    {
+      "id": "s4",
+      "date": "2025-01-28",
+      "subject": "Pharmacology",
+      "learning_gap_sentences": [
+        "Adrenergic Receptors",
+        "Action Potential",
+        "Drug Metabolism",
+        "Sodium-Potassium Pump",
+        "Cholinergic System",
+        "Blood-Brain Barrier"
+      ]
+    }
+  ]
+}
