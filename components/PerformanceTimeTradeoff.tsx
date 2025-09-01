@@ -494,7 +494,7 @@ export default function PerformanceTimeTradeoff() {
             <Text className="text-amber-400 font-semibold text-sm">Time Heavy</Text>
           </View>
           <Text className="text-amber-300/80 text-xs">
-            <65% accuracy, >120h
+            &lt;65% accuracy, &gt;120h
           </Text>
           <Text className="text-amber-200 text-lg font-bold">
             {subjectData.filter(s => s.performance_category === 'time-heavy').length}
@@ -512,7 +512,7 @@ export default function PerformanceTimeTradeoff() {
             <Text className="text-red-400 font-semibold text-sm">Needs Focus</Text>
           </View>
           <Text className="text-red-300/80 text-xs">
-            <60% accuracy
+            &lt;60% accuracy
           </Text>
           <Text className="text-red-200 text-lg font-bold">
             {subjectData.filter(s => s.performance_category === 'needs-focus').length}
