@@ -125,14 +125,14 @@ export default function AnalyticsPage({ route }: AnalyticsPageProps) {
   if (route === '/analytics/neural-radar') {
     // Mock data for demonstration
     const mockSubjects = [
-      { id: '1', name: 'Anatomy', momentumScore: 0.85, gapDensity: 0.2 },
-      { id: '2', name: 'Biochemistry', momentumScore: 0.72, gapDensity: 0.4 },
-      { id: '3', name: 'Pharmacology', momentumScore: 0.45, gapDensity: 0.8 },
-      { id: '4', name: 'Pathology', momentumScore: 0.68, gapDensity: 0.5 },
-      { id: '5', name: 'Medicine', momentumScore: 0.35, gapDensity: 0.9 },
-      { id: '6', name: 'Surgery', momentumScore: 0.55, gapDensity: 0.6 },
-      { id: '7', name: 'Pediatrics', momentumScore: 0.78, gapDensity: 0.3 },
-      { id: '8', name: 'Gynecology', momentumScore: 0.42, gapDensity: 0.7 },
+      { id: '1', name: 'Anatomy', momentumScore: 0.85, gapDensity: 0.2, weeklyChange: 12, lastActivity: '2 hours ago' },
+      { id: '2', name: 'Biochemistry', momentumScore: 0.72, gapDensity: 0.4, weeklyChange: 8, lastActivity: '1 day ago' },
+      { id: '3', name: 'Pharmacology', momentumScore: -0.45, gapDensity: 0.8, weeklyChange: -15, lastActivity: '3 days ago' },
+      { id: '4', name: 'Pathology', momentumScore: 0.68, gapDensity: 0.5, weeklyChange: 5, lastActivity: '4 hours ago' },
+      { id: '5', name: 'Medicine', momentumScore: -0.35, gapDensity: 0.9, weeklyChange: -8, lastActivity: '1 week ago' },
+      { id: '6', name: 'Surgery', momentumScore: 0.55, gapDensity: 0.6, weeklyChange: 3, lastActivity: '6 hours ago' },
+      { id: '7', name: 'Pediatrics', momentumScore: 0.78, gapDensity: 0.3, weeklyChange: 18, lastActivity: '30 min ago' },
+      { id: '8', name: 'Gynecology', momentumScore: -0.12, gapDensity: 0.7, weeklyChange: -2, lastActivity: '2 days ago' },
     ];
 
     return (
@@ -207,17 +207,31 @@ export default function AnalyticsPage({ route }: AnalyticsPageProps) {
                       <Text className="text-slate-100 font-semibold">{subject.name}</Text>
                       <View className="flex-row space-x-4 mt-1">
                         <Text className="text-slate-400 text-sm">
-                          Momentum: {(subject.momentumScore * 100).toFixed(0)}%
+                          Momentum: {subject.momentumScore > 0 ? '+' : ''}{(subject.momentumScore * 100).toFixed(0)}%
                         </Text>
                         <Text className="text-slate-400 text-sm">
                           Gap Density: {(subject.gapDensity * 100).toFixed(0)}%
                         </Text>
+                        {subject.weeklyChange && (
+                          <Text className={`text-sm font-medium ${
+                            subject.weeklyChange > 0 ? 'text-emerald-400' : 'text-red-400'
+                          }`}>
+                            {subject.weeklyChange > 0 ? '+' : ''}{subject.weeklyChange}% weekly
+                          </Text>
+                        )}
                       </View>
                     </View>
                     <View 
-                      className="w-4 h-4 rounded-full"
-                      style={{ backgroundColor: getBlipColor(subject.gapDensity) }}
-                    />
+                      className="flex-row items-center space-x-2"
+                    >
+                      <Text className="text-xs text-slate-500">
+                        {subject.lastActivity}
+                      </Text>
+                      <View 
+                        className="w-4 h-4 rounded-full"
+                        style={{ backgroundColor: getBlipColor(subject.gapDensity) }}
+                      />
+                    </View>
                   </View>
                 </MotiView>
               ))}
