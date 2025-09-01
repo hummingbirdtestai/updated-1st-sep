@@ -1,0 +1,107 @@
+{
+  "student_id": "12345",
+  "pyq_total": 9960,
+  "pyqs_completed": 180,
+  "error_fingerprint": [
+    {
+      "gap": "Starling Forces misunderstanding",
+      "pyqs_affected": 18,
+      "time_wasted_min": 81
+    },
+    {
+      "gap": "Acid-Base Compensation Rules",
+      "pyqs_affected": 12,
+      "time_wasted_min": 54
+    },
+    {
+      "gap": "Action Potential Ion Channels",
+      "pyqs_affected": 9,
+      "time_wasted_min": 40.5
+    },
+    {
+      "gap": "Enzyme Kinetics Michaelis-Menten",
+      "pyqs_affected": 15,
+      "time_wasted_min": 67.5
+    },
+    {
+      "gap": "Cardiac Output Determinants",
+      "pyqs_affected": 8,
+      "time_wasted_min": 36
+    },
+    {
+      "gap": "Renal Clearance Calculations",
+      "pyqs_affected": 11,
+      "time_wasted_min": 49.5
+    },
+    {
+      "gap": "Hemoglobin Oxygen Dissociation",
+      "pyqs_affected": 7,
+      "time_wasted_min": 31.5
+    },
+    {
+      "gap": "Neurotransmitter Synthesis Pathways",
+      "pyqs_affected": 6,
+      "time_wasted_min": 27
+    }
+  ],
+  "concept_prerequisites": [
+    {
+      "concept": "Ion Gradient Basics",
+      "dependent_topics": ["Resting Membrane Potential", "Action Potential", "Synaptic Transmission", "Muscle Contraction"],
+      "pyqs_blocked": 42,
+      "time_blocked_min": 189
+    },
+    {
+      "concept": "Starling Forces",
+      "dependent_topics": ["Edema", "Microcirculation", "Renal Physiology", "Heart Failure"],
+      "pyqs_blocked": 27,
+      "time_blocked_min": 121.5
+    },
+    {
+      "concept": "Enzyme Kinetics Fundamentals",
+      "dependent_topics": ["Metabolic Pathways", "Drug Metabolism", "Competitive Inhibition", "Allosteric Regulation"],
+      "pyqs_blocked": 35,
+      "time_blocked_min": 157.5
+    },
+    {
+      "concept": "Acid-Base Buffer Systems",
+      "dependent_topics": ["Respiratory Compensation", "Renal Compensation", "Metabolic Acidosis", "Respiratory Alkalosis"],
+      "pyqs_blocked": 23,
+      "time_blocked_min": 103.5
+    },
+    {
+      "concept": "Cardiac Cycle Mechanics",
+      "dependent_topics": ["Heart Sounds", "Murmurs", "Pressure-Volume Loops", "Cardiac Output"],
+      "pyqs_blocked": 31,
+      "time_blocked_min": 139.5
+    },
+    {
+      "concept": "Hemoglobin Structure-Function",
+      "dependent_topics": ["Oxygen Transport", "Carbon Dioxide Transport", "Hemoglobinopathies", "Fetal Hemoglobin"],
+      "pyqs_blocked": 19,
+      "time_blocked_min": 85.5
+    },
+    {
+      "concept": "Neurotransmitter Classification",
+      "dependent_topics": ["Synaptic Plasticity", "Psychiatric Medications", "Autonomic Pharmacology", "CNS Disorders"],
+      "pyqs_blocked": 28,
+      "time_blocked_min": 126
+    },
+    {
+      "concept": "Renal Filtration Mechanisms",
+      "dependent_topics": ["Glomerular Diseases", "Diuretics", "Electrolyte Balance", "Hypertension"],
+      "pyqs_blocked": 25,
+      "time_blocked_min": 112.5
+    }
+  ],
+  "analysis_metadata": {
+    "last_updated": "2025-01-28T10:30:00Z",
+    "total_error_patterns": 8,
+    "total_prerequisite_concepts": 8,
+    "total_time_wasted_hours": 6.5,
+    "total_time_blocked_hours": 17.2,
+    "most_critical_gap": "Starling Forces misunderstanding",
+    "most_blocking_concept": "Ion Gradient Basics",
+    "improvement_potential_hours": 23.7
+  }
+}
