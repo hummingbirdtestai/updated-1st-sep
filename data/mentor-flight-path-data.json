@@ -1,0 +1,303 @@
+[
+  {
+    "id": "mission_001",
+    "subject": "Anatomy",
+    "chapter": "Upper Limb",
+    "topic": "Shoulder Joint",
+    "mission_date": "2025-01-01T09:00:00Z",
+    "planned_pyqs": 12,
+    "completed_pyqs": 12,
+    "time_minutes": 54,
+    "motivation_nudges": 2,
+    "sample_messages": [
+      "🎯 Great start! You're building momentum with shoulder anatomy.",
+      "💪 Perfect completion! Your understanding of joint mechanics is improving."
+    ]
+  },
+  {
+    "id": "mission_002",
+    "subject": "Anatomy",
+    "chapter": "Upper Limb",
+    "topic": "Brachial Plexus",
+    "mission_date": "2025-01-02T10:30:00Z",
+    "planned_pyqs": 18,
+    "completed_pyqs": 14,
+    "time_minutes": 81,
+    "motivation_nudges": 3,
+    "sample_messages": [
+      "🧠 Brachial plexus can be tricky - take your time with the nerve pathways.",
+      "⚡ You're 78% done! The toughest part is behind you.",
+      "🔥 Push through! Each nerve you master makes the next one easier."
+    ]
+  },
+  {
+    "id": "mission_003",
+    "subject": "Anatomy",
+    "chapter": "Lower Limb",
+    "topic": "Hip Joint",
+    "mission_date": "2025-01-03T14:15:00Z",
+    "planned_pyqs": 15,
+    "completed_pyqs": 15,
+    "time_minutes": 67.5,
+    "motivation_nudges": 1,
+    "sample_messages": [
+      "🦴 Excellent work on hip anatomy! Your spatial understanding is developing well."
+    ]
+  },
+  {
+    "id": "mission_004",
+    "subject": "Anatomy",
+    "chapter": "Lower Limb",
+    "topic": "Knee Joint",
+    "mission_date": "2025-01-04T11:45:00Z",
+    "planned_pyqs": 20,
+    "completed_pyqs": 16,
+    "time_minutes": 90,
+    "motivation_nudges": 2,
+    "sample_messages": [
+      "🏃‍♂️ Knee joint mechanics are complex - you're doing great!",
+      "📚 80% complete! The ligament patterns are starting to click."
+    ]
+  },
+  {
+    "id": "mission_005",
+    "subject": "Physiology",
+    "chapter": "Cardiovascular",
+    "topic": "Heart Cycle",
+    "mission_date": "2025-01-05T09:20:00Z",
+    "planned_pyqs": 22,
+    "completed_pyqs": 11,
+    "time_minutes": 99,
+    "motivation_nudges": 3,
+    "sample_messages": [
+      "💓 Cardiac cycle is fundamental - every cardiologist started here!",
+      "⏰ Take a break if needed. Complex physiology requires fresh focus.",
+      "🎵 Think of it like music - systole and diastole have their rhythm."
+    ]
+  },
+  {
+    "id": "mission_006",
+    "subject": "Physiology",
+    "chapter": "Cardiovascular",
+    "topic": "Blood Pressure Regulation",
+    "mission_date": "2025-01-06T13:00:00Z",
+    "planned_pyqs": 16,
+    "completed_pyqs": 16,
+    "time_minutes": 72,
+    "motivation_nudges": 1,
+    "sample_messages": [
+      "🩺 Perfect! BP regulation mastery will serve you well in clinical practice."
+    ]
+  },
+  {
+    "id": "mission_007",
+    "subject": "Physiology",
+    "chapter": "Respiratory",
+    "topic": "Gas Exchange",
+    "mission_date": "2025-01-07T10:10:00Z",
+    "planned_pyqs": 14,
+    "completed_pyqs": 9,
+    "time_minutes": 63,
+    "motivation_nudges": 2,
+    "sample_messages": [
+      "🫁 Respiratory physiology builds on cardiovascular - you're connecting the dots!",
+      "💨 64% done! The alveolar-capillary interface is becoming clearer."
+    ]
+  },
+  {
+    "id": "mission_008",
+    "subject": "Physiology",
+    "chapter": "Renal",
+    "topic": "Filtration Mechanisms",
+    "mission_date": "2025-01-08T15:30:00Z",
+    "planned_pyqs": 19,
+    "completed_pyqs": 19,
+    "time_minutes": 85.5,
+    "motivation_nudges": 1,
+    "sample_messages": [
+      "🏆 Outstanding! Renal physiology mastery puts you ahead of 80% of students."
+    ]
+  },
+  {
+    "id": "mission_009",
+    "subject": "Biochemistry",
+    "chapter": "Metabolism",
+    "topic": "Glycolysis",
+    "mission_date": "2025-01-09T08:45:00Z",
+    "planned_pyqs": 25,
+    "completed_pyqs": 20,
+    "time_minutes": 112.5,
+    "motivation_nudges": 2,
+    "sample_messages": [
+      "🍯 Glycolysis is the foundation of metabolism - you're building strong basics!",
+      "⚡ 80% complete! Each enzyme you master unlocks the next pathway."
+    ]
+  },
+  {
+    "id": "mission_010",
+    "subject": "Biochemistry",
+    "chapter": "Metabolism",
+    "topic": "Krebs Cycle",
+    "mission_date": "2025-01-10T12:20:00Z",
+    "planned_pyqs": 21,
+    "completed_pyqs": 13,
+    "time_minutes": 94.5,
+    "motivation_nudges": 3,
+    "sample_messages": [
+      "🔄 The Krebs cycle connects everything - you're seeing the big picture!",
+      "🧪 62% done! Each turn of the cycle makes more sense than the last.",
+      "💡 Remember: acetyl-CoA is your starting point for this beautiful dance."
+    ]
+  },
+  {
+    "id": "mission_011",
+    "subject": "Biochemistry",
+    "chapter": "Protein Synthesis",
+    "topic": "Translation",
+    "mission_date": "2025-01-11T16:00:00Z",
+    "planned_pyqs": 17,
+    "completed_pyqs": 17,
+    "time_minutes": 76.5,
+    "motivation_nudges": 1,
+    "sample_messages": [
+      "🧬 Perfect translation mastery! From mRNA to protein - you've got this!"
+    ]
+  },
+  {
+    "id": "mission_012",
+    "subject": "Biochemistry",
+    "chapter": "Enzymology",
+    "topic": "Enzyme Kinetics",
+    "mission_date": "2025-01-12T11:15:00Z",
+    "planned_pyqs": 23,
+    "completed_pyqs": 12,
+    "time_minutes": 103.5,
+    "motivation_nudges": 3,
+    "sample_messages": [
+      "📊 Enzyme kinetics requires patience - Michaelis-Menten will click soon!",
+      "🎯 52% progress! Km and Vmax relationships are becoming clearer.",
+      "⚗️ Think graphically - curves tell the enzyme's story better than formulas."
+    ]
+  },
+  {
+    "id": "mission_013",
+    "subject": "Pharmacology",
+    "chapter": "Autonomic Nervous System",
+    "topic": "Adrenergic Receptors",
+    "mission_date": "2025-01-13T09:30:00Z",
+    "planned_pyqs": 16,
+    "completed_pyqs": 14,
+    "time_minutes": 72,
+    "motivation_nudges": 2,
+    "sample_messages": [
+      "🎛️ Adrenergic receptors are like switches - you're learning which ones to flip!",
+      "💊 87% done! Alpha vs beta distinctions are becoming second nature."
+    ]
+  },
+  {
+    "id": "mission_014",
+    "subject": "Pharmacology",
+    "chapter": "Autonomic Nervous System",
+    "topic": "Cholinergic Receptors",
+    "mission_date": "2025-01-14T14:45:00Z",
+    "planned_pyqs": 18,
+    "completed_pyqs": 9,
+    "time_minutes": 81,
+    "motivation_nudges": 3,
+    "sample_messages": [
+      "🧠 Cholinergic system complements adrenergic - you're building the full picture!",
+      "⚖️ 50% progress! Nicotinic vs muscarinic - think location and function.",
+      "🔬 Each receptor type has its clinical significance - connect to real cases!"
+    ]
+  },
+  {
+    "id": "mission_015",
+    "subject": "Pharmacology",
+    "chapter": "CNS Pharmacology",
+    "topic": "Antidepressants",
+    "mission_date": "2025-01-15T10:00:00Z",
+    "planned_pyqs": 20,
+    "completed_pyqs": 18,
+    "time_minutes": 90,
+    "motivation_nudges": 1,
+    "sample_messages": [
+      "🧘‍♀️ Antidepressant mechanisms are intricate - you're mastering neurotransmitter balance!"
+    ]
+  },
+  {
+    "id": "mission_016",
+    "subject": "Pathology",
+    "chapter": "General Pathology",
+    "topic": "Inflammation",
+    "mission_date": "2025-01-16T08:15:00Z",
+    "planned_pyqs": 24,
+    "completed_pyqs": 15,
+    "time_minutes": 108,
+    "motivation_nudges": 2,
+    "sample_messages": [
+      "🔥 Inflammation is the body's defense - you're understanding the protective response!",
+      "🩹 62% complete! Acute vs chronic patterns are becoming clear."
+    ]
+  },
+  {
+    "id": "mission_017",
+    "subject": "Pathology",
+    "chapter": "General Pathology",
+    "topic": "Neoplasia",
+    "mission_date": "2025-01-17T13:40:00Z",
+    "planned_pyqs": 28,
+    "completed_pyqs": 21,
+    "time_minutes": 126,
+    "motivation_nudges": 2,
+    "sample_messages": [
+      "🔬 Neoplasia concepts are challenging but crucial - you're building diagnostic skills!",
+      "📈 75% progress! Benign vs malignant characteristics are solidifying."
+    ]
+  },
+  {
+    "id": "mission_018",
+    "subject": "Pathology",
+    "chapter": "Systemic Pathology",
+    "topic": "Cardiovascular Pathology",
+    "mission_date": "2025-01-18T11:25:00Z",
+    "planned_pyqs": 22,
+    "completed_pyqs": 11,
+    "time_minutes": 99,
+    "motivation_nudges": 3,
+    "sample_messages": [
+      "❤️ Cardiovascular pathology integrates anatomy, physiology, and disease!",
+      "🩺 50% done! Each condition you learn helps future patient care.",
+      "💡 Connect pathology to clinical presentations - think like a doctor!"
+    ]
+  },
+  {
+    "id": "mission_019",
+    "subject": "Medicine",
+    "chapter": "Cardiology",
+    "topic": "Heart Failure",
+    "mission_date": "2025-01-19T15:10:00Z",
+    "planned_pyqs": 26,
+    "completed_pyqs": 23,
+    "time_minutes": 117,
+    "motivation_nudges": 1,
+    "sample_messages": [
+      "💖 Heart failure management is complex - you're developing clinical reasoning!"
+    ]
+  },
+  {
+    "id": "mission_020",
+    "subject": "Medicine",
+    "chapter": "Cardiology",
+    "topic": "Arrhythmias",
+    "mission_date": "2025-01-20T09:50:00Z",
+    "planned_pyqs": 30,
+    "completed_pyqs": 18,
+    "time_minutes": 135,
+    "motivation_nudges": 3,
+    "sample_messages": [
+      "⚡ Arrhythmias require pattern recognition - you're training your clinical eye!",
+      "📊 60% complete! Each ECG you interpret builds diagnostic confidence.",
+      "🎵 Think rhythm and rate - the heart's electrical story is unfolding!"
+    ]
+  }
+]
