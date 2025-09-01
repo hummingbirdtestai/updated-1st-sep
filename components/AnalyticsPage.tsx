@@ -124,16 +124,89 @@ export default function AnalyticsPage({ route }: AnalyticsPageProps) {
   // Special case for Neural Radar - render the radar component
   if (route === '/analytics/neural-radar') {
     // Mock data with gap density focus
-    const mockSubjects = [
-      { id: 'subj1', name: 'Physiology', momentumScore: 15, gapDensity: 0.72, weeklyChange: 12, lastActivity: '2 hours ago' },
-      { id: 'subj2', name: 'Biochemistry', momentumScore: 5, gapDensity: 0.35, weeklyChange: 8, lastActivity: '1 day ago' },
-      { id: 'subj3', name: 'Anatomy', momentumScore: -10, gapDensity: 0.9, weeklyChange: -15, lastActivity: '3 days ago' },
+    const enhancedMockSubjects = [
+      { 
+        id: 'subj1', 
+        name: 'Physiology', 
+        momentumScore: 15, 
+        gapDensity: 0.72, 
+        weeklyChange: 12, 
+        lastActivity: '2 hours ago',
+        chapters: [
+          {
+            id: 'chap1',
+            name: 'Respiratory Physiology',
+            momentumScore: -8,
+            gapDensity: 0.85,
+            topics: [
+              { id: 'topic1', name: 'Oxygen Dissociation Curve', momentumScore: -12, gapDensity: 0.9 },
+              { id: 'topic2', name: 'Ventilation Mechanics', momentumScore: 5, gapDensity: 0.6 }
+            ]
+          },
+          {
+            id: 'chap2',
+            name: 'Cardiovascular Physiology',
+            momentumScore: 18,
+            gapDensity: 0.45,
+            topics: [
+              { id: 'topic3', name: 'Cardiac Output', momentumScore: 20, gapDensity: 0.3 },
+              { id: 'topic4', name: 'Blood Pressure Regulation', momentumScore: 15, gapDensity: 0.5 }
+            ]
+          }
+        ]
+      },
+      { 
+        id: 'subj2', 
+        name: 'Biochemistry', 
+        momentumScore: 5, 
+        gapDensity: 0.35, 
+        weeklyChange: 8, 
+        lastActivity: '1 day ago',
+        chapters: [
+          {
+            id: 'chap3',
+            name: 'Metabolism',
+            momentumScore: 10,
+            gapDensity: 0.4,
+            topics: [
+              { id: 'topic5', name: 'Glycolysis', momentumScore: 12, gapDensity: 0.25 },
+              { id: 'topic6', name: 'Krebs Cycle', momentumScore: 8, gapDensity: 0.55 }
+            ]
+          }
+        ]
+      },
+      { 
+        id: 'subj3', 
+        name: 'Anatomy', 
+        momentumScore: -10, 
+        gapDensity: 0.9, 
+        weeklyChange: -15, 
+        lastActivity: '3 days ago',
+        chapters: [
+          {
+            id: 'chap4',
+            name: 'Neuroanatomy',
+            momentumScore: -15,
+            gapDensity: 0.95,
+            topics: [
+              { id: 'topic7', name: 'Brain Stem', momentumScore: -18, gapDensity: 0.98 },
+              { id: 'topic8', name: 'Cranial Nerves', momentumScore: -10, gapDensity: 0.88 }
+            ]
+          }
+        ]
+      },
       { id: 'subj4', name: 'Pathology', momentumScore: 8, gapDensity: 0.55, weeklyChange: 5, lastActivity: '4 hours ago' },
       { id: 'subj5', name: 'Medicine', momentumScore: -7, gapDensity: 0.88, weeklyChange: -8, lastActivity: '1 week ago' },
       { id: 'subj6', name: 'Surgery', momentumScore: 12, gapDensity: 0.42, weeklyChange: 3, lastActivity: '6 hours ago' },
       { id: 'subj7', name: 'Pediatrics', momentumScore: 18, gapDensity: 0.28, weeklyChange: 18, lastActivity: '30 min ago' },
       { id: 'subj8', name: 'Gynecology', momentumScore: -3, gapDensity: 0.65, weeklyChange: -2, lastActivity: '2 days ago' },
     ];
+
+    const getBlipColor = (gapDensity: number) => {
+      if (gapDensity < 0.4) return '#34d399';
+      if (gapDensity <= 0.7) return '#fbbf24';
+      return '#f87171';
+    };
 
     return (
       <View className="flex-1 bg-slate-900">
@@ -181,20 +254,20 @@ export default function AnalyticsPage({ route }: AnalyticsPageProps) {
                 Subject Strength Visualization
               </Text>
               <Text className="text-slate-300 text-base leading-6">
-                Each subject appears as a blip on the radar. Distance from center indicates momentum score, 
-                while color represents gap density. Larger blips show higher learning velocity.
+                Interactive radar with zoomable hierarchy. Pinch/scroll to drill down from subjects → chapters → topics.
+                Distance from center = momentum, color = gap density, size = learning velocity.
               </Text>
             </View>
 
             {/* Neural Radar Component */}
             <View className="items-center">
-              <NeuralRadar subjects={mockSubjects} size={isMobile ? 280 : 350} />
+              <NeuralRadar subjects={enhancedMockSubjects} size={isMobile ? 280 : 350} />
             </View>
 
             {/* Subject Details */}
             <View className="mt-6 space-y-3">
               <Text className="text-slate-100 text-lg font-semibold mb-4">Subject Analysis</Text>
-              {mockSubjects.map((subject, index) => (
+              {enhancedMockSubjects.map((subject, index) => (
                 <MotiView
                   key={subject.id}
                   from={{ opacity: 0, translateX: -20 }}
@@ -207,7 +280,7 @@ export default function AnalyticsPage({ route }: AnalyticsPageProps) {
                       <Text className="text-slate-100 font-semibold">{subject.name}</Text>
                       <View className="flex-row space-x-4 mt-1">
                         <Text className="text-slate-400 text-sm">
-                          Momentum: {subject.momentumScore > 0 ? '+' : ''}{(subject.momentumScore * 100).toFixed(0)}%
+                          Momentum: {subject.momentumScore > 0 ? '+' : ''}{subject.momentumScore}
                         </Text>
                         <Text className="text-slate-400 text-sm">
                           Gap Density: {(subject.gapDensity * 100).toFixed(0)}%
