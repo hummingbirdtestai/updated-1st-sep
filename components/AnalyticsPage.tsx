@@ -11,6 +11,7 @@ import SubjectTimeAllocation from './SubjectTimeAllocation';
 import SessionTimelineView from './SessionTimelineView';
 import GapSentenceMapping from './GapSentenceMapping';
 import PerformanceTimeTradeoff from './PerformanceTimeTradeoff';
+import GapChains from './GapChains';
 
 interface AnalyticsPageProps {
   route: string;
@@ -131,6 +132,15 @@ export default function AnalyticsPage({ route }: AnalyticsPageProps) {
   // Special case for Neural Radar - render the radar component
   if (route === '/analytics/neural-radar') {
     return <NeuralRadar />;
+  }
+  
+  // Special case for Gap Chains - render the gap chains component
+  if (route === '/analytics/gap-chains') {
+    return (
+      <View className="flex-1 bg-slate-900">
+        <GapChains />
+      </View>
+    );
   }
   
   // Special case for Mentor Flight Path - render the correlation chart

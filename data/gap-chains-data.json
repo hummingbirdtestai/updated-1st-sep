@@ -1,0 +1,106 @@
+[
+  {
+    "pyq_id": "pyq_001",
+    "subject": "Physiology",
+    "chapter": "Cardiovascular",
+    "topic": "Baroreceptor Reflex",
+    "chain": [
+      {"mcq_id": "mcq_1", "is_correct": false},
+      {"mcq_id": "mcq_2", "is_correct": false},
+      {"mcq_id": "mcq_3", "is_correct": true}
+    ],
+    "chain_health_score": 70,
+    "time_credit_minutes": 4.5
+  },
+  {
+    "pyq_id": "pyq_002",
+    "subject": "Anatomy",
+    "chapter": "Thorax",
+    "topic": "Mediastinum",
+    "chain": [
+      {"mcq_id": "mcq_1", "is_correct": true}
+    ],
+    "chain_health_score": 100,
+    "time_credit_minutes": 4.5
+  },
+  {
+    "pyq_id": "pyq_003",
+    "subject": "Biochemistry",
+    "chapter": "Metabolism",
+    "topic": "Urea Cycle",
+    "chain": [
+      {"mcq_id": "mcq_1", "is_correct": false},
+      {"mcq_id": "mcq_2", "is_correct": false},
+      {"mcq_id": "mcq_3", "is_correct": false},
+      {"mcq_id": "mcq_4", "is_correct": false},
+      {"mcq_id": "mcq_5", "is_correct": false}
+    ],
+    "chain_health_score": 0,
+    "time_credit_minutes": 4.5
+  },
+  {
+    "pyq_id": "pyq_004",
+    "subject": "Pharmacology",
+    "chapter": "CNS Drugs",
+    "topic": "Antidepressants",
+    "chain": [
+      {"mcq_id": "mcq_1", "is_correct": false},
+      {"mcq_id": "mcq_2", "is_correct": true}
+    ],
+    "chain_health_score": 85,
+    "time_credit_minutes": 4.5
+  },
+  {
+    "pyq_id": "pyq_005",
+    "subject": "Pathology",
+    "chapter": "General Pathology",
+    "topic": "Inflammation",
+    "chain": [
+      {"mcq_id": "mcq_1", "is_correct": true}
+    ],
+    "chain_health_score": 100,
+    "time_credit_minutes": 4.5
+  },
+  {
+    "pyq_id": "pyq_006",
+    "subject": "Anatomy",
+    "chapter": "Upper Limb",
+    "topic": "Brachial Plexus",
+    "chain": [
+      {"mcq_id": "mcq_1", "is_correct": false},
+      {"mcq_id": "mcq_2", "is_correct": false},
+      {"mcq_id": "mcq_3", "is_correct": false},
+      {"mcq_id": "mcq_4", "is_correct": true}
+    ],
+    "chain_health_score": 55,
+    "time_credit_minutes": 4.5
+  },
+  {
+    "pyq_id": "pyq_007",
+    "subject": "Physiology",
+    "chapter": "Respiratory",
+    "topic": "Gas Exchange",
+    "chain": [
+      {"mcq_id": "mcq_1", "is_correct": false},
+      {"mcq_id": "mcq_2", "is_correct": true}
+    ],
+    "chain_health_score": 85,
+    "time_credit_minutes": 4.5
+  },
+  {
+    "pyq_id": "pyq_008",
+    "subject": "Biochemistry",
+    "chapter": "Enzymology",
+    "topic": "Enzyme Kinetics",
+    "chain": [
+      {"mcq_id": "mcq_1", "is_correct": false},
+      {"mcq_id": "mcq_2", "is_correct": false},
+      {"mcq_id": "mcq_3", "is_correct": false},
+      {"mcq_id": "mcq_4", "is_correct": false},
+      {"mcq_id": "mcq_5", "is_correct": false},
+      {"mcq_id": "mcq_6", "is_correct": false}
+    ],
+    "chain_health_score": 0,
+    "time_credit_minutes": 4.5
+  }
+]
