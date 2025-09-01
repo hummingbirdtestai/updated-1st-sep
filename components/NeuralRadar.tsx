@@ -860,3 +860,5 @@ function getBlipColor(gapDensity: number) {
   if (gapDensity <= 0.7) return '#fbbf24';
   return '#f87171';
 }
+
+export default NeuralRadar
