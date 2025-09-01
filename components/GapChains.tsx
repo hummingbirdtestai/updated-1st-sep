@@ -179,11 +179,10 @@ export default function GapChains() {
 
   // Get chain color based on health score
   const getChainColor = (healthScore: number) => {
-    if (healthScore === 100) return { color: '#10b981', glow: 'emeraldGlow' }; // Perfect
-    if (healthScore >= 85) return { color: '#34d399', glow: 'emeraldGlow' }; // Excellent
-    if (healthScore >= 70) return { color: '#f59e0b', glow: 'amberGlow' }; // Good
-    if (healthScore >= 55) return { color: '#fb923c', glow: 'orangeGlow' }; // Fair
-    if (healthScore > 0) return { color: '#ef4444', glow: 'redGlow' }; // Poor
+    if (healthScore >= 80) return { color: '#10b981', glow: 'emeraldGlow' }; // Green (80-100)
+    if (healthScore >= 60) return { color: '#eab308', glow: 'yellowGlow' }; // Yellow (60-79)
+    if (healthScore >= 40) return { color: '#f97316', glow: 'orangeGlow' }; // Orange (40-59)
+    if (healthScore > 0) return { color: '#ef4444', glow: 'redGlow' }; // Red (0-39)
     return { color: '#7f1d1d', glow: 'darkRedGlow' }; // Failed
   };
 
@@ -443,6 +442,10 @@ export default function GapChains() {
                       <Stop offset="0%" stopColor="#f59e0b" stopOpacity="0.6" />
                       <Stop offset="100%" stopColor="#f59e0b" stopOpacity="0.1" />
                     </LinearGradient>
+                    <LinearGradient id="yellowGlow" cx="50%" cy="50%" r="50%">
+                      <Stop offset="0%" stopColor="#eab308" stopOpacity="0.6" />
+                      <Stop offset="100%" stopColor="#eab308" stopOpacity="0.1" />
+                    </LinearGradient>
                     <LinearGradient id="redGlow" cx="50%" cy="50%" r="50%">
                       <Stop offset="0%" stopColor="#ef4444" stopOpacity="0.6" />
                       <Stop offset="100%" stopColor="#ef4444" stopOpacity="0.1" />
@@ -588,16 +591,20 @@ export default function GapChains() {
           {/* Chart Legend */}
           <View className="flex-row items-center justify-center space-x-4">
             <View className="flex-row items-center">
-              <View className="w-4 h-4 rounded-full bg-emerald-500 mr-2" />
-              <Text className="text-slate-300 text-sm">Perfect (100)</Text>
+              <View className="w-4 h-4 rounded-full bg-green-500 mr-2" />
+              <Text className="text-slate-300 text-sm">Excellent (80-100)</Text>
             </View>
             <View className="flex-row items-center">
-              <View className="w-4 h-4 rounded-full bg-amber-500 mr-2" />
-              <Text className="text-slate-300 text-sm">Good (70-99)</Text>
+              <View className="w-4 h-4 rounded-full bg-yellow-500 mr-2" />
+              <Text className="text-slate-300 text-sm">Good (60-79)</Text>
+            </View>
+            <View className="flex-row items-center">
+              <View className="w-4 h-4 rounded-full bg-orange-500 mr-2" />
+              <Text className="text-slate-300 text-sm">Fair (40-59)</Text>
             </View>
             <View className="flex-row items-center">
               <View className="w-4 h-4 rounded-full bg-red-500 mr-2" />
-              <Text className="text-slate-300 text-sm">Poor (0-69)</Text>
+              <Text className="text-slate-300 text-sm">Poor (0-39)</Text>
             </View>
           </View>
         </MotiView>
@@ -651,6 +658,46 @@ export default function GapChains() {
                         {chain.chain_health_score}
                       </Text>
                       <Text className="text-xs text-slate-400">health</Text>
+                    </View>
+
+                    {/* Circular Health Score Visualization */}
+                    <View className="ml-4">
+                      <View className="relative w-20 h-20">
+                        {/* Background Circle */}
+                        <View className="absolute inset-0 rounded-full border-4 border-slate-700/60" />
+                        
+                        {/* Progress Arc */}
+                        <MotiView
+                          from={{ rotate: '0deg' }}
+                          animate={{ rotate: `${(chain.chain_health_score / 100) * 360}deg` }}
+                          transition={{ type: 'spring', duration: 1200, delay: index * 100 + 1200 }}
+                          className="absolute inset-0 rounded-full border-4 border-transparent"
+                          style={{
+                            borderTopColor: colors.color,
+                            borderRightColor: chain.chain_health_score > 25 ? colors.color : 'transparent',
+                            borderBottomColor: chain.chain_health_score > 50 ? colors.color : 'transparent',
+                            borderLeftColor: chain.chain_health_score > 75 ? colors.color : 'transparent',
+                          }}
+                        />
+                        
+                        {/* Center Score */}
+                        <View className="absolute inset-0 items-center justify-center">
+                          <Text className="text-xl font-bold" style={{ color: colors.color }}>
+                            {chain.chain_health_score}
+                          </Text>
+                          <Text className="text-slate-500 text-xs">health</Text>
+                        </View>
+                      </View>
+                      
+                      {/* Health Category Label */}
+                      <Text 
+                        className="text-xs font-medium text-center mt-1"
+                        style={{ color: colors.color }}
+                      >
+                        {chain.chain_health_score >= 80 ? 'Excellent' :
+                         chain.chain_health_score >= 60 ? 'Good' :
+                         chain.chain_health_score >= 40 ? 'Fair' : 'Poor'}
+                      </Text>
                     </View>
                   </View>
 
@@ -727,10 +774,10 @@ export default function GapChains() {
 
           <View className="grid grid-cols-1 md:grid-cols-5 gap-3">
             {[
-              { range: '100', label: 'Perfect', color: '#10b981', count: chainData.filter(c => c.chain_health_score === 100).length },
-              { range: '85-99', label: 'Excellent', color: '#34d399', count: chainData.filter(c => c.chain_health_score >= 85 && c.chain_health_score < 100).length },
-              { range: '70-84', label: 'Good', color: '#f59e0b', count: chainData.filter(c => c.chain_health_score >= 70 && c.chain_health_score < 85).length },
-              { range: '1-69', label: 'Poor', color: '#ef4444', count: chainData.filter(c => c.chain_health_score > 0 && c.chain_health_score < 70).length },
+              { range: '80-100', label: 'Excellent', color: '#10b981', count: chainData.filter(c => c.chain_health_score >= 80).length },
+              { range: '60-79', label: 'Good', color: '#eab308', count: chainData.filter(c => c.chain_health_score >= 60 && c.chain_health_score < 80).length },
+              { range: '40-59', label: 'Fair', color: '#f97316', count: chainData.filter(c => c.chain_health_score >= 40 && c.chain_health_score < 60).length },
+              { range: '1-39', label: 'Poor', color: '#ef4444', count: chainData.filter(c => c.chain_health_score > 0 && c.chain_health_score < 40).length },
               { range: '0', label: 'Failed', color: '#7f1d1d', count: chainData.filter(c => c.chain_health_score === 0).length },
             ].map((category, index) => (
               <MotiView
