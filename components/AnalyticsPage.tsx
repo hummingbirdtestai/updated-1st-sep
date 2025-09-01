@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
 import { Chrome as Home, Map, GitBranch, CircleAlert as AlertCircle, Radar, Clock, Navigation, ChartBar as BarChart3, Zap, Target, RotateCcw, BookMarked, Award, Users, UserCheck, UsersRound, Heart, TrendingUp } from 'lucide-react-native';
 import PrepOverviewPage from './PrepOverviewPage';
+import NeuralRadar from './NeuralRadar';
 
 interface AnalyticsPageProps {
   route: string;
@@ -118,6 +119,11 @@ export default function AnalyticsPage({ route }: AnalyticsPageProps) {
   // Special case for Prep Overview - render the full dashboard
   if (route === '/analytics/prep-overview') {
     return <PrepOverviewPage />;
+  }
+  
+  // Special case for Neural Radar - render the radar component
+  if (route === '/analytics/neural-radar') {
+    return <NeuralRadar />;
   }
   
   const config = routeConfig[route] || {
