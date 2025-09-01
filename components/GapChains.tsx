@@ -38,6 +38,19 @@ interface ChainTooltipProps {
   onClose: () => void;
 }
 
+function getAIFixSuggestions(chain: GapChain): AIFixData {
+  return {
+    pyq_id: chain.pyq_id,
+    broken_link: "mcq_1",
+    suggestions: [
+      { type: "flashcard", title: "Baroreceptor Basics", link: "https://example.com/flashcard1" },
+      { type: "video", title: "Thoracic Mediastinum Explained", link: "https://example.com/video1" },
+      { type: "mcq_retry", title: "Retry Similar MCQ", link: "https://example.com/mcq1" },
+    ],
+  };
+}
+
+
 function ChainTooltip({ chain, position, onClose }: ChainTooltipProps) {
   const chainLength = chain.chain.length;
   const correctIndex = chain.chain.findIndex(link => link.is_correct);
