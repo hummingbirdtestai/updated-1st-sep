@@ -8,6 +8,7 @@ import MotivationProgressChart from './MotivationProgressChart';
 import FlightPathOverview from './FlightPathOverview';
 import DeepWorkRatio from './DeepWorkRatio';
 import SubjectTimeAllocation from './SubjectTimeAllocation';
+import SessionTimelineView from './SessionTimelineView';
 
 interface AnalyticsPageProps {
   route: string;
