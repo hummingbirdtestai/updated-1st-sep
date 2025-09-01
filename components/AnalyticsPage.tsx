@@ -4,6 +4,7 @@ import { MotiView } from 'moti';
 import { Chrome as Home, Map, GitBranch, CircleAlert as AlertCircle, Radar, Clock, Navigation, ChartBar as BarChart3, Zap, Target, RotateCcw, BookMarked, Award, Users, UserCheck, UsersRound, Heart, TrendingUp } from 'lucide-react-native';
 import PrepOverviewPage from './PrepOverviewPage';
 import NeuralRadar from './NeuralRadar';
+import MotivationProgressChart from './MotivationProgressChart';
 
 interface AnalyticsPageProps {
   route: string;
@@ -124,6 +125,45 @@ export default function AnalyticsPage({ route }: AnalyticsPageProps) {
   // Special case for Neural Radar - render the radar component
   if (route === '/analytics/neural-radar') {
     return <NeuralRadar />;
+  }
+  
+  // Special case for Mentor Flight Path - render the correlation chart
+  if (route === '/analytics/mentor-flight-path') {
+    return (
+      <View className="flex-1 bg-slate-900">
+        <MotiView
+          from={{ opacity: 0, translateY: -20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'spring', duration: 600 }}
+          className="sticky top-0 z-10 bg-slate-900/95 backdrop-blur-sm border-b border-slate-700/50 px-6 py-4"
+        >
+          <View className="flex-row items-center">
+            <View className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl items-center justify-center mr-4 shadow-lg">
+              <Navigation size={20} color="#ffffff" />
+            </View>
+            <View className="flex-1">
+              <Text className="text-2xl font-bold text-slate-100">
+                Mentor Flight Path
+              </Text>
+              <Text className="text-sm text-slate-400 mt-1">
+                AI daily guidance, nudges, motivational notes
+              </Text>
+            </View>
+          </View>
+        </MotiView>
+        
+        <ScrollView 
+          className="flex-1"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{
+            paddingHorizontal: isMobile ? 16 : 24,
+            paddingVertical: 24,
+          }}
+        >
+          <MotivationProgressChart />
+        </ScrollView>
+      </View>
+    );
   }
   
   const config = routeConfig[route] || {
