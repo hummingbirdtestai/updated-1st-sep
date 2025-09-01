@@ -1,0 +1,11 @@
+{
+  "sessions": [
+    { "date": "2025-01-18", "pyqs_completed": 25, "deep_blocks": 20, "distracted_blocks": 5 },
+    { "date": "2025-01-19", "pyqs_completed": 30, "deep_blocks": 22, "distracted_blocks": 8 },
+    { "date": "2025-01-20", "pyqs_completed": 18, "deep_blocks": 15, "distracted_blocks": 3 },
+    { "date": "2025-01-21", "pyqs_completed": 32, "deep_blocks": 26, "distracted_blocks": 6 },
+    { "date": "2025-01-22", "pyqs_completed": 28, "deep_blocks": 24, "distracted_blocks": 4 },
+    { "date": "2025-01-23", "pyqs_completed": 22, "deep_blocks": 18, "distracted_blocks": 4 },
+    { "date": "2025-01-24", "pyqs_completed": 35, "deep_blocks": 28, "distracted_blocks": 7 }
+  ]
+}
