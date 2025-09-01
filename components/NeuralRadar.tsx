@@ -5,10 +5,10 @@ import { PinchGestureHandler, PanGestureHandler, State } from 'react-native-gest
 import Animated, { 
   useSharedValue, 
   useAnimatedStyle, 
-  useAnimatedGestureHandler,
   withSpring,
   runOnJS
 } from 'react-native-reanimated';
+import { Gesture } from 'react-native-gesture-handler';
 import Svg, { Circle, Line, Text as SvgText, G, Defs, RadialGradient, Stop, Filter, FeGaussianBlur, Path } from 'react-native-svg';
 
 interface Topic {
@@ -110,12 +110,13 @@ export default function NeuralRadar({
   }, []);
 
   // Pinch gesture handler
-  const pinchHandler = useAnimatedGestureHandler({
-    onStart: (_, context: any) => {
-      context.startScale = scale.value;
-    },
-    onActive: (event, context) => {
-      const newScale = context.startScale * event.scale;
+  const pinchGesture = Gesture.Pinch()
+    .onStart(() => {
+      'worklet';
+    })
+    .onUpdate((event) => {
+      'worklet';
+      const newScale = event.scale;
       scale.value = Math.max(0.5, Math.min(3, newScale));
       
       // Trigger hierarchy changes based on zoom level
@@ -130,27 +131,24 @@ export default function NeuralRadar({
         runOnJS(setSelectedSubject)(null);
         runOnJS(setSelectedChapter)(null);
       }
-    },
-    onEnd: () => {
+    })
+    .onEnd(() => {
+      'worklet';
       scale.value = withSpring(1);
-    },
-  });
+    });
 
   // Pan gesture handler
-  const panHandler = useAnimatedGestureHandler({
-    onStart: (_, context: any) => {
-      context.startX = translateX.value;
-      context.startY = translateY.value;
-    },
-    onActive: (event, context) => {
-      translateX.value = context.startX + event.translationX;
-      translateY.value = context.startY + event.translationY;
-    },
-    onEnd: () => {
+  const panGesture = Gesture.Pan()
+    .onUpdate((event) => {
+      'worklet';
+      translateX.value = event.translationX;
+      translateY.value = event.translationY;
+    })
+    .onEnd(() => {
+      'worklet';
       translateX.value = withSpring(0);
       translateY.value = withSpring(0);
-    },
-  });
+    });
 
   // Animated style for the radar container
   const animatedStyle = useAnimatedStyle(() => {
@@ -351,9 +349,9 @@ export default function NeuralRadar({
       </MotiView>
 
       {/* Main Radar Container */}
-      <PinchGestureHandler onGestureEvent={pinchHandler}>
+      <GestureDetector gesture={pinchGesture}>
         <Animated.View>
-          <PanGestureHandler onGestureEvent={panHandler}>
+          <GestureDetector gesture={panGesture}>
             <Animated.View style={animatedStyle}>
               <MotiView
                 from={{ opacity: 0, scale: 0.9 }}
@@ -839,9 +837,9 @@ export default function NeuralRadar({
                 </Pressable>
               </MotiView>
             </Animated.View>
-          </PanGestureHandler>
+          </GestureDetector>
         </Animated.View>
-      </PinchGestureHandler>
+      </GestureDetector>
       
       {/* Gap Density Legend */}
       <MotiView
