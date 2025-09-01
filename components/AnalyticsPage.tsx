@@ -7,6 +7,7 @@ import NeuralRadar from './NeuralRadar';
 import MotivationProgressChart from './MotivationProgressChart';
 import FlightPathOverview from './FlightPathOverview';
 import DeepWorkRatio from './DeepWorkRatio';
+import SubjectTimeAllocation from './SubjectTimeAllocation';
 
 interface AnalyticsPageProps {
   route: string;
@@ -203,6 +204,7 @@ export default function AnalyticsPage({ route }: AnalyticsPageProps) {
           }}
         >
           <DeepWorkRatio />
+          <SubjectTimeAllocation />
         </ScrollView>
       </View>
     );

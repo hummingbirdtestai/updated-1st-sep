@@ -1,0 +1,16 @@
+{
+  "subjects": [
+    { "name": "Anatomy", "pyqs_completed": 1800 },
+    { "name": "Physiology", "pyqs_completed": 1500 },
+    { "name": "Biochemistry", "pyqs_completed": 1200 },
+    { "name": "Pathology", "pyqs_completed": 900 },
+    { "name": "Pharmacology", "pyqs_completed": 860 }
+  ],
+  "recommended_allocation": {
+    "Anatomy": 0.25,
+    "Physiology": 0.22,
+    "Biochemistry": 0.20,
+    "Pathology": 0.18,
+    "Pharmacology": 0.15
+  }
+}
