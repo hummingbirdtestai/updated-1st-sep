@@ -5,6 +5,10 @@ import { GitBranch, Target, TrendingUp, Filter, ChevronDown, X, CircleCheck as C
 import Svg, { Circle as SvgCircle, Line, Text as SvgText, Path, Defs, LinearGradient, Stop, G } from 'react-native-svg';
 import gapChainsData from '@/data/gap-chains-data.json';
 
+const [showAISuggestions, setShowAISuggestions] = useState(false);
+const [selectedWeakChain, setSelectedWeakChain] = useState<GapChain | null>(null);
+
+
 interface ChainLink {
   mcq_id: string;
   is_correct: boolean;
