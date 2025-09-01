@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import Svg, { Circle, Line, Text as SvgText, G, Defs, RadialGradient, Stop } from 'react-native-svg';
+import Svg, { Circle, Line, Text as SvgText, G, Defs, RadialGradient, Stop, Filter, FeGaussianBlur } from 'react-native-svg';
 import { Radar, X } from 'lucide-react-native';
 
 interface Subject {
@@ -44,6 +44,7 @@ export default function NeuralRadar() {
   const [selectedTooltip, setSelectedTooltip] = useState<TooltipData | null>(null);
   const [subjectTrails, setSubjectTrails] = useState<Map<string, TrailPoint[]>>(new Map());
   const [animatedSubjects, setAnimatedSubjects] = useState(subjects);
+  const [pulsePhase, setPulsePhase] = useState(0);
 
   // Simulate momentum changes every 3 seconds for demo
   useEffect(() => {
@@ -56,6 +57,14 @@ export default function NeuralRadar() {
     }, 3000);
 
     return () => clearInterval(interval);
+  }, []);
+
+  // Pulse animation for high-density subjects
+  useEffect(() => {
+    const pulseInterval = setInterval(() => {
+      setPulsePhase(prev => (prev + 1) % 4);
+    }, 500);
+    return () => clearInterval(pulseInterval);
   }, []);
 
   // Update trails when subjects move
@@ -98,9 +107,17 @@ export default function NeuralRadar() {
   // Calculate blip positions based on momentum
   const getBlipPosition = (subject: Subject, index: number) => {
     const angle = (index / animatedSubjects.length) * 2 * Math.PI;
+    
     // Map momentum score to radius (center = 0, edge = max momentum)
-    const normalizedMomentum = Math.max(0, Math.min(100, Math.abs(subject.momentumScore))) / 100;
-    const radius = normalizedMomentum * maxRadius;
+    let normalizedMomentum = Math.max(0, Math.min(100, Math.abs(subject.momentumScore))) / 100;
+    let radius = normalizedMomentum * maxRadius;
+    
+    // Vortex pull effect for high gap density (>0.8)
+    if (subject.gapDensity > 0.8) {
+      const vortexPull = 0.15; // Pull inward by 15%
+      radius = Math.max(radius * (1 - vortexPull), maxRadius * 0.1);
+    }
+    
     return { ...polarToCartesian(angle, radius), angle };
   };
 
@@ -109,6 +126,13 @@ export default function NeuralRadar() {
     if (momentumScore > 10) return '#10b981'; // emerald
     if (momentumScore > 0) return '#f59e0b';  // amber
     return '#ef4444'; // red
+  };
+
+  // Get gap density color and glow
+  const getGapDensityColor = (gapDensity: number) => {
+    if (gapDensity < 0.3) return { color: '#10b981', glow: 'emeraldGapGlow' }; // green
+    if (gapDensity <= 0.6) return { color: '#f59e0b', glow: 'amberGapGlow' }; // yellow
+    return { color: '#ef4444', glow: 'redGapGlow' }; // red
   };
 
   // Handle blip press
@@ -171,6 +195,7 @@ export default function NeuralRadar() {
           <Svg width={radarSize} height={radarSize} className="absolute inset-0">
             <Defs>
               {/* Gradient definitions for glow effects */}
+              {/* Momentum glows */}
               <RadialGradient id="emeraldGlow" cx="50%" cy="50%" r="50%">
                 <Stop offset="0%" stopColor="#10b981" stopOpacity="0.8" />
                 <Stop offset="100%" stopColor="#10b981" stopOpacity="0" />
@@ -183,6 +208,28 @@ export default function NeuralRadar() {
                 <Stop offset="0%" stopColor="#ef4444" stopOpacity="0.8" />
                 <Stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
               </RadialGradient>
+              
+              {/* Gap density glows */}
+              <RadialGradient id="emeraldGapGlow" cx="50%" cy="50%" r="80%">
+                <Stop offset="0%" stopColor="#10b981" stopOpacity="0.4" />
+                <Stop offset="50%" stopColor="#10b981" stopOpacity="0.2" />
+                <Stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+              </RadialGradient>
+              <RadialGradient id="amberGapGlow" cx="50%" cy="50%" r="80%">
+                <Stop offset="0%" stopColor="#f59e0b" stopOpacity="0.4" />
+                <Stop offset="50%" stopColor="#f59e0b" stopOpacity="0.2" />
+                <Stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
+              </RadialGradient>
+              <RadialGradient id="redGapGlow" cx="50%" cy="50%" r="80%">
+                <Stop offset="0%" stopColor="#ef4444" stopOpacity="0.4" />
+                <Stop offset="50%" stopColor="#ef4444" stopOpacity="0.2" />
+                <Stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
+              </RadialGradient>
+              
+              {/* Blur filter for vortex effect */}
+              <Filter id="vortexBlur">
+                <FeGaussianBlur stdDeviation="1" />
+              </Filter>
             </Defs>
 
             {/* Grid Circles */}
@@ -253,29 +300,50 @@ export default function NeuralRadar() {
               {animatedSubjects.map((subject, index) => {
                 const position = getBlipPosition(subject, index);
                 const color = getBlipColor(subject.momentumScore);
-                const blipRadius = 6 + (subject.gapDensity * 8);
-                const glowId = color === '#10b981' ? 'emeraldGlow' : 
-                            color === '#f59e0b' ? 'amberGlow' : 'redGlow';
+                const baseRadius = 6 + (subject.gapDensity * 8);
+                const gapInfo = getGapDensityColor(subject.gapDensity);
+                
+                // Pulsing effect for high gap density
+                const shouldPulse = subject.gapDensity > 0.6;
+                const pulseScale = shouldPulse ? (1 + Math.sin(pulsePhase) * 0.3) : 1;
+                const pulseOpacity = shouldPulse ? (0.7 + Math.sin(pulsePhase) * 0.3) : 1;
+                const blipRadius = baseRadius * pulseScale;
+                
+                // Momentum glow
+                const momentumGlowId = color === '#10b981' ? 'emeraldGlow' : 
+                                    color === '#f59e0b' ? 'amberGlow' : 'redGlow';
 
                 return (
                   <G key={subject.id}>
-                    {/* Glow Effect */}
+                    {/* Gap Density Glow (larger, outer) */}
+                    <Circle
+                      cx={position.x}
+                      cy={position.y}
+                      r={blipRadius + 16}
+                      fill={`url(#${gapInfo.glow})`}
+                      opacity={pulseOpacity * 0.6}
+                    />
+                    
+                    {/* Momentum Glow (smaller, inner) */}
                     <Circle
                       cx={position.x}
                       cy={position.y}
                       r={blipRadius + 8}
-                      fill={`url(#${glowId})`}
+                      fill={`url(#${momentumGlowId})`}
+                      opacity={pulseOpacity * 0.8}
                     />
                     
-                    {/* Main Blip */}
+                    {/* Main Blip with gap density border */}
                     <Circle
                       cx={position.x}
                       cy={position.y}
                       r={blipRadius}
                       fill={color}
-                      stroke={color}
-                      strokeWidth="2"
+                      stroke={gapInfo.color}
+                      strokeWidth="3"
+                      opacity={pulseOpacity}
                       onPress={() => handleBlipPress(subject, index)}
+                      filter={subject.gapDensity > 0.8 ? "url(#vortexBlur)" : undefined}
                     />
 
                     {/* Momentum Direction Indicator */}
@@ -287,7 +355,7 @@ export default function NeuralRadar() {
                         fill="none"
                         stroke={color}
                         strokeWidth="1"
-                        strokeOpacity="0.6"
+                        strokeOpacity={pulseOpacity * 0.6}
                         strokeDasharray="2,2"
                       />
                     )}
@@ -309,12 +377,12 @@ export default function NeuralRadar() {
             </G>
           </Svg>
 
-          {/* Legend */}
+          {/* Performance Legend */}
           <MotiView
             from={{ opacity: 0, translateY: 20 }}
             animate={{ opacity: 1, translateY: 0 }}
             transition={{ type: 'spring', duration: 600, delay: 800 }}
-            className="absolute bottom-4 left-4 bg-slate-800/80 rounded-lg p-3 border border-slate-600/50"
+            className="absolute bottom-4 left-4 bg-slate-800/90 rounded-lg p-3 border border-slate-600/50"
           >
             <Text className="text-slate-300 text-xs font-semibold mb-2">Performance</Text>
             <View className="space-y-1">
@@ -333,17 +401,42 @@ export default function NeuralRadar() {
             </View>
           </MotiView>
 
+          {/* Gap Density Legend */}
+          <MotiView
+            from={{ opacity: 0, translateY: 20 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ type: 'spring', duration: 600, delay: 900 }}
+            className="absolute bottom-20 left-4 bg-slate-800/90 rounded-lg p-3 border border-slate-600/50"
+          >
+            <Text className="text-slate-300 text-xs font-semibold mb-2">Gap Density</Text>
+            <View className="space-y-1">
+              <View className="flex-row items-center">
+                <View className="w-3 h-3 rounded-full bg-emerald-500 mr-2" />
+                <Text className="text-slate-400 text-xs">Low (&lt;30%)</Text>
+              </View>
+              <View className="flex-row items-center">
+                <View className="w-3 h-3 rounded-full bg-amber-500 mr-2" />
+                <Text className="text-slate-400 text-xs">Medium (30-60%)</Text>
+              </View>
+              <View className="flex-row items-center">
+                <View className="w-3 h-3 rounded-full bg-red-500 mr-2" />
+                <Text className="text-slate-400 text-xs">High (&gt;60%)</Text>
+              </View>
+            </View>
+          </MotiView>
+
           {/* Info Panel */}
           <MotiView
             from={{ opacity: 0, translateY: 20 }}
             animate={{ opacity: 1, translateY: 0 }}
             transition={{ type: 'spring', duration: 600, delay: 1000 }}
-            className="absolute bottom-4 right-4 bg-slate-800/80 rounded-lg p-3 border border-slate-600/50"
+            className="absolute bottom-4 right-4 bg-slate-800/90 rounded-lg p-3 border border-slate-600/50"
           >
             <Text className="text-slate-300 text-xs font-semibold mb-1">Radar Guide</Text>
             <Text className="text-slate-400 text-xs">
               Distance = Momentum{'\n'}
-              Size = Gap Density{'\n'}
+              Border = Gap Density{'\n'}
+              Pulse = High Gaps{'\n'}
               Trails = Recent Movement{'\n'}
               Tap blips for details
             </Text>
@@ -396,15 +489,16 @@ export default function NeuralRadar() {
                     <Text className="text-slate-400 text-xs">Gap Density</Text>
                     <Text className="text-slate-300 text-sm">
                       {(selectedTooltip.subject.gapDensity * 100).toFixed(0)}% knowledge gaps
+                      {selectedTooltip.subject.gapDensity > 0.8 && ' (Vortex Effect)'}
                     </Text>
                   </View>
                   
                   <View>
                     <Text className="text-slate-400 text-xs">Status</Text>
                     <Text className="text-slate-300 text-sm">
-                      {selectedTooltip.subject.momentumScore > 10 ? 'Accelerating' :
-                       selectedTooltip.subject.momentumScore > 0 ? 'Improving' :
-                       selectedTooltip.subject.momentumScore > -10 ? 'Declining' : 'Needs Focus'}
+                      {selectedTooltip.subject.gapDensity > 0.6 ? 'High Priority' :
+                       selectedTooltip.subject.gapDensity > 0.3 ? 'Moderate Focus' : 'Well Covered'}
+                      {selectedTooltip.subject.gapDensity > 0.6 && ' 🔴'}
                     </Text>
                   </View>
                 </View>
