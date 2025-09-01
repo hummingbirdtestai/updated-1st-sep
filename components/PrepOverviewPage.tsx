@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext';
 import FlightPath from './FlightPath';
 import FlipCard from './FlipCard';
 import { supabase } from '@/lib/supabaseClient';   // ✅ PATCH ADDED
+import FlightPathTimeline from './FlightPathTimeline';
 
 interface Subject {
   id: string;
@@ -356,6 +357,7 @@ export default function PrepOverviewPage() {
             {console.log("🟢 Current user from AuthContext:", user)}
             {console.log("🟢 Passing studentId to FlightPath:", user.id)}
             <FlightPath studentId={user.id} />
+            <FlightPathTimeline />
       </>
       ) : (
         <Text className="text-slate-400 text-center">
