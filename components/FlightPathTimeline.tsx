@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { Plane, Clock, Target, CheckCircle, AlertCircle, X } from 'lucide-react-native';
+import { Plane, Clock, Target, CircleCheck as CheckCircle, CircleAlert as AlertCircle, X } from 'lucide-react-native';
 import Svg, { Line, Circle as SvgCircle, Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import missionData from '@/data/mentor-flight-path-data.json';
 
