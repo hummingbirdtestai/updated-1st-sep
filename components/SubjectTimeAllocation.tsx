@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { Clock, Target, TrendingUp, BarChart3, Radar, AlertTriangle, CheckCircle, Info } from 'lucide-react-native';
+import { Clock, Target, TrendingUp, ChartBar as BarChart3, Radar, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle, Info } from 'lucide-react-native';
 import Svg, { Polygon, Circle, Line, Text as SvgText, G, Defs, LinearGradient, Stop, Path } from 'react-native-svg';
 import subjectTimeData from '@/data/subject-time-allocation-data.json';
 
