@@ -968,3 +968,5 @@ export default function NeuralRadar() {
 }
 
 export default NeuralRadar
+
+export default NeuralRadar
