@@ -573,29 +573,41 @@ export default function NeuralRadar() {
                         opacity={pulseOpacity * 0.8}
                       />
                       
-                      {/* Main Blip */}
-                      <Circle
-                        cx={position.x}
-                        cy={position.y}
-                        r={blipRadius}
-                        fill={color}
-                        stroke={gapInfo.color}
-                        strokeWidth="3"
-                        opacity={pulseOpacity}
-                        onPress={() => {
-                          const itemType = zoomLevel === 'subjects' ? 'subject' : 
-                                         zoomLevel === 'chapters' ? 'chapter' : 'topic';
-                          handleItemPress(item, itemType, position);
-                          
-                          // Handle drilling down
-                          if (zoomLevel === 'subjects') {
-                            handleSubjectSelect(item);
-                          } else if (zoomLevel === 'chapters') {
-                            handleChapterSelect(item);
-                          }
-                        }}
-                        filter={item.gapDensity > 0.8 ? "url(#vortexBlur)" : undefined}
-                      />
+                     {/* Main Blip (interactive) */}
+<Pressable
+  onPress={() => {
+    const itemType = zoomLevel === 'subjects' ? 'subject' : 
+                   zoomLevel === 'chapters' ? 'chapter' : 'topic';
+    handleItemPress(item, itemType, position);
+
+    if (zoomLevel === 'subjects') {
+      handleSubjectSelect(item);
+    } else if (zoomLevel === 'chapters') {
+      handleChapterSelect(item);
+    }
+  }}
+  style={{
+    position: "absolute",
+    left: position.x - blipRadius,
+    top: position.y - blipRadius,
+    width: blipRadius * 2,
+    height: blipRadius * 2,
+  }}
+>
+  <Svg width={blipRadius * 2} height={blipRadius * 2}>
+    <Circle
+      cx={blipRadius}
+      cy={blipRadius}
+      r={blipRadius}
+      fill={color}
+      stroke={gapInfo.color}
+      strokeWidth="3"
+      opacity={pulseOpacity}
+      filter={item.gapDensity > 0.8 ? "url(#vortexBlur)" : undefined}
+    />
+  </Svg>
+</Pressable>
+
 
                       {/* Momentum Direction Indicator */}
                       {Math.abs(item.momentumScore || 0) > 5 && (
