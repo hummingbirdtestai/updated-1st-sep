@@ -10,6 +10,7 @@ import DeepWorkRatio from './DeepWorkRatio';
 import SubjectTimeAllocation from './SubjectTimeAllocation';
 import SessionTimelineView from './SessionTimelineView';
 import GapSentenceMapping from './GapSentenceMapping';
+import PerformanceTimeTradeoff from './PerformanceTimeTradeoff';
 
 interface AnalyticsPageProps {
   route: string;
@@ -209,6 +210,7 @@ export default function AnalyticsPage({ route }: AnalyticsPageProps) {
           <SubjectTimeAllocation />
           <SessionTimelineView />
           <GapSentenceMapping />
+          <PerformanceTimeTradeoff />
         </ScrollView>
       </View>
     );
