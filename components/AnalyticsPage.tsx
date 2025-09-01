@@ -5,6 +5,7 @@ import { Chrome as Home, Map, GitBranch, CircleAlert as AlertCircle, Radar, Cloc
 import PrepOverviewPage from './PrepOverviewPage';
 import NeuralRadar from './NeuralRadar';
 import MotivationProgressChart from './MotivationProgressChart';
+import FlightPathOverview from './FlightPathOverview';
 
 interface AnalyticsPageProps {
   route: string;
@@ -160,6 +161,7 @@ export default function AnalyticsPage({ route }: AnalyticsPageProps) {
             paddingVertical: 24,
           }}
         >
+          <FlightPathOverview />
           <MotivationProgressChart />
         </ScrollView>
       </View>
