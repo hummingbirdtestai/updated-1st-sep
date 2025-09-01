@@ -966,3 +966,5 @@ export default function NeuralRadar() {
     </View>
   );
 }
+
+export default NeuralRadar
