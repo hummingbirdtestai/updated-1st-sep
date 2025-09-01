@@ -123,16 +123,16 @@ export default function AnalyticsPage({ route }: AnalyticsPageProps) {
   
   // Special case for Neural Radar - render the radar component
   if (route === '/analytics/neural-radar') {
-    // Mock data for demonstration
+    // Mock data with gap density focus
     const mockSubjects = [
-      { id: '1', name: 'Anatomy', momentumScore: 0.85, gapDensity: 0.2, weeklyChange: 12, lastActivity: '2 hours ago' },
-      { id: '2', name: 'Biochemistry', momentumScore: 0.72, gapDensity: 0.4, weeklyChange: 8, lastActivity: '1 day ago' },
-      { id: '3', name: 'Pharmacology', momentumScore: -0.45, gapDensity: 0.8, weeklyChange: -15, lastActivity: '3 days ago' },
-      { id: '4', name: 'Pathology', momentumScore: 0.68, gapDensity: 0.5, weeklyChange: 5, lastActivity: '4 hours ago' },
-      { id: '5', name: 'Medicine', momentumScore: -0.35, gapDensity: 0.9, weeklyChange: -8, lastActivity: '1 week ago' },
-      { id: '6', name: 'Surgery', momentumScore: 0.55, gapDensity: 0.6, weeklyChange: 3, lastActivity: '6 hours ago' },
-      { id: '7', name: 'Pediatrics', momentumScore: 0.78, gapDensity: 0.3, weeklyChange: 18, lastActivity: '30 min ago' },
-      { id: '8', name: 'Gynecology', momentumScore: -0.12, gapDensity: 0.7, weeklyChange: -2, lastActivity: '2 days ago' },
+      { id: 'subj1', name: 'Physiology', momentumScore: 15, gapDensity: 0.72, weeklyChange: 12, lastActivity: '2 hours ago' },
+      { id: 'subj2', name: 'Biochemistry', momentumScore: 5, gapDensity: 0.35, weeklyChange: 8, lastActivity: '1 day ago' },
+      { id: 'subj3', name: 'Anatomy', momentumScore: -10, gapDensity: 0.9, weeklyChange: -15, lastActivity: '3 days ago' },
+      { id: 'subj4', name: 'Pathology', momentumScore: 8, gapDensity: 0.55, weeklyChange: 5, lastActivity: '4 hours ago' },
+      { id: 'subj5', name: 'Medicine', momentumScore: -7, gapDensity: 0.88, weeklyChange: -8, lastActivity: '1 week ago' },
+      { id: 'subj6', name: 'Surgery', momentumScore: 12, gapDensity: 0.42, weeklyChange: 3, lastActivity: '6 hours ago' },
+      { id: 'subj7', name: 'Pediatrics', momentumScore: 18, gapDensity: 0.28, weeklyChange: 18, lastActivity: '30 min ago' },
+      { id: 'subj8', name: 'Gynecology', momentumScore: -3, gapDensity: 0.65, weeklyChange: -2, lastActivity: '2 days ago' },
     ];
 
     return (
