@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Dimensions, ScrollView } from 'react-native';
 import { MotiView } from 'moti';
-import { Brain, Clock, Target, TrendingUp, Focus, AlertTriangle } from 'lucide-react-native';
+import { Brain, Clock, Target, TrendingUp, Focus, TriangleAlert as AlertTriangle } from 'lucide-react-native';
 import Svg, { Circle, Text as SvgText, G, Path, Defs, LinearGradient, Stop } from 'react-native-svg';
 import studySessionsData from '@/data/study-sessions-data.json';
 
