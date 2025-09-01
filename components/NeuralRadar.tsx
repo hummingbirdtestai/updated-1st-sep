@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, Dimensions, ScrollView } from 'react-native';
 import { MotiView } from 'moti';
 import Svg, { Circle, Line, Text as SvgText, G, Defs, RadialGradient, Stop, Filter, FeGaussianBlur, Path } from 'react-native-svg';
-import { Radar, X, ZoomIn, ZoomOut, ChevronRight, AlertTriangle, Lightbulb, Target } from 'lucide-react-native';
+import { Radar, X, ZoomIn, ZoomOut, ChevronRight, TriangleAlert as AlertTriangle, Lightbulb, Target } from 'lucide-react-native';
 
 interface Topic {
   id: string;
