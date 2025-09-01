@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Dimensions, Pressable } from 'react-native';
+import { View, Text, Dimensions, Pressable, Switch } from 'react-native';
 import { MotiView, AnimatePresence } from 'moti';
 import { PinchGestureHandler, PanGestureHandler, State } from 'react-native-gesture-handler';
 import Animated, { 
@@ -63,6 +63,7 @@ export default function NeuralRadar({
 }: NeuralRadarProps) {
   const { width, height } = Dimensions.get('window');
   const isMobile = width < 768;
+  const [showPeerOverlay, setShowPeerOverlay] = useState(false);
   
   // Responsive sizing
   const radarSize = isMobile ? Math.min(size, width - 64) : size;
@@ -82,6 +83,18 @@ export default function NeuralRadar({
   const [sidePanel, setSidePanel] = useState<SidePanelData | null>(null);
   const [animationKey, setAnimationKey] = useState(0);
   const [pulseKey, setPulseKey] = useState(0);
+
+  // Mock peer data for comparison
+  const peerData = [
+    { id: 'subj1', name: 'Physiology', momentumScore: 12, gapDensity: 0.65 },
+    { id: 'subj2', name: 'Biochemistry', momentumScore: 7, gapDensity: 0.45 },
+    { id: 'subj3', name: 'Anatomy', momentumScore: -5, gapDensity: 0.7 },
+    { id: 'subj4', name: 'Pathology', momentumScore: 10, gapDensity: 0.55 },
+    { id: 'subj5', name: 'Medicine', momentumScore: -2, gapDensity: 0.75 },
+    { id: 'subj6', name: 'Surgery', momentumScore: 15, gapDensity: 0.4 },
+    { id: 'subj7', name: 'Pediatrics', momentumScore: 8, gapDensity: 0.35 },
+    { id: 'subj8', name: 'Gynecology', momentumScore: 3, gapDensity: 0.6 },
+  ];
 
   // Trigger re-animation when hierarchy changes
   useEffect(() => {
@@ -170,26 +183,29 @@ export default function NeuralRadar({
   };
 
   // Get current nodes to display based on zoom level
-  const getCurrentNodes = () => {
+  const getCurrentNodes = (isPeer = false) => {
+    const sourceData = isPeer ? peerData : enhancedMockSubjects;
+    
     switch (zoomLevel) {
       case 'subjects':
-        return { nodes: subjects, type: 'subject' as const };
+        return { nodes: sourceData, type: 'subject' as const };
       case 'chapters':
-        if (selectedSubject?.chapters) {
+        if (!isPeer && selectedSubject?.chapters) {
           return { nodes: selectedSubject.chapters, type: 'chapter' as const };
         }
-        return { nodes: subjects, type: 'subject' as const };
+        return { nodes: sourceData, type: 'subject' as const };
       case 'topics':
-        if (selectedChapter?.topics) {
+        if (!isPeer && selectedChapter?.topics) {
           return { nodes: selectedChapter.topics, type: 'topic' as const };
         }
-        return { nodes: selectedSubject?.chapters || subjects, type: 'chapter' as const };
+        return { nodes: selectedSubject?.chapters || sourceData, type: 'chapter' as const };
       default:
-        return { nodes: subjects, type: 'subject' as const };
+        return { nodes: sourceData, type: 'subject' as const };
     }
   };
 
   const { nodes, type } = getCurrentNodes();
+  const { nodes: peerNodes } = getCurrentNodes(true);
 
   // Color functions
   const getGlowColor = (gapDensity: number) => {
@@ -258,6 +274,60 @@ export default function NeuralRadar({
 
   return (
     <View className="items-center justify-center">
+      {/* Header Controls */}
+      <MotiView
+        from={{ opacity: 0, translateY: -20 }}
+        animate={{ opacity: 1, translateY: 0 }}
+        transition={{ type: 'spring', duration: 600 }}
+        className="w-full flex-row items-center justify-between mb-4 px-4"
+      >
+        {/* Mode Toggle */}
+        <View className="bg-slate-800/60 rounded-xl px-4 py-2 border border-slate-700/40">
+          <View className="flex-row items-center space-x-3">
+            <Pressable
+              onPress={() => setMode('live')}
+              className={`px-3 py-1 rounded-lg ${
+                mode === 'live' ? 'bg-teal-600' : 'bg-slate-700/50'
+              }`}
+            >
+              <Text className={`text-sm font-medium ${
+                mode === 'live' ? 'text-white' : 'text-slate-400'
+              }`}>
+                Live
+              </Text>
+            </Pressable>
+            <Pressable
+              onPress={() => setMode('timelapse')}
+              className={`px-3 py-1 rounded-lg ${
+                mode === 'timelapse' ? 'bg-blue-600' : 'bg-slate-700/50'
+              }`}
+            >
+              <Text className={`text-sm font-medium ${
+                mode === 'timelapse' ? 'text-white' : 'text-slate-400'
+              }`}>
+                Time-lapse
+              </Text>
+            </Pressable>
+          </View>
+        </View>
+
+        {/* Peer Comparison Toggle */}
+        <View className="bg-slate-800/60 rounded-xl px-4 py-2 border border-slate-700/40">
+          <View className="flex-row items-center space-x-3">
+            <Text className="text-slate-300 text-sm font-medium">
+              Peer Comparison
+            </Text>
+            <Switch
+              value={showPeerOverlay}
+              onValueChange={setShowPeerOverlay}
+              trackColor={{ false: '#374151', true: '#059669' }}
+              thumbColor={showPeerOverlay ? '#10b981' : '#9ca3af'}
+              ios_backgroundColor="#374151"
+            />
+          </View>
+        </View>
+      </MotiView>
+
       {/* Breadcrumb Navigation */}
       <MotiView
         from={{ opacity: 0, translateY: -10 }}
@@ -634,6 +704,110 @@ export default function NeuralRadar({
                           </G>
                         );
                       })}
+
+                      {/* Peer Overlay Layer */}
+                      {showPeerOverlay && (
+                        <G opacity={0.4}>
+                          {peerNodes.map((peerNode: any, index) => {
+                            const radiusMultiplier = zoomLevel === 'subjects' ? 1 : 
+                                                   zoomLevel === 'chapters' ? 0.8 : 0.6;
+                            const position = getNodePosition(index, peerNodes.length, peerNode.momentumScore, peerNode.gapDensity, radiusMultiplier);
+                            const glowColor = getGlowColor(peerNode.gapDensity);
+                            const blipColor = getBlipColor(peerNode.gapDensity);
+                            const blipSize = getBlipSize(peerNode.momentumScore) * 0.8; // Slightly smaller for peers
+                            const direction = getMomentumDirection(peerNode.momentumScore);
+                            const isHighDensity = peerNode.gapDensity > 0.7;
+                            
+                            const glowGradientId = peerNode.gapDensity < 0.4 ? 'greenGlow' : 
+                                                 peerNode.gapDensity <= 0.7 ? 'yellowGlow' : 'redGlow';
+                            
+                            return (
+                              <G key={`peer-${peerNode.id}-${animationKey}`}>
+                                {/* Peer Trailing Effect */}
+                                {Array.from({ length: 2 }, (_, trailIndex) => {
+                                  const trailRadius = blipSize * (0.7 - trailIndex * 0.2);
+                                  const trailOpacity = 0.2 - trailIndex * 0.1;
+                                  const trailOffset = trailIndex * 8;
+                                  
+                                  let trailX = position.x;
+                                  let trailY = position.y;
+                                  
+                                  if (direction === 'improving') {
+                                    const inwardFactor = Math.max(0.3, 1 - (trailOffset / maxRadius));
+                                    trailX = center + (position.x - center) * inwardFactor;
+                                    trailY = center + (position.y - center) * inwardFactor;
+                                  } else if (direction === 'declining') {
+                                    const outwardFactor = Math.min(1.5, 1 + (trailOffset / maxRadius));
+                                    trailX = center + (position.x - center) * outwardFactor;
+                                    trailY = center + (position.y - center) * outwardFactor;
+                                  }
+                                  
+                                  return (
+                                    <Circle
+                                      key={`peer-trail-${trailIndex}`}
+                                      cx={trailX}
+                                      cy={trailY}
+                                      r={trailRadius}
+                                      fill={glowColor}
+                                      opacity={trailOpacity}
+                                    />
+                                  );
+                                })}
+                                
+                                {/* Peer Glow Effect */}
+                                <Circle
+                                  cx={position.x}
+                                  cy={position.y}
+                                  r={blipSize + 8}
+                                  fill={`url(#${glowGradientId})`}
+                                  opacity={0.3}
+                                  filter="url(#blur)"
+                                />
+                                
+                                {/* Peer Main Blip */}
+                                <Circle
+                                  cx={position.x}
+                                  cy={position.y}
+                                  r={blipSize}
+                                  fill={blipColor}
+                                  stroke="#ffffff"
+                                  strokeWidth={1}
+                                  strokeOpacity={0.6}
+                                  opacity={0.5}
+                                  strokeDasharray="2,2"
+                                />
+                                
+                                {/* Peer Momentum Indicator */}
+                                {direction !== 'stable' && (
+                                  <Circle
+                                    cx={position.x}
+                                    cy={position.y}
+                                    r={blipSize + 2}
+                                    fill="none"
+                                    stroke={direction === 'improving' ? '#10b981' : '#ef4444'}
+                                    strokeWidth={1}
+                                    strokeOpacity={0.4}
+                                    strokeDasharray="2,1"
+                                  />
+                                )}
+                                
+                                {/* Peer Label (smaller and dimmed) */}
+                                <SvgText
+                                  x={position.x + 15}
+                                  y={position.y - blipSize - 8}
+                                  textAnchor="start"
+                                  fontSize={7}
+                                  fill="#94a3b8"
+                                  fontWeight="400"
+                                  opacity={0.7}
+                                >
+                                  {peerNode.name.length > 8 ? peerNode.name.substring(0, 8) + '...' : peerNode.name}
+                                </SvgText>
+                              </G>
+                            );
+                          })}
+                        </G>
+                      )}
                     </G>
                   </Svg>
                   
@@ -658,6 +832,10 @@ export default function NeuralRadar({
                       />
                     );
                   })}
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-slate-300 text-sm">Peer Comparison</Text>
+                    <Text className="text-emerald-400 text-sm font-medium">✓ Complete</Text>
+                  </View>
                 </Pressable>
               </MotiView>
             </Animated.View>
@@ -673,7 +851,9 @@ export default function NeuralRadar({
         className="mt-6 bg-slate-800/60 rounded-xl p-4 border border-slate-700/40"
         style={{ width: radarSize + 20 }}
       >
-        <Text className="text-slate-100 font-semibold mb-3 text-center">Gap Density Legend</Text>
+        <Text className="text-slate-100 font-semibold mb-3 text-center">
+          {showPeerOverlay ? 'Gap Density & Peer Comparison' : 'Gap Density Legend'}
+        </Text>
         
         <View className="flex-row justify-between mb-4">
           <View className="items-center">
@@ -692,6 +872,29 @@ export default function NeuralRadar({
             <Text className="text-slate-500 text-xs">70%+</Text>
           </View>
         </View>
+        
+        {/* Peer Comparison Legend */}
+        {showPeerOverlay && (
+          <View className="border-t border-slate-600/30 pt-3 mt-3">
+            <Text className="text-slate-300 text-sm font-medium mb-3 text-center">
+              Comparison View
+            </Text>
+            <View className="flex-row justify-center space-x-8">
+              <View className="items-center">
+                <View className="w-6 h-6 rounded-full mb-2 bg-blue-500 shadow-lg" 
+                     style={{ shadowColor: '#3b82f6', shadowOpacity: 0.5, shadowRadius: 6 }} />
+                <Text className="text-blue-400 text-xs font-semibold">You</Text>
+                <Text className="text-slate-500 text-xs">Solid</Text>
+              </View>
+              <View className="items-center">
+                <View className="w-6 h-6 rounded-full mb-2 border-2 border-slate-400 bg-slate-400/30" 
+                     style={{ borderStyle: 'dashed' }} />
+                <Text className="text-slate-400 text-xs font-semibold">Peers</Text>
+                <Text className="text-slate-500 text-xs">Dashed</Text>
+              </View>
+            </View>
+          </View>
+        )}
         
         <View className="space-y-2">
           <View className="flex-row items-center justify-between">
@@ -722,6 +925,7 @@ export default function NeuralRadar({
       >
         <Text className="text-slate-400 text-xs text-center">
           {isMobile ? 'Pinch to zoom • Tap blips for details' : 'Scroll to zoom • Click blips for details'}
+          {showPeerOverlay && ' • Dashed blips = peer data'}
         </Text>
       </MotiView>
 
@@ -860,5 +1064,3 @@ function getBlipColor(gapDensity: number) {
   if (gapDensity <= 0.7) return '#fbbf24';
   return '#f87171';
 }
-
-export default NeuralRadar
