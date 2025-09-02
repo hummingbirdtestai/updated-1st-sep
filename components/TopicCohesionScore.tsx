@@ -991,7 +991,7 @@ export default function TopicCohesionScore({
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <View className="w-4 h-4 rounded-full bg-red-500 mr-3" />
-                  <Text className="text-slate-300 text-sm">Low Cohesion (<35%)</Text>
+                  <Text className="text-slate-300 text-sm">Low Cohesion (&lt;35%)</Text>
                 </View>
                 <Text className="text-red-400 text-sm">Diverse patterns, individual mentoring needed</Text>
               </View>
