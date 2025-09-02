@@ -1,879 +1,978 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
+import { View, Text, Pressable, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { GitBranch, Target, Clock, TrendingUp, Trophy, Medal, Award, User, ListFilter as Filter, ChevronDown } from 'lucide-react-native';
-import gapChainsData from '@/data/gap-chains-data.json';
-
-interface ChainData {
-  pyq_id: string;
-  subject: string;
-  chapter: string;
-  topic: string;
-  chain: Array<{ mcq_id: string; is_correct: boolean }>;
-  chain_health_score: number;
-  time_credit_minutes: number;
-}
+import { Users, Target, TrendingUp, ToggleLeft, ToggleRight, Brain } from 'lucide-react-native';
+import Svg, { Circle, Text as SvgText, Defs, LinearGradient, Stop } from 'react-native-svg';
+import cohortData from '@/data/neet-cohort-data.json';
 
 interface Student {
   student_id: string;
-  student_name: string;
-  avg_score: number;
-  total_chains: number;
+  name: string;
+  pyqs_attempted: number;
+  total_minutes_spent: number;
+  subject_focus: { [key: string]: number };
+  topic_gap_sentences: Array<{
+    topic: string;
+    gap_intensity: number;
+  }>;
 }
 
-interface MyScore extends Student {
-  rank: number;
+interface CohesionData {
+  cohesionScore: number;
+  topTopics: Array<{
+    topic: string;
+    totalTime: number;
+    percentage: number;
+    studentsInvolved: number;
+  }>;
+  totalCohortTime: number;
+  cohesionLevel: 'High' | 'Moderate' | 'Low';
+  aiInsight: string;
 }
 
-interface LeaderboardRowProps {
-  student: Student;
-  rank: number;
-  isMyScore?: boolean;
-  onPress?: () => void;
+interface TopicCohesionScoreProps {
+  data?: Student[];
+  showMultipleCohorts?: boolean;
+  compareMode?: boolean;
+  cohortA?: Student[];
+  cohortB?: Student[];
 }
 
-interface LeaderboardProps {
-  physiologyData?: Student[];
-  biochemistryData?: Student[];
-  anatomyData?: Student[];
-  myScore?: MyScore;
-  onStudentPress?: (student: Student) => void;
+interface DonutMeterProps {
+  score: number;
+  size?: number;
+  strokeWidth?: number;
+  animated?: boolean;
 }
 
-// Mock leaderboard data
-const mockPhysiologyData: Student[] = [
-  { student_id: "s1", student_name: "Arjun Sharma", avg_score: 95, total_chains: 300 },
-  { student_id: "s2", student_name: "Meera Patel", avg_score: 92, total_chains: 285 },
-  { student_id: "s3", student_name: "Rahul Kumar", avg_score: 89, total_chains: 270 },
-  { student_id: "s4", student_name: "Priya Singh", avg_score: 86, total_chains: 255 },
-  { student_id: "s5", student_name: "Vikram Reddy", avg_score: 83, total_chains: 240 },
-  { student_id: "s6", student_name: "Ananya Gupta", avg_score: 80, total_chains: 225 },
-  { student_id: "s7", student_name: "Karthik Iyer", avg_score: 77, total_chains: 210 },
-  { student_id: "s8", student_name: "Sneha Joshi", avg_score: 74, total_chains: 195 },
-  { student_id: "s9", student_name: "Rohan Mehta", avg_score: 71, total_chains: 180 },
-  { student_id: "s10", student_name: "Kavya Nair", avg_score: 68, total_chains: 165 },
-];
+function DonutMeter({ score, size = 140, strokeWidth = 16, animated = true }: DonutMeterProps) {
+  const [animatedScore, setAnimatedScore] = useState(0);
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const strokeDashoffset = circumference - (animatedScore / 100) * circumference;
 
-const mockBiochemistryData: Student[] = [
-  { student_id: "s2", student_name: "Meera Patel", avg_score: 88, total_chains: 280 },
-  { student_id: "s1", student_name: "Arjun Sharma", avg_score: 85, total_chains: 265 },
-  { student_id: "s4", student_name: "Priya Singh", avg_score: 82, total_chains: 250 },
-  { student_id: "s3", student_name: "Rahul Kumar", avg_score: 79, total_chains: 235 },
-  { student_id: "s6", student_name: "Ananya Gupta", avg_score: 76, total_chains: 220 },
-  { student_id: "s5", student_name: "Vikram Reddy", avg_score: 73, total_chains: 205 },
-  { student_id: "s7", student_name: "Karthik Iyer", avg_score: 70, total_chains: 190 },
-  { student_id: "s8", student_name: "Sneha Joshi", avg_score: 67, total_chains: 175 },
-  { student_id: "s10", student_name: "Kavya Nair", avg_score: 64, total_chains: 160 },
-  { student_id: "s9", student_name: "Rohan Mehta", avg_score: 61, total_chains: 145 },
-];
-
-const mockAnatomyData: Student[] = [
-  { student_id: "s3", student_name: "Rahul Kumar", avg_score: 91, total_chains: 295 },
-  { student_id: "s1", student_name: "Arjun Sharma", avg_score: 88, total_chains: 280 },
-  { student_id: "s4", student_name: "Priya Singh", avg_score: 85, total_chains: 265 },
-  { student_id: "s2", student_name: "Meera Patel", avg_score: 82, total_chains: 250 },
-  { student_id: "s6", student_name: "Ananya Gupta", avg_score: 79, total_chains: 235 },
-  { student_id: "s7", student_name: "Karthik Iyer", avg_score: 76, total_chains: 220 },
-  { student_id: "s5", student_name: "Vikram Reddy", avg_score: 73, total_chains: 205 },
-  { student_id: "s8", student_name: "Sneha Joshi", avg_score: 70, total_chains: 190 },
-  { student_id: "s9", student_name: "Rohan Mehta", avg_score: 67, total_chains: 175 },
-  { student_id: "s10", student_name: "Kavya Nair", avg_score: 64, total_chains: 160 },
-];
-
-const mockMyScore: MyScore = {
-  student_id: "me",
-  student_name: "You",
-  avg_score: 70,
-  total_chains: 200,
-  rank: 12
-};
-
-type SubjectTab = 'Physiology' | 'Biochemistry' | 'Anatomy';
-
-function LeaderboardRow({ student, rank, isMyScore = false, onPress }: LeaderboardRowProps) {
-  // Get score band color and label
-  const getScoreBand = (score: number) => {
-    if (score >= 90) return { 
-      color: '#10b981', 
-      bg: 'bg-emerald-500/10', 
-      border: 'border-emerald-500/30', 
-      text: 'text-emerald-400',
-      label: 'Excellent' 
-    };
-    if (score >= 80) return { 
-      color: '#3b82f6', 
-      bg: 'bg-blue-500/10', 
-      border: 'border-blue-500/30', 
-      text: 'text-blue-400',
-      label: 'Good' 
-    };
-    if (score >= 70) return { 
-      color: '#f59e0b', 
-      bg: 'bg-amber-500/10', 
-      border: 'border-amber-500/30', 
-      text: 'text-amber-400',
-      label: 'Fair' 
-    };
-    if (score >= 60) return { 
-      color: '#f97316', 
-      bg: 'bg-orange-500/10', 
-      border: 'border-orange-500/30', 
-      text: 'text-orange-400',
-      label: 'Poor' 
-    };
-    return { 
-      color: '#ef4444', 
-      bg: 'bg-red-500/10', 
-      border: 'border-red-500/30', 
-      text: 'text-red-400',
-      label: 'Failed' 
-    };
-  };
-
-  // Get rank icon
-  const getRankIcon = (rank: number) => {
-    switch (rank) {
-      case 1: return <Text className="text-2xl">🥇</Text>;
-      case 2: return <Text className="text-2xl">🥈</Text>;
-      case 3: return <Text className="text-2xl">🥉</Text>;
-      default: return (
-        <View className="w-8 h-8 bg-slate-600/50 rounded-full items-center justify-center">
-          <Text className="text-slate-300 font-bold text-sm">#{rank}</Text>
-        </View>
-      );
+  // Animate score
+  useEffect(() => {
+    if (!animated) {
+      setAnimatedScore(score * 100);
+      return;
     }
+
+    const timer = setInterval(() => {
+      setAnimatedScore(prev => {
+        const increment = (score * 100) / 60; // Animate over ~60 frames
+        if (prev < score * 100) {
+          return Math.min(prev + increment, score * 100);
+        }
+        return score * 100;
+      });
+    }, 16);
+
+    return () => clearInterval(timer);
+  }, [score, animated]);
+
+  // Get color based on cohesion score
+  const getCohesionColor = (score: number) => {
+    if (score >= 0.7) return { color: '#10b981', glow: 'emeraldGlow', label: 'High Cohesion' };
+    if (score >= 0.4) return { color: '#f59e0b', glow: 'amberGlow', label: 'Moderate Cohesion' };
+    return { color: '#ef4444', glow: 'redGlow', label: 'Low Cohesion' };
   };
 
-  const scoreBand = getScoreBand(student.avg_score);
+  const cohesionInfo = getCohesionColor(score);
 
   return (
-    <MotiView
-      from={{ opacity: 0, translateX: isMyScore ? 0 : -20, scale: 0.95 }}
-      animate={{ opacity: 1, translateX: 0, scale: 1 }}
-      transition={{ 
-        type: 'spring', 
-        duration: 600, 
-        delay: isMyScore ? 0 : rank * 50 + 200 
-      }}
-      className={`${scoreBand.bg} border ${scoreBand.border} rounded-xl p-4 mb-3 shadow-lg ${
-        isMyScore ? 'border-2' : ''
-      }`}
-      style={{
-        shadowColor: scoreBand.color,
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: isMyScore ? 0.2 : 0.1,
-        shadowRadius: isMyScore ? 12 : 8,
-        elevation: isMyScore ? 8 : 4,
-      }}
-    >
-      <Pressable
-        onPress={onPress}
-        className={`flex-row items-center ${isMyScore ? 'active:scale-95' : ''}`}
-      >
-        {/* Rank Icon */}
-        <View className="w-12 items-center mr-4">
-          {getRankIcon(rank)}
-        </View>
+    <View className="relative items-center justify-center">
+      <Svg width={size} height={size}>
+        <Defs>
+          <LinearGradient id="emeraldGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+            <Stop offset="0%" stopColor="#10b981" stopOpacity="1" />
+            <Stop offset="100%" stopColor="#34d399" stopOpacity="0.8" />
+          </LinearGradient>
+          <LinearGradient id="amberGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+            <Stop offset="0%" stopColor="#f59e0b" stopOpacity="1" />
+            <Stop offset="100%" stopColor="#fbbf24" stopOpacity="0.8" />
+          </LinearGradient>
+          <LinearGradient id="redGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+            <Stop offset="0%" stopColor="#ef4444" stopOpacity="1" />
+            <Stop offset="100%" stopColor="#f87171" stopOpacity="0.8" />
+          </LinearGradient>
+        </Defs>
+        
+        {/* Background Circle */}
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke="#374151"
+          strokeWidth={strokeWidth}
+        />
+        
+        {/* Progress Circle */}
+        <Circle
+          cx={size / 2}
+          cy={size / 2}
+          r={radius}
+          fill="none"
+          stroke={`url(#${cohesionInfo.glow})`}
+          strokeWidth={strokeWidth}
+          strokeDasharray={circumference}
+          strokeDashoffset={strokeDashoffset}
+          strokeLinecap="round"
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
+        />
+        
+        {/* Center Text */}
+        <SvgText
+          x={size / 2}
+          y={size / 2 - 8}
+          textAnchor="middle"
+          fontSize="28"
+          fontWeight="bold"
+          fill={cohesionInfo.color}
+        >
+          {animatedScore.toFixed(0)}%
+        </SvgText>
+        <SvgText
+          x={size / 2}
+          y={size / 2 + 12}
+          textAnchor="middle"
+          fontSize="12"
+          fill="#94a3b8"
+        >
+          cohesion
+        </SvgText>
+      </Svg>
 
-        {/* Student Info */}
-        <View className="flex-1">
-          <Text className={`text-lg font-bold ${
-            isMyScore ? 'text-cyan-300' : 'text-slate-100'
-          }`}>
-            {student.student_name}
-            {isMyScore && ' (You)'}
-          </Text>
-          <View className="flex-row items-center mt-1">
-            <View className={`px-2 py-1 rounded-full ${scoreBand.bg} border ${scoreBand.border}`}>
-              <Text className={`text-xs font-bold ${scoreBand.text} uppercase`}>
-                {scoreBand.label}
-              </Text>
-            </View>
-            <Text className="text-slate-400 text-sm ml-2">
-              {student.total_chains} chains
-            </Text>
-          </View>
-        </View>
-
-        {/* Score */}
-        <View className="items-end">
-          <Text className={`text-2xl font-bold ${scoreBand.text}`}>
-            {student.avg_score}
-          </Text>
-          <Text className="text-slate-400 text-xs">
-            avg score
-          </Text>
-        </View>
-
-        {/* My Score Indicator */}
-        {isMyScore && (
-          <View className="ml-4">
-            <View className="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full items-center justify-center shadow-lg">
-              <User size={20} color="#ffffff" />
-            </View>
-          </View>
-        )}
-      </Pressable>
-
-      {/* Glow effect for my score */}
-      {isMyScore && (
+      {/* Pulsing glow for high cohesion */}
+      {score >= 0.7 && (
         <MotiView
           from={{ scale: 1, opacity: 0.6 }}
-          animate={{ scale: 1.1, opacity: 0 }}
+          animate={{ scale: 1.3, opacity: 0 }}
           transition={{
             loop: true,
             type: 'timing',
             duration: 2000,
           }}
-          className="absolute inset-0 rounded-xl"
-          style={{ backgroundColor: '#06b6d4', opacity: 0.1 }}
+          className="absolute inset-0 rounded-full"
+          style={{ backgroundColor: cohesionInfo.color, opacity: 0.2 }}
         />
       )}
-    </MotiView>
+    </View>
   );
 }
 
-function Leaderboard({
-  physiologyData = mockPhysiologyData,
-  biochemistryData = mockBiochemistryData,
-  anatomyData = mockAnatomyData,
-  myScore = mockMyScore,
-  onStudentPress,
-}: LeaderboardProps) {
+export default function TopicCohesionScore({ 
+  data = cohortData, 
+  showMultipleCohorts = false,
+  compareMode = false,
+  cohortA = cohortData,
+  cohortB = cohortData.map(s => ({ ...s, student_id: s.student_id + '_b', name: s.name + ' (B)' }))
+}: TopicCohesionScoreProps) {
   const { width } = Dimensions.get('window');
   const isMobile = width < 768;
   
-  const [activeTab, setActiveTab] = useState<SubjectTab>('Physiology');
+  const [currentCohort, setCurrentCohort] = useState(0);
+  const [cohesionData, setCohesionData] = useState<CohesionData | null>(null);
+  const [cohortAData, setCohortAData] = useState<CohesionData | null>(null);
+  const [cohortBData, setCohortBData] = useState<CohesionData | null>(null);
 
-  const subjects: { key: SubjectTab; data: Student[] }[] = [
-    { key: 'Physiology', data: physiologyData },
-    { key: 'Biochemistry', data: biochemistryData },
-    { key: 'Anatomy', data: anatomyData },
+  // Calculate cohesion score and insights
+  const calculateCohesion = (students: Student[]): CohesionData => {
+    // Get all unique topics from gap sentences
+    const topicTimeMap = new Map<string, { totalTime: number; studentsInvolved: Set<string> }>();
+    
+    students.forEach(student => {
+      student.topic_gap_sentences.forEach(gap => {
+        // Estimate time spent on this topic based on gap intensity and total time
+        const estimatedTime = student.total_minutes_spent * gap.gap_intensity * 0.15; // 15% allocation factor
+        
+        if (!topicTimeMap.has(gap.topic)) {
+          topicTimeMap.set(gap.topic, { totalTime: 0, studentsInvolved: new Set() });
+        }
+        
+        const topicData = topicTimeMap.get(gap.topic)!;
+        topicData.totalTime += estimatedTime;
+        topicData.studentsInvolved.add(student.student_id);
+      });
+    });
+
+    // Convert to array and sort by total time
+    const topicsArray = Array.from(topicTimeMap.entries()).map(([topic, data]) => ({
+      topic,
+      totalTime: data.totalTime,
+      percentage: 0, // Will calculate after sorting
+      studentsInvolved: data.studentsInvolved.size,
+    }));
+
+    topicsArray.sort((a, b) => b.totalTime - a.totalTime);
+
+    // Calculate total cohort time
+    const totalCohortTime = students.reduce((sum, student) => sum + student.total_minutes_spent, 0);
+
+    // Get top 3 topics and calculate percentages
+    const topTopics = topicsArray.slice(0, 3).map(topic => ({
+      ...topic,
+      percentage: (topic.totalTime / totalCohortTime) * 100,
+    }));
+
+    // Calculate cohesion score (time spent on top 3 topics / total cohort time)
+    const top3Time = topTopics.reduce((sum, topic) => sum + topic.totalTime, 0);
+    const cohesionScore = top3Time / totalCohortTime;
+
+    // Determine cohesion level
+    let cohesionLevel: 'High' | 'Moderate' | 'Low' = 'Low';
+    if (cohesionScore >= 0.6) cohesionLevel = 'High';
+    else if (cohesionScore >= 0.35) cohesionLevel = 'Moderate';
+
+    // Generate AI insight
+    const topTopic = topTopics[0];
+    const aiInsight = generateAIInsight(cohesionScore, topTopic, students.length);
+
+    return {
+      cohesionScore,
+      topTopics,
+      totalCohortTime,
+      cohesionLevel,
+      aiInsight,
+    };
+  };
+
+  // Generate AI insight based on cohesion data
+  const generateAIInsight = (score: number, topTopic: any, studentCount: number): string => {
+    const percentage = topTopic ? topTopic.percentage.toFixed(0) : '0';
+    const topicName = topTopic ? topTopic.topic.replace(/([A-Z])/g, ' $1').trim() : 'Unknown';
+    const studentsInvolved = topTopic ? topTopic.studentsInvolved : 0;
+    
+    if (score >= 0.7) {
+      return `🎯 Excellent cohort alignment! ${studentsInvolved} of ${studentCount} students are heavily focused on "${topicName}" with ${percentage}% of total study time. This creates strong peer learning opportunities.`;
+    } else if (score >= 0.5) {
+      return `⚡ Good cohort focus on "${topicName}" with ${percentage}% time allocation. ${studentsInvolved} students share this priority - consider forming study groups around this topic.`;
+    } else if (score >= 0.35) {
+      return `📊 Moderate cohort alignment. "${topicName}" leads with ${percentage}% focus, but study patterns are somewhat dispersed. Mixed individual and group study recommended.`;
+    } else {
+      return `🌐 Diverse study patterns detected. Top focus "${topicName}" only represents ${percentage}% of cohort time. Students are pursuing varied learning paths - individual mentoring may be more effective.`;
+    }
+  };
+
+  // Mock multiple cohorts for toggle feature
+  const mockCohorts = [
+    { name: 'NEET 2025 Batch A', students: data },
+    { name: 'NEET 2025 Batch B', students: data.map(s => ({ ...s, student_id: s.student_id + '_b', name: s.name + ' (B)' })) },
+    { name: 'FMGE 2025 Cohort', students: data.map(s => ({ ...s, student_id: s.student_id + '_f', name: s.name + ' (F)' })) },
   ];
 
-  const currentData = subjects.find(s => s.key === activeTab)?.data || [];
-  const top10Students = currentData.slice(0, 10);
+  const currentCohortData = showMultipleCohorts ? mockCohorts[currentCohort].students : data;
 
-  // Calculate my rank in current subject
-  const getMyRankInSubject = (data: Student[], myScore: MyScore): number => {
-    const allStudents = [...data, myScore].sort((a, b) => b.avg_score - a.avg_score);
-    return allStudents.findIndex(s => s.student_id === myScore.student_id) + 1;
-  };
+  // Calculate cohesion when data changes
+  useEffect(() => {
+    if (compareMode) {
+      const cohesionA = calculateCohesion(cohortA);
+      const cohesionB = calculateCohesion(cohortB);
+      setCohortAData(cohesionA);
+      setCohortBData(cohesionB);
+    } else {
+      const cohesion = calculateCohesion(currentCohortData);
+      setCohesionData(cohesion);
+    }
+  }, [currentCohortData, currentCohort, compareMode, cohortA, cohortB]);
 
-  const myRankInSubject = getMyRankInSubject(currentData, myScore);
-
-  // Get subject icon
-  const getSubjectIcon = (subject: SubjectTab) => {
-    switch (subject) {
-      case 'Physiology': return <TrendingUp size={18} color="#ffffff" />;
-      case 'Biochemistry': return <Target size={18} color="#ffffff" />;
-      case 'Anatomy': return <Award size={18} color="#ffffff" />;
-      default: return <Trophy size={18} color="#ffffff" />;
+  // Generate comparison insights
+  const generateComparisonInsights = (dataA: CohesionData, dataB: CohesionData): string => {
+    const scoreDiff = Math.abs(dataA.cohesionScore - dataB.cohesionScore);
+    const strongerCohort = dataA.cohesionScore > dataB.cohesionScore ? 'A' : 'B';
+    const strongerData = dataA.cohesionScore > dataB.cohesionScore ? dataA : dataB;
+    const weakerData = dataA.cohesionScore > dataB.cohesionScore ? dataB : dataA;
+    
+    const topTopicA = dataA.topTopics[0]?.topic.replace(/([A-Z])/g, ' $1').trim() || 'Unknown';
+    const topTopicB = dataB.topTopics[0]?.topic.replace(/([A-Z])/g, ' $1').trim() || 'Unknown';
+    
+    if (scoreDiff > 0.3) {
+      return `🎯 Cohort ${strongerCohort} shows significantly stronger alignment (${(strongerData.cohesionScore * 100).toFixed(0)}% vs ${(weakerData.cohesionScore * 100).toFixed(0)}%) with focused effort on "${strongerData.topTopics[0]?.topic.replace(/([A-Z])/g, ' $1').trim()}". Cohort ${strongerCohort === 'A' ? 'B' : 'A'} has scattered effort across multiple topics, suggesting need for better coordination.`;
+    } else if (topTopicA !== topTopicB) {
+      return `📚 Different focus areas detected: Cohort A prioritizes "${topTopicA}" while Cohort B focuses on "${topTopicB}". Both show ${dataA.cohesionLevel.toLowerCase()} and ${dataB.cohesionLevel.toLowerCase()} cohesion respectively. Consider cross-cohort knowledge sharing.`;
+    } else {
+      return `⚖️ Both cohorts show similar alignment patterns with ${dataA.cohesionLevel.toLowerCase()} cohesion levels. They're both focusing on "${topTopicA}" but with different intensity distributions. Good opportunity for inter-cohort collaboration.`;
     }
   };
 
-  // Get subject color
-  const getSubjectColor = (subject: SubjectTab) => {
-    switch (subject) {
-      case 'Physiology': return 'from-emerald-500 to-teal-600';
-      case 'Biochemistry': return 'from-purple-500 to-indigo-600';
-      case 'Anatomy': return 'from-blue-500 to-cyan-600';
-      default: return 'from-slate-500 to-slate-600';
-    }
-  };
+  if (!compareMode && !cohesionData) {
+    return (
+      <View className="bg-slate-800/60 rounded-2xl p-8 border border-slate-700/40">
+        <Text className="text-slate-400 text-center">Loading cohesion analysis...</Text>
+      </View>
+    );
+  }
+
+  if (compareMode && (!cohortAData || !cohortBData)) {
+    return (
+      <View className="bg-slate-800/60 rounded-2xl p-8 border border-slate-700/40">
+        <Text className="text-slate-400 text-center">Loading cohort comparison...</Text>
+      </View>
+    );
+  }
 
   return (
     <MotiView
       from={{ opacity: 0, translateY: 30, scale: 0.95 }}
       animate={{ opacity: 1, translateY: 0, scale: 1 }}
       transition={{ type: 'spring', duration: 800, delay: 200 }}
-      className="bg-slate-800/60 rounded-2xl border border-slate-700/40 shadow-2xl"
+      className="bg-slate-800/60 rounded-2xl p-6 mb-6 border border-slate-700/40 shadow-lg"
       style={{
-        shadowColor: '#fbbf24',
-        shadowOffset: { width: 0, height: 8 },
+        shadowColor: cohesionData.cohesionScore >= 0.7 ? '#10b981' : 
+                    cohesionData.cohesionScore >= 0.4 ? '#f59e0b' : '#ef4444',
+        shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.15,
-        shadowRadius: 24,
-        elevation: 12,
+        shadowRadius: 12,
+        elevation: 6,
       }}
     >
       {/* Header */}
-      <View className="flex-row items-center justify-between p-6 border-b border-slate-700/30">
+      <View className="flex-row items-center justify-between mb-8">
         <View className="flex-row items-center">
           <MotiView
             from={{ scale: 0, rotate: -180 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ type: 'spring', duration: 800, delay: 400 }}
-            className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl items-center justify-center mr-4 shadow-xl"
+            className="w-12 h-12 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-xl items-center justify-center mr-4 shadow-xl"
             style={{
-              shadowColor: '#f59e0b',
+              shadowColor: '#06b6d4',
               shadowOffset: { width: 0, height: 6 },
               shadowOpacity: 0.4,
               shadowRadius: 12,
               elevation: 8,
             }}
           >
-            <Trophy size={24} color="#ffffff" />
-            
-            {/* Rotating glow */}
-            <MotiView
-              from={{ rotate: '0deg', scale: 1 }}
-              animate={{ rotate: '360deg', scale: 1.3 }}
-              transition={{
-                loop: true,
-                type: 'timing',
-                duration: 6000,
-              }}
-              className="absolute inset-0 rounded-xl bg-amber-400/20"
-            />
+            <Users size={24} color="#ffffff" />
           </MotiView>
-          
           <View className="flex-1">
             <Text className="text-2xl font-bold text-slate-100">
-              Gap Chains Leaderboard 🏆
+              {compareMode ? 'Cohort Comparison Analysis' : 'Topic Cohesion Score'}
             </Text>
             <Text className="text-slate-400 text-base">
-              Top 10 performers • {activeTab} rankings
-            </Text>
-          </View>
-        </View>
-
-        {/* Total Students Badge */}
-        <MotiView
-          from={{ scale: 0, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: 'spring', duration: 600, delay: 600 }}
-          className="items-center"
-        >
-          <View className="bg-amber-500/20 rounded-xl px-4 py-3 border border-amber-500/30 shadow-lg">
-            <Text className="text-amber-400 font-bold text-xl">
-              {currentData.length}
-            </Text>
-            <Text className="text-amber-300/80 text-xs text-center font-medium">
-              students
-            </Text>
-          </View>
-        </MotiView>
-      </View>
-
-      {/* Subject Tabs */}
-      <View className="flex-row justify-center p-4 border-b border-slate-700/30">
-        {subjects.map((subject, index) => {
-          const isActive = activeTab === subject.key;
-          const subjectColor = getSubjectColor(subject.key);
-          
-          return (
-            <MotiView
-              key={subject.key}
-              from={{ opacity: 0, translateY: 20 }}
-              animate={{ opacity: 1, translateY: 0 }}
-              transition={{ type: 'spring', duration: 600, delay: 800 + index * 100 }}
-            >
-              <Pressable
-                onPress={() => setActiveTab(subject.key)}
-                className={`flex-row items-center px-6 py-3 mx-2 rounded-xl ${
-                  isActive
-                    ? `bg-gradient-to-r ${subjectColor} shadow-lg`
-                    : 'bg-slate-700/50 border border-slate-600/50'
-                }`}
-                style={{
-                  shadowColor: isActive ? (
-                    subject.key === 'Physiology' ? '#10b981' :
-                    subject.key === 'Biochemistry' ? '#8b5cf6' : '#3b82f6'
-                  ) : 'transparent',
-                  shadowOffset: { width: 0, height: 4 },
-                  shadowOpacity: 0.3,
-                  shadowRadius: 8,
-                  elevation: isActive ? 4 : 0,
-                }}
-              >
-                <View className={`w-8 h-8 rounded-lg items-center justify-center mr-3 ${
-                  isActive ? 'bg-white/20' : 'bg-slate-600/50'
-                }`}>
-                  {getSubjectIcon(subject.key)}
-                </View>
-                <Text className={`font-semibold ${
-                  isActive ? 'text-white' : 'text-slate-400'
-                }`}>
-                  {subject.key}
-                </Text>
-              </Pressable>
-            </MotiView>
-          );
-        })}
-      </View>
-
-      {/* Leaderboard List */}
-      <ScrollView 
-        className="p-6"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1 }}
-        style={{ maxHeight: 600 }}
-      >
-        {top10Students.length > 0 ? (
-          <View className="space-y-2">
-            {top10Students.map((student, index) => (
-              <LeaderboardRow
-                key={student.student_id}
-                student={student}
-                rank={index + 1}
-                onPress={() => onStudentPress?.(student)}
-              />
-            ))}
-          </View>
-        ) : (
-          <MotiView
-            from={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ type: 'spring', duration: 600, delay: 400 }}
-            className="items-center py-12"
-          >
-            <View className="w-20 h-20 bg-gradient-to-br from-slate-500/20 to-slate-600/20 rounded-3xl items-center justify-center mb-6 shadow-lg">
-              <Trophy size={32} color="#64748b" />
-            </View>
-            <Text className="text-2xl font-bold text-slate-100 mb-2 text-center">
-              No Data Available
-            </Text>
-            <Text className="text-slate-300 text-base text-center max-w-md">
-              Complete some {activeTab.toLowerCase()} assessments to see the leaderboard rankings.
-            </Text>
-          </MotiView>
-        )}
-      </ScrollView>
-
-      {/* My Score & Rank Section */}
-      <MotiView
-        from={{ opacity: 0, translateY: 30 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: 'spring', duration: 800, delay: 1200 }}
-        className="p-6 border-t border-slate-700/30 bg-slate-900/20"
-      >
-        <View className="flex-row items-center mb-4">
-          <View className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg items-center justify-center mr-3 shadow-lg">
-            <User size={16} color="#ffffff" />
-          </View>
-          <Text className="text-xl font-bold text-slate-100">
-            My Score & Rank
-          </Text>
-        </View>
-
-        <LeaderboardRow
-          student={myScore}
-          rank={myRankInSubject}
-          isMyScore={true}
-          onPress={() => onStudentPress?.(myScore)}
-        />
-
-        {/* Performance Summary */}
-        <View className="mt-4 bg-slate-700/40 rounded-xl p-4 border border-slate-600/30">
-          <View className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <View className="text-center">
-              <Text className="text-slate-400 text-sm">Current Rank</Text>
-              <Text className="text-cyan-400 font-bold text-xl">
-                #{myRankInSubject}
-              </Text>
-              <Text className="text-slate-500 text-xs">
-                of {currentData.length + 1}
-              </Text>
-            </View>
-            
-            <View className="text-center">
-              <Text className="text-slate-400 text-sm">Score Gap to #1</Text>
-              <Text className="text-amber-400 font-bold text-xl">
-                {currentData.length > 0 ? (currentData[0].avg_score - myScore.avg_score).toFixed(0) : 0}
-              </Text>
-              <Text className="text-slate-500 text-xs">
-                points behind
-              </Text>
-            </View>
-            
-            <View className="text-center">
-              <Text className="text-slate-400 text-sm">Percentile</Text>
-              <Text className="text-emerald-400 font-bold text-xl">
-                {(((currentData.length + 1 - myRankInSubject) / (currentData.length + 1)) * 100).toFixed(0)}th
-              </Text>
-              <Text className="text-slate-500 text-xs">
-                percentile
-              </Text>
-            </View>
-          </View>
-        </View>
-      </MotiView>
-
-      {/* Floating Achievement Particles */}
-      <View className="absolute inset-0 pointer-events-none">
-        {[...Array(8)].map((_, i) => (
-          <MotiView
-            key={i}
-            from={{ 
-              opacity: 0, 
-              translateY: Math.random() * 100,
-              translateX: Math.random() * 100,
-              scale: 0
-            }}
-            animate={{ 
-              opacity: [0, 0.4, 0],
-              translateY: Math.random() * -200,
-              translateX: Math.random() * 50 - 25,
-              scale: [0, 1, 0]
-            }}
-            transition={{
-              loop: true,
-              type: 'timing',
-              duration: 6000,
-              delay: i * 800,
-            }}
-            className="absolute"
-            style={{
-              left: Math.random() * 100,
-              top: Math.random() * 200,
-            }}
-          >
-            <View className="w-2 h-2 bg-amber-400 rounded-full shadow-lg" />
-          </MotiView>
-        ))}
-      </View>
-    </MotiView>
-  );
-}
-
-export default function GapChains() {
-  const { width } = Dimensions.get('window');
-  const isMobile = width < 768;
-  
-  const [selectedSubject, setSelectedSubject] = useState<string>('all');
-  const [showFilters, setShowFilters] = useState(false);
-
-  // Process gap chains data
-  const processedData = gapChainsData as ChainData[];
-
-  // Get unique subjects for filter
-  const subjects = Array.from(new Set(processedData.map(item => item.subject)));
-
-  // Filter data based on selected subject
-  const filteredData = selectedSubject === 'all' 
-    ? processedData 
-    : processedData.filter(item => item.subject === selectedSubject);
-
-  // Calculate summary metrics
-  const totalChains = filteredData.length;
-  const healthyChains = filteredData.filter(item => item.chain_health_score >= 70).length;
-  const unhealthyChains = filteredData.filter(item => item.chain_health_score < 50).length;
-  const averageHealth = filteredData.reduce((sum, item) => sum + item.chain_health_score, 0) / Math.max(totalChains, 1);
-  const totalTimeCredit = filteredData.reduce((sum, item) => sum + item.time_credit_minutes, 0);
-
-  const getHealthColor = (score: number) => {
-    if (score >= 85) return { color: '#10b981', label: 'Excellent', bg: 'bg-emerald-500/10', border: 'border-emerald-500/30' };
-    if (score >= 70) return { color: '#22c55e', label: 'Good', bg: 'bg-green-500/10', border: 'border-green-500/30' };
-    if (score >= 50) return { color: '#f59e0b', label: 'Fair', bg: 'bg-amber-500/10', border: 'border-amber-500/30' };
-    if (score >= 30) return { color: '#f97316', label: 'Poor', bg: 'bg-orange-500/10', border: 'border-orange-500/30' };
-    return { color: '#ef4444', label: 'Critical', bg: 'bg-red-500/10', border: 'border-red-500/30' };
-  };
-
-  const handleStudentPress = (student: Student) => {
-    console.log('Selected student:', student);
-  };
-
-  return (
-    <View className="flex-1 bg-slate-900">
-      {/* Header */}
-      <MotiView
-        from={{ opacity: 0, translateY: -20 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: 'spring', duration: 600 }}
-        className="flex-row items-center justify-between p-6 border-b border-slate-700/50"
-      >
-        <View className="flex-row items-center">
-          <View className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl items-center justify-center mr-4 shadow-lg">
-            <GitBranch size={20} color="#ffffff" />
-          </View>
-          <View className="flex-1">
-            <Text className="text-2xl font-bold text-slate-100">Gap Chains Analysis</Text>
-            <Text className="text-sm text-slate-400">
-              Recursive gap tree per PYQ/MCQ analysis
-            </Text>
-          </View>
-        </View>
-
-        {/* Filter Toggle */}
-        <Pressable
-          onPress={() => setShowFilters(!showFilters)}
-          className="flex-row items-center bg-slate-700/50 rounded-lg px-3 py-2 active:scale-95"
-        >
-          <Filter size={16} color="#94a3b8" />
-          <Text className="text-slate-300 text-sm ml-2 capitalize">{selectedSubject}</Text>
-          <ChevronDown 
-            size={16} 
-            color="#94a3b8" 
-            style={{ 
-              transform: [{ rotate: showFilters ? '180deg' : '0deg' }] 
-            }} 
-          />
-        </Pressable>
-      </View>
-
-      {/* Filter Panel */}
-      {showFilters && (
-        <MotiView
-          from={{ opacity: 0, height: 0 }}
-          animate={{ opacity: 1, height: 'auto' }}
-          transition={{ type: 'spring', duration: 400 }}
-          className="bg-slate-800/60 border-b border-slate-700/50 p-6"
-        >
-          <View className="flex-row flex-wrap space-x-2">
-            <Pressable
-              onPress={() => setSelectedSubject('all')}
-              className={`px-4 py-2 rounded-lg mb-2 ${
-                selectedSubject === 'all'
-                  ? 'bg-purple-600/30 border border-purple-500/50'
-                  : 'bg-slate-700/40 border border-slate-600/30'
-              }`}
-            >
-              <Text className={`text-sm font-medium ${
-                selectedSubject === 'all' ? 'text-purple-300' : 'text-slate-400'
-              }`}>
-                All Subjects
-              </Text>
-            </Pressable>
-            {subjects.map((subject) => (
-              <Pressable
-                key={subject}
-                onPress={() => setSelectedSubject(subject)}
-                className={`px-4 py-2 rounded-lg mb-2 ${
-                  selectedSubject === subject
-                    ? 'bg-purple-600/30 border border-purple-500/50'
-                    : 'bg-slate-700/40 border border-slate-600/30'
-                }`}
-              >
-                <Text className={`text-sm font-medium ${
-                  selectedSubject === subject ? 'text-purple-300' : 'text-slate-400'
-                }`}>
-                  {subject}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        </MotiView>
-      )}
-
-      <ScrollView 
-        className="flex-1"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingHorizontal: isMobile ? 16 : 24,
-          paddingVertical: 24,
-        }}
-      >
-        {/* Summary Metrics */}
-        <View className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <MotiView
-            from={{ opacity: 0, translateY: 20 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ type: 'spring', duration: 600, delay: 200 }}
-            className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4"
-          >
-            <View className="flex-row items-center mb-2">
-              <GitBranch size={16} color="#3b82f6" />
-              <Text className="text-blue-400 font-semibold text-sm ml-2">Total Chains</Text>
-            </View>
-            <Text className="text-blue-200 text-xl font-bold">
-              {totalChains}
-            </Text>
-          </MotiView>
-
-          <MotiView
-            from={{ opacity: 0, translateY: 20 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ type: 'spring', duration: 600, delay: 300 }}
-            className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4"
-          >
-            <View className="flex-row items-center mb-2">
-              <Target size={16} color="#10b981" />
-              <Text className="text-emerald-400 font-semibold text-sm ml-2">Healthy</Text>
-            </View>
-            <Text className="text-emerald-200 text-xl font-bold">
-              {healthyChains}
-            </Text>
-            <Text className="text-emerald-300/80 text-xs">
-              ≥70% health
-            </Text>
-          </MotiView>
-
-          <MotiView
-            from={{ opacity: 0, translateY: 20 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ type: 'spring', duration: 600, delay: 400 }}
-            className="bg-red-500/10 border border-red-500/20 rounded-lg p-4"
-          >
-            <View className="flex-row items-center mb-2">
-              <TrendingUp size={16} color="#ef4444" />
-              <Text className="text-red-400 font-semibold text-sm ml-2">Unhealthy</Text>
-            </View>
-            <Text className="text-red-200 text-xl font-bold">
-              {unhealthyChains}
-            </Text>
-            <Text className="text-red-300/80 text-xs">
-              &lt;50% health
-            </Text>
-          </MotiView>
-
-          <MotiView
-            from={{ opacity: 0, translateY: 20 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ type: 'spring', duration: 600, delay: 500 }}
-            className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4"
-          >
-            <View className="flex-row items-center mb-2">
-              <Clock size={16} color="#8b5cf6" />
-              <Text className="text-purple-400 font-semibold text-sm ml-2">Time Credit</Text>
-            </View>
-            <Text className="text-purple-200 text-xl font-bold">
-              {(totalTimeCredit / 60).toFixed(1)}h
-            </Text>
-            <Text className="text-purple-300/80 text-xs">
-              {totalTimeCredit.toFixed(0)} minutes
-            </Text>
-          </MotiView>
-        </View>
-
-        {/* Gap Chains List */}
-        <MotiView
-          from={{ opacity: 0, translateY: 30 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          transition={{ type: 'spring', duration: 800, delay: 600 }}
-          className="bg-slate-800/60 rounded-2xl p-6 mb-8 border border-slate-700/40 shadow-lg"
-        >
-          <View className="flex-row items-center mb-6">
-            <View className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg items-center justify-center mr-3">
-              <GitBranch size={16} color="#ffffff" />
-            </View>
-            <Text className="text-xl font-bold text-slate-100">
-              Chain Health Analysis
-            </Text>
-          </View>
-
-          <View className="space-y-4">
-            {filteredData.map((item, index) => {
-              const healthInfo = getHealthColor(item.chain_health_score);
-              const chainLength = item.chain.length;
-              const correctCount = item.chain.filter(mcq => mcq.is_correct).length;
-
-              return (
-                <MotiView
-                  key={item.pyq_id}
-                  from={{ opacity: 0, translateX: -20 }}
-                  animate={{ opacity: 1, translateX: 0 }}
-                  transition={{ type: 'spring', duration: 600, delay: 800 + index * 100 }}
-                  className={`${healthInfo.bg} border ${healthInfo.border} rounded-xl p-4`}
-                >
-                  <View className="flex-row items-center justify-between mb-3">
-                    <View className="flex-1">
-                      <Text className="text-slate-100 font-semibold text-base mb-1">
-                        {item.subject} • {item.chapter}
-                      </Text>
-                      <Text className="text-slate-300 text-sm">
-                        {item.topic}
-                      </Text>
-                    </View>
-                    
-                    {/* Health Score Badge */}
-                    <View className="items-center">
-                      <View 
-                        className="w-16 h-16 rounded-full border-4 items-center justify-center"
-                        style={{ borderColor: healthInfo.color }}
-                      >
-                        <Text className="text-lg font-bold" style={{ color: healthInfo.color }}>
-                          {item.chain_health_score}
-                        </Text>
-                        <Text className="text-slate-500 text-xs">%</Text>
-                      </View>
-                      <Text className="text-xs text-slate-400 mt-1">
-                        {healthInfo.label}
-                      </Text>
-                    </View>
-                  </View>
-
-                  {/* Chain Details */}
-                  <View className="flex-row items-center justify-between">
-                    <View className="flex-row items-center space-x-4">
-                      <Text className="text-slate-400 text-sm">
-                        Chain: <Text className="text-slate-300 font-semibold">
-                          {correctCount}/{chainLength} correct
-                        </Text>
-                      </Text>
-                      <Text className="text-slate-400 text-sm">
-                        Time: <Text className="text-slate-300 font-semibold">
-                          {item.time_credit_minutes.toFixed(1)}m
-                        </Text>
-                      </Text>
-                    </View>
-
-                    {/* Chain Visualization */}
-                    <View className="flex-row space-x-1">
-                      {item.chain.map((mcq, mcqIndex) => (
-                        <View
-                          key={mcq.mcq_id}
-                          className={`w-3 h-3 rounded-full ${
-                            mcq.is_correct ? 'bg-emerald-500' : 'bg-red-500'
-                          }`}
-                        />
-                      ))}
-                    </View>
-                  </View>
-                </MotiView>
-              );
-            })}
-          </View>
-        </MotiView>
-
-        {/* Leaderboard Section */}
-        <MotiView
-          from={{ opacity: 0, translateY: 30 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          transition={{ type: 'spring', duration: 800, delay: 1000 }}
-        >
-          <Leaderboard onStudentPress={handleStudentPress} />
-        </MotiView>
-
-        {/* Insights Panel */}
-        <MotiView
-          from={{ opacity: 0, translateY: 20 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          transition={{ type: 'spring', duration: 600, delay: 1200 }}
-          className="bg-slate-700/40 rounded-xl p-4 border border-slate-600/30 mt-6"
-        >
-          <View className="flex-row items-center mb-3">
-            <GitBranch size={16} color="#06b6d4" />
-            <Text className="text-slate-100 font-semibold ml-2">Chain Health Insights</Text>
-          </View>
-          
-          <View className="space-y-2">
-            <Text className="text-slate-300 text-sm">
-              <Text className="font-bold text-emerald-400">Average Health Score:</Text> {averageHealth.toFixed(1)}%
-            </Text>
-            
-            <Text className="text-slate-300 text-sm">
-              <Text className="font-bold text-blue-400">Healthy Chains:</Text> {healthyChains} of {totalChains} ({((healthyChains / Math.max(totalChains, 1)) * 100).toFixed(0)}%)
-            </Text>
-            
-            <Text className="text-slate-300 text-sm">
-              <Text className="font-bold text-red-400">Need Attention:</Text> {unhealthyChains} chains with &lt;50% health
-            </Text>
-            
-            <Text className="text-slate-300 text-sm">
-              <Text className="font-bold text-purple-400">Total Time Investment:</Text> {(totalTimeCredit / 60).toFixed(1)} hours
-            </Text>
-            
-            <Text className="text-slate-400 text-xs leading-4 mt-3">
-              {averageHealth >= 70 
-                ? "Excellent chain health! Your recursive learning approach is working well across topics."
-                : averageHealth >= 50
-                ? "Moderate chain health. Focus on strengthening the weaker chains for better knowledge retention."
-                : "Low chain health detected. Consider reviewing your approach to recursive MCQs and gap resolution."
+              {compareMode 
+                ? 'Side-by-side cohort analysis and focus comparison'
+                : showMultipleCohorts 
+                  ? mockCohorts[currentCohort].name + ' • Study alignment analysis'
+                  : 'NEET 2025 Cohort • Study alignment analysis'
               }
             </Text>
           </View>
-        </MotiView>
-      </ScrollView>
-    </View>
-  );
-}
+        </View>
+
+        {/* Multiple Cohorts Toggle */}
+        {showMultipleCohorts && (
+          <View className="flex-row items-center space-x-3">
+            <Pressable
+              onPress={() => setCurrentCohort(Math.max(0, currentCohort - 1))}
+              disabled={currentCohort === 0}
+              className={`w-10 h-10 rounded-xl items-center justify-center ${
+                currentCohort === 0 ? 'bg-slate-700/30' : 'bg-slate-700/60'
+              }`}
+            >
+              <Text className={`font-bold ${currentCohort === 0 ? 'text-slate-500' : 'text-slate-300'}`}>
+                ←
+              </Text>
+            </Pressable>
+            
+            <View className="bg-slate-700/50 rounded-lg px-3 py-2">
+              <Text className="text-slate-300 text-sm font-medium">
+                {currentCohort + 1} / {mockCohorts.length}
+              </Text>
+            </View>
+            
+            <Pressable
+              onPress={() => setCurrentCohort(Math.min(mockCohorts.length - 1, currentCohort + 1))}
+              disabled={currentCohort === mockCohorts.length - 1}
+              className={`w-10 h-10 rounded-xl items-center justify-center ${
+                currentCohort === mockCohorts.length - 1 ? 'bg-slate-700/30' : 'bg-slate-700/60'
+              }`}
+            >
+              <Text className={`font-bold ${currentCohort === mockCohorts.length - 1 ? 'text-slate-500' : 'text-slate-300'}`}>
+                →
+              </Text>
+            </Pressable>
+          </View>
+        )}
+      </View>
+
+      {/* Compare Mode Layout */}
+      {compareMode ? (
+        <View className="space-y-8">
+          {/* Side-by-Side Donut Meters */}
+          <View className={`${isMobile ? 'space-y-8' : 'grid grid-cols-2 gap-8'}`}>
+            {/* Cohort A */}
+            <MotiView
+              from={{ opacity: 0, translateX: -50, scale: 0.9 }}
+              animate={{ opacity: 1, translateX: 0, scale: 1 }}
+              transition={{ type: 'spring', duration: 800, delay: 600 }}
+              className="bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/30 rounded-2xl p-6 shadow-lg"
+              style={{
+                shadowColor: '#3b82f6',
+                shadowOffset: { width: 0, height: 6 },
+                shadowOpacity: 0.15,
+                shadowRadius: 12,
+                elevation: 6,
+              }}
+            >
+              <View className="items-center">
+                <Text className="text-2xl font-bold text-blue-300 mb-4">Cohort A</Text>
+                <DonutMeter score={cohortAData!.cohesionScore} size={140} strokeWidth={16} />
+                <View className="mt-4 bg-slate-800/40 rounded-xl p-4 border border-slate-600/30 w-full">
+                  <Text className="text-blue-300 font-bold text-lg text-center mb-2">
+                    {cohortAData!.cohesionLevel} Cohesion
+                  </Text>
+                  <Text className="text-slate-400 text-sm text-center">
+                    Top focus: {cohortAData!.topTopics[0]?.topic.replace(/([A-Z])/g, ' $1').trim()}
+                  </Text>
+                  <Text className="text-blue-400 text-sm text-center font-bold">
+                    {cohortAData!.topTopics[0]?.percentage.toFixed(1)}% alignment
+                  </Text>
+                </View>
+              </View>
+            </MotiView>
+
+            {/* Cohort B */}
+            <MotiView
+              from={{ opacity: 0, translateX: 50, scale: 0.9 }}
+              animate={{ opacity: 1, translateX: 0, scale: 1 }}
+              transition={{ type: 'spring', duration: 800, delay: 700 }}
+              className="bg-gradient-to-br from-purple-500/10 to-indigo-500/10 border border-purple-500/30 rounded-2xl p-6 shadow-lg"
+              style={{
+                shadowColor: '#8b5cf6',
+                shadowOffset: { width: 0, height: 6 },
+                shadowOpacity: 0.15,
+                shadowRadius: 12,
+                elevation: 6,
+              }}
+            >
+              <View className="items-center">
+                <Text className="text-2xl font-bold text-purple-300 mb-4">Cohort B</Text>
+                <DonutMeter score={cohortBData!.cohesionScore} size={140} strokeWidth={16} />
+                <View className="mt-4 bg-slate-800/40 rounded-xl p-4 border border-slate-600/30 w-full">
+                  <Text className="text-purple-300 font-bold text-lg text-center mb-2">
+                    {cohortBData!.cohesionLevel} Cohesion
+                  </Text>
+                  <Text className="text-slate-400 text-sm text-center">
+                    Top focus: {cohortBData!.topTopics[0]?.topic.replace(/([A-Z])/g, ' $1').trim()}
+                  </Text>
+                  <Text className="text-purple-400 text-sm text-center font-bold">
+                    {cohortBData!.topTopics[0]?.percentage.toFixed(1)}% alignment
+                  </Text>
+                </View>
+              </View>
+            </MotiView>
+          </View>
+
+          {/* Comparison Bar Chart */}
+          <MotiView
+            from={{ opacity: 0, translateY: 30, scale: 0.95 }}
+            animate={{ opacity: 1, translateY: 0, scale: 1 }}
+            transition={{ type: 'spring', duration: 800, delay: 800 }}
+            className="bg-slate-800/60 rounded-2xl p-6 border border-slate-700/40 shadow-lg"
+            style={{
+              shadowColor: '#06b6d4',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.1,
+              shadowRadius: 8,
+              elevation: 6,
+            }}
+          >
+            <View className="flex-row items-center mb-6">
+              <View className="w-8 h-8 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg items-center justify-center mr-3">
+                <TrendingUp size={16} color="#ffffff" />
+              </View>
+              <Text className="text-xl font-bold text-slate-100">
+                Cohesion Score Comparison
+              </Text>
+            </View>
+
+            {/* Comparison Bars */}
+            <View className="space-y-6">
+              <View>
+                <View className="flex-row justify-between items-center mb-3">
+                  <Text className="text-blue-300 font-bold text-lg">Cohort A</Text>
+                  <Text className="text-blue-400 font-bold text-xl">
+                    {(cohortAData!.cohesionScore * 100).toFixed(1)}%
+                  </Text>
+                </View>
+                <View className="w-full bg-slate-700/60 rounded-full h-4 overflow-hidden">
+                  <MotiView
+                    from={{ width: '0%' }}
+                    animate={{ width: `${cohortAData!.cohesionScore * 100}%` }}
+                    transition={{ type: 'spring', duration: 1500, delay: 1000 }}
+                    className="h-4 rounded-full shadow-lg"
+                    style={{
+                      background: 'linear-gradient(90deg, #3b82f6 0%, #60a5fa 50%, #93c5fd 100%)',
+                      shadowColor: '#3b82f6',
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.4,
+                      shadowRadius: 6,
+                      elevation: 4,
+                    }}
+                  />
+                </View>
+                <Text className="text-slate-400 text-sm mt-1">
+                  {cohortAData!.cohesionLevel} • Top: {cohortAData!.topTopics[0]?.topic.replace(/([A-Z])/g, ' $1').trim()}
+                </Text>
+              </View>
+
+              <View>
+                <View className="flex-row justify-between items-center mb-3">
+                  <Text className="text-purple-300 font-bold text-lg">Cohort B</Text>
+                  <Text className="text-purple-400 font-bold text-xl">
+                    {(cohortBData!.cohesionScore * 100).toFixed(1)}%
+                  </Text>
+                </View>
+                <View className="w-full bg-slate-700/60 rounded-full h-4 overflow-hidden">
+                  <MotiView
+                    from={{ width: '0%' }}
+                    animate={{ width: `${cohortBData!.cohesionScore * 100}%` }}
+                    transition={{ type: 'spring', duration: 1500, delay: 1200 }}
+                    className="h-4 rounded-full shadow-lg"
+                    style={{
+                      background: 'linear-gradient(90deg, #8b5cf6 0%, #a78bfa 50%, #c4b5fd 100%)',
+                      shadowColor: '#8b5cf6',
+                      shadowOffset: { width: 0, height: 2 },
+                      shadowOpacity: 0.4,
+                      shadowRadius: 6,
+                      elevation: 4,
+                    }}
+                  />
+                </View>
+                <Text className="text-slate-400 text-sm mt-1">
+                  {cohortBData!.cohesionLevel} • Top: {cohortBData!.topTopics[0]?.topic.replace(/([A-Z])/g, ' $1').trim()}
+                </Text>
+              </View>
+            </View>
+
+            {/* Difference Analysis */}
+            <View className="mt-6 bg-slate-700/40 rounded-xl p-4 border border-slate-600/30">
+              <View className="flex-row items-center mb-3">
+                <Target size={16} color="#06b6d4" />
+                <Text className="text-slate-100 font-semibold ml-2">Comparison Analysis</Text>
+              </View>
+              
+              <View className="space-y-2">
+                <Text className="text-slate-300 text-sm">
+                  <Text className="font-bold text-cyan-400">Score Difference:</Text> {
+                    Math.abs(cohortAData!.cohesionScore - cohortBData!.cohesionScore) > 0.1 
+                      ? `${Math.abs((cohortAData!.cohesionScore - cohortBData!.cohesionScore) * 100).toFixed(1)}% gap`
+                      : 'Similar alignment levels'
+                  }
+                </Text>
+                
+                <Text className="text-slate-300 text-sm">
+                  <Text className="font-bold text-emerald-400">Focus Overlap:</Text> {
+                    cohortAData!.topTopics[0]?.topic === cohortBData!.topTopics[0]?.topic 
+                      ? 'Both prioritize same top topic'
+                      : 'Different primary focus areas'
+                  }
+                </Text>
+                
+                <Text className="text-slate-300 text-sm">
+                  <Text className="font-bold text-purple-400">Stronger Cohort:</Text> {
+                    cohortAData!.cohesionScore > cohortBData!.cohesionScore ? 'Cohort A' : 
+                    cohortBData!.cohesionScore > cohortAData!.cohesionScore ? 'Cohort B' : 'Tied'
+                  } ({Math.max(cohortAData!.cohesionScore, cohortBData!.cohesionScore) * 100}% alignment)
+                </Text>
+              </View>
+            </View>
+          </MotiView>
+
+          {/* Side-by-Side Topic Focus */}
+          <View className={`${isMobile ? 'space-y-6' : 'grid grid-cols-2 gap-6'}`}>
+            {/* Cohort A Topics */}
+            <MotiView
+              from={{ opacity: 0, translateX: -30 }}
+              animate={{ opacity: 1, translateX: 0 }}
+              transition={{ type: 'spring', duration: 800, delay: 1000 }}
+              className="bg-blue-500/10 border border-blue-500/30 rounded-2xl p-6"
+            >
+              <Text className="text-xl font-bold text-blue-300 mb-4">Cohort A - Top Topics</Text>
+              <View className="space-y-3">
+                {cohortAData!.topTopics.map((topic, index) => (
+                  <View key={topic.topic} className="bg-slate-800/40 rounded-lg p-3 border border-slate-600/30">
+                    <View className="flex-row justify-between items-center">
+                      <Text className="text-slate-100 font-medium text-sm flex-1" numberOfLines={2}>
+                        #{index + 1} {topic.topic.replace(/([A-Z])/g, ' $1').trim()}
+                      </Text>
+                      <Text className="text-blue-400 font-bold text-lg ml-2">
+                        {topic.percentage.toFixed(1)}%
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </MotiView>
+
+            {/* Cohort B Topics */}
+            <MotiView
+              from={{ opacity: 0, translateX: 30 }}
+              animate={{ opacity: 1, translateX: 0 }}
+              transition={{ type: 'spring', duration: 800, delay: 1100 }}
+              className="bg-purple-500/10 border border-purple-500/30 rounded-2xl p-6"
+            >
+              <Text className="text-xl font-bold text-purple-300 mb-4">Cohort B - Top Topics</Text>
+              <View className="space-y-3">
+                {cohortBData!.topTopics.map((topic, index) => (
+                  <View key={topic.topic} className="bg-slate-800/40 rounded-lg p-3 border border-slate-600/30">
+                    <View className="flex-row justify-between items-center">
+                      <Text className="text-slate-100 font-medium text-sm flex-1" numberOfLines={2}>
+                        #{index + 1} {topic.topic.replace(/([A-Z])/g, ' $1').trim()}
+                      </Text>
+                      <Text className="text-purple-400 font-bold text-lg ml-2">
+                        {topic.percentage.toFixed(1)}%
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </MotiView>
+          </View>
+
+          {/* AI Comparison Insights */}
+          <MotiView
+            from={{ opacity: 0, translateY: 30 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ type: 'spring', duration: 800, delay: 1200 }}
+            className="bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-2xl p-6 border border-indigo-500/20 shadow-xl"
+            style={{
+              shadowColor: '#6366f1',
+              shadowOffset: { width: 0, height: 8 },
+              shadowOpacity: 0.2,
+              shadowRadius: 16,
+              elevation: 8,
+            }}
+          >
+            <View>
+            <View className="flex-row items-center mb-4">
+              <MotiView
+                from={{ scale: 0, rotate: -90 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', duration: 600, delay: 1400 }}
+                className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl items-center justify-center mr-3 shadow-lg"
+              >
+                <Brain size={20} color="#ffffff" />
+              </MotiView>
+              <Text className="text-xl font-bold text-indigo-100">
+                AI Cohort Comparison Analysis
+              </Text>
+            </View>
+            
+            <Text className="text-indigo-200 text-lg leading-8 font-medium">
+              {generateComparisonInsights(cohortAData!, cohortBData!)}
+            </Text>
+
+            {/* Comparison Metrics */}
+            <View className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <View className="bg-slate-800/40 rounded-xl p-4 border border-slate-600/30">
+                <Text className="text-cyan-400 font-semibold text-sm mb-2">Score Gap</Text>
+                <Text className="text-cyan-200 text-2xl font-bold">
+                  {Math.abs((cohortAData!.cohesionScore - cohortBData!.cohesionScore) * 100).toFixed(1)}%
+                </Text>
+                <Text className="text-cyan-300/80 text-xs">
+                  difference
+                </Text>
+              </View>
+              
+              <View className="bg-slate-800/40 rounded-xl p-4 border border-slate-600/30">
+                <Text className="text-emerald-400 font-semibold text-sm mb-2">Focus Overlap</Text>
+                <Text className="text-emerald-200 text-lg font-bold">
+                  {cohortAData!.topTopics[0]?.topic === cohortBData!.topTopics[0]?.topic ? 'Same' : 'Different'}
+                </Text>
+                <Text className="text-emerald-300/80 text-xs">
+                  top priority
+                </Text>
+              </View>
+              
+              <View className="bg-slate-800/40 rounded-xl p-4 border border-slate-600/30">
+                <Text className="text-purple-400 font-semibold text-sm mb-2">Stronger Cohort</Text>
+                <Text className="text-purple-200 text-lg font-bold">
+                  {cohortAData!.cohesionScore > cohortBData!.cohesionScore ? 'Cohort A' : 
+                   cohortBData!.cohesionScore > cohortAData!.cohesionScore ? 'Cohort B' : 'Tied'}
+                </Text>
+                <Text className="text-purple-300/80 text-xs">
+                  alignment leader
+                </Text>
+              </View>
+            </View>
+            </View>
+          </MotiView>
+        </View>
+      ) : (
+        /* Single Cohort Mode */
+        <View>
+          {/* Main Content Grid */}
+          <View className={`${isMobile ? 'space-y-8' : 'grid grid-cols-2 gap-8'}`}>
+            {/* Left Panel - Donut Meter */}
+            <View className="items-center">
+              <MotiView
+                from={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', duration: 1000, delay: 600 }}
+              >
+                <DonutMeter score={cohesionData!.cohesionScore} size={160} strokeWidth={20} />
+              </MotiView>
+
+              {/* Cohesion Level Label */}
+              <MotiView
+                from={{ opacity: 0, translateY: 20 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{ type: 'spring', duration: 600, delay: 1200 }}
+                className="mt-6"
+              >
+                <View 
+                  className="px-6 py-3 rounded-2xl border-2 shadow-lg"
+                  style={{ 
+                    backgroundColor: `${cohesionData!.cohesionScore >= 0.7 ? '#10b981' : 
+                                     cohesionData!.cohesionScore >= 0.4 ? '#f59e0b' : '#ef4444'}20`,
+                    borderColor: `${cohesionData!.cohesionScore >= 0.7 ? '#10b981' : 
+                                  cohesionData!.cohesionScore >= 0.4 ? '#f59e0b' : '#ef4444'}50`
+                  }}
+                >
+                  <Text 
+                    className="text-center font-bold text-xl"
+                    style={{ 
+                      color: cohesionData!.cohesionScore >= 0.7 ? '#10b981' : 
+                             cohesionData!.cohesionScore >= 0.4 ? '#f59e0b' : '#ef4444'
+                    }}
+                  >
+                    {cohesionData!.cohesionLevel} Cohesion
+                  </Text>
+                </View>
+              </MotiView>
+
+              {/* Score Breakdown */}
+              <MotiView
+                from={{ opacity: 0, translateY: 20 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{ type: 'spring', duration: 600, delay: 1400 }}
+                className="mt-4 bg-slate-700/40 rounded-xl p-4 border border-slate-600/30 w-full"
+              >
+                <Text className="text-slate-100 font-semibold mb-3 text-center">Score Breakdown</Text>
+                <View className="space-y-2">
+                  <View className="flex-row justify-between">
+                    <Text className="text-slate-400 text-sm">Top 3 Topics Time</Text>
+                    <Text className="text-cyan-400 font-bold text-sm">
+                      {(cohesionData!.topTopics.reduce((sum, t) => sum + t.totalTime, 0) / 60).toFixed(1)}h
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-slate-400 text-sm">Total Cohort Time</Text>
+                    <Text className="text-slate-300 font-bold text-sm">
+                      {(cohesionData!.totalCohortTime / 60).toFixed(1)}h
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-slate-400 text-sm">Cohesion Score</Text>
+                    <Text 
+                      className="font-bold text-sm"
+                      style={{ 
+                        color: cohesionData!.cohesionScore >= 0.7 ? '#10b981' : 
+                               cohesionData!.cohesionScore >= 0.4 ? '#f59e0b' : '#ef4444'
+                      }}
+                    >
+                      {(cohesionData!.cohesionScore * 100).toFixed(1)}%
+                    </Text>
+                  </View>
+                </View>
+              </MotiView>
+            </View>
+
+            {/* Right Panel - Top Topics */}
+            <View className="flex-1">
+              <MotiView
+                from={{ opacity: 0, translateX: 30 }}
+                animate={{ opacity: 1, translateX: 0 }}
+                transition={{ type: 'spring', duration: 800, delay: 800 }}
+              >
+                <Text className="text-xl font-bold text-slate-100 mb-6">
+                  Top 3 Focus Areas
+                </Text>
+                
+                <View className="space-y-4">
+                  {cohesionData!.topTopics.map((topic, index) => {
+                    const rankColors = [
+                      { bg: 'bg-amber-500/10', border: 'border-amber-500/30', text: 'text-amber-400', badge: 'bg-amber-500' },
+                      { bg: 'bg-blue-500/10', border: 'border-blue-500/30', text: 'text-blue-400', badge: 'bg-blue-500' },
+                      { bg: 'bg-purple-500/10', border: 'border-purple-500/30', text: 'text-purple-400', badge: 'bg-purple-500' },
+                    ];
+                    const colors = rankColors[index];
+
+                    return (
+                      <MotiView
+                        key={topic.topic}
+                        from={{ opacity: 0, translateY: 20 }}
+                        animate={{ opacity: 1, translateY: 0 }}
+                        transition={{ type: 'spring', duration: 600, delay: 1000 + index * 200 }}
+                        className={`${colors.bg} border ${colors.border} rounded-xl p-4 shadow-lg`}
+                        style={{
+                          shadowColor: colors.badge.replace('bg-', '#').replace('-500', ''),
+                          shadowOffset: { width: 0, height: 4 },
+                          shadowOpacity: 0.1,
+                          shadowRadius: 8,
+                          elevation: 4,
+                        }}
+                      >
+                        <View className="flex-row items-center justify-between mb-3">
+                          <View className="flex-row items-center">
+                            <View className={`w-8 h-8 rounded-full ${colors.badge} items-center justify-center mr-3 shadow-lg`}>
+                              <Text className="text-white font-bold text-sm">#{index + 1}</Text>
+                            </View>
+                            <View className="flex-1">
+                              <Text className="text-slate-100 font-semibold text-base">
+                                {topic.topic.replace(/([A-Z])/g, ' $1').trim()}
+                              </Text>
+                              <Text className="text-slate-400 text-sm">
+                                {topic.studentsInvolved} of {currentCohortData.length} students involved
+                              </Text>
+                            </View>
+                          </View>
+                          
+                          {/* Percentage Badge */}
+                          <View className={`px-3 py-2 rounded-lg ${colors.bg} border ${colors.border}`}>
+                            <Text className={`font-bold text-lg ${colors.text}`}>
+                              {topic.percentage.toFixed(1)}%
+                            </Text>
+                            <Text className="text-slate-400 text-xs text-center">
+                              of cohort time
+                            </Text>
+                          </View>
+                        </View>
+
+                        {/* Time Investment */}
+                        <View className="flex-row items-center justify-between">
+                          <View className="flex-row items-center">
+                            <Target size={14} color={colors.text.includes('amber') ? '#f59e0b' : 
+                                                    colors.text.includes('blue') ? '#3b82f6' : '#8b5cf6'} />
+                            <Text className="text-slate-300 text-sm ml-2">
+                              Time Investment: <Text className="font-bold">{(topic.totalTime / 60).toFixed(1)}h</Text>
+                            </Text>
+                          </View>
+                          
+                          {/* Progress Bar */}
+                          <View className="w-20 bg-slate-600 rounded-full h-2">
+                            <MotiView
+                              from={{ width: '0%' }}
+                              animate={{ width: `${topic.percentage}%` }}
+                              transition={{ type: 'spring', duration: 1000, delay: 1200 + index * 200 }}
+                              className="h-2 rounded-full"
+                              style={{ 
+                                backgroundColor: colors.text.includes('amber') ? '#f59e0b' : 
+                                                colors.text.includes('blue') ? '#3b82f6' : '#8b5cf6'
+                              }}
+                            />
+                          </View>
+                        </View>
+                      </MotiView>
+                    );
+                  })}
+                </View>
+              </MotiView>
+            </View>
+          </View>
+
+          {/* AI Mentor Introduction */}
+          <MotiView
+            from={{ opacity: 0, translateY: 30 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ type: 'spring', duration: 800, delay: 1600 }}
+            className="mt-8 bg-gradient-to-br from-indigo-900/40 to-purple-900/40 rounded-2xl p-6 border border-indigo-500/20 shadow-xl"
+            style={{
+              shadowColor: '#6366f1',
+              shadowOffset: { width: 0, height: 8 },
+              shadowOpacity: 0.2,
+              shadowRadius: 16,
+              elevation: 8,
+            }}
+          >
+            <View className="flex-row items-center mb-4">
+              <MotiView
+                from={{ scale: 0, rotate: -90 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', duration: 600, delay: 1800 }}
+                className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl items-center justify-center mr-3 shadow-lg"
+              >
+                <Brain size={20} color="#ffffff" />
+              </MotiView>
+              <Text className="text-xl font-bold text-indigo-100">
+                AI Cohort Analysis
+              </Text>
+            </View>
+            
+            <Text className="text-indigo-200 text-lg leading-8 font-medium">
+              {cohesionData!.aiInsight}
+            </Text>
+
+            {/* Cohesion Metrics */}
+            <View className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <MotiView
+                from={{ opacity: 0, translateY: 20 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{ type: 'spring', duration: 600, delay: 2000 }}
+                className="bg-slate-800/40 rounded-xl p-4 border border-slate-600/30"
+              >
+                <View className="flex-row items-center mb-2">
+                  <Target size={16} color="#06b6d4" />
+                  <Text className="text-cyan-400 font-semibold text-sm ml-2">Focus Alignment</Text>
+                </View>
+                <Text className="text-cyan-200 text-2xl font-bold">
+                  {(cohesionData!.cohesionScore * 100).toFixed(0)}%
+                </Text>
+                <Text className="text-cyan-300/80 text-xs">
+                  on top 3 topics
+                </Text>
+              </MotiView>
+
+              <MotiView
+                from={{ opacity: 0, translateY: 20 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{ type: 'spring', duration: 600, delay: 2100 }}
+                className="bg-slate-800/40 rounded-xl p-4 border border-slate-600/30"
+              >
+                <View className="flex-row items-center mb-2">
+                  <Users size={16} color="#10b981" />
+                  <Text className="text-emerald-400 font-semibold text-sm ml-2">Students</Text>
+                </View>
+                <Text className="text-emerald-200 text-2xl font-bold">
+                  {currentCohortData.length}
+                </Text>
+                <Text className="text-emerald-300/80 text-xs">
+                  in cohort
+                </Text>
+              </MotiView>
+
+              <MotiView
+                from={{ opacity: 0, translateY: 20 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{ type: 'spring', duration: 600, delay: 2200 }}
+                className="bg-slate-800/40 rounded-xl p-4 border border-slate-600/30"
+              >
+                <View className="flex-row items-center mb-2">
+                  <TrendingUp size={16} color="#8b5cf6" />
+                  <Text className="text-purple-400 font-semibold text-sm ml-2">Top Topic</Text>
+                </View>
+                <Text className="text-purple-200 text-sm font-bold" numberOfLines={2}>
+                  {cohesionData!.topTopics[0]?.topic.replace(/([A-Z])/g, ' $1').trim() || 'N/A'}
+                </Text>
+                <Text className="text-purple-300/80 text-xs">
+                  {cohesionData!.topTopics[0]?.percentage.toFixed(1)}% focus
+                </Text>
+              </MotiView>
+            </View>
+          </MotiView>
+
+          {/* Cohesion Scale Reference */}
+          <MotiView
+            from={{ opacity: 0, translateY: 20 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ type: 'spring', duration: 600, delay: 2400 }}
+            className="mt-6 bg-slate-700/40 rounded-xl p-4 border border-slate-600/30"
+          >
+            <Text className="text-slate-100 font-semibold mb-3 text-center">Cohesion Scale</Text>
+            <View className="space-y-3">
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center">
+                  <View className="w-4 h-4 rounded-full bg-emerald-500 mr-3" />
+                  <Text className="text-slate-300 text-sm">High Cohesion (
