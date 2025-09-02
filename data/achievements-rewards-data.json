@@ -1,0 +1,26 @@
+{
+  "effortRewardData": [
+    { "subject": "Biochemistry", "pyqs_completed": 120, "total_time_min": 540, "total_xp": 9600, "efficiency": 17.7, "chapters": 8 },
+    { "subject": "Physiology", "pyqs_completed": 200, "total_time_min": 900, "total_xp": 17000, "efficiency": 18.9, "chapters": 14 },
+    { "subject": "Anatomy", "pyqs_completed": 150, "total_time_min": 675, "total_xp": 11200, "efficiency": 16.6, "chapters": 10 },
+    { "subject": "Pharmacology", "pyqs_completed": 90, "total_time_min": 405, "total_xp": 6000, "efficiency": 14.8, "chapters": 6 }
+  ],
+  "badgeData": [
+    { "id": "b1", "name": "Chain Breaker", "description": "Solved 5 PYQs at mcq_1 consecutively", "unlocked": true, "icon": "⭐" },
+    { "id": "b2", "name": "Resilience Badge", "description": "Reached mcq_6 three times and fixed the gap", "unlocked": false, "icon": "🔒" },
+    { "id": "b3", "name": "Speed Surgeon", "description": "Solved 10 PYQs under 3 mins", "unlocked": true, "icon": "⚡" },
+    { "id": "b4", "name": "Gap Slayer", "description": "Reduced Mistake Recurrence by 20% in a chapter", "unlocked": false, "icon": "🔒" },
+    { "id": "b5", "name": "Consistency Champ", "description": "7-day streak with ≥30 min/day", "unlocked": true, "icon": "🔥" }
+  ],
+  "rewardTimeline": [
+    { "date": "2025-08-25", "event": "Unlocked Chain Breaker", "icon": "⭐" },
+    { "date": "2025-08-28", "event": "1000 XP Milestone", "icon": "🔥" },
+    { "date": "2025-08-30", "event": "Consistency Champ Badge", "icon": "🏆" },
+    { "date": "2025-09-01", "event": "Gap Slayer Unlocked", "icon": "🎯" }
+  ],
+  "streakData": {
+    "currentStreak": 7,
+    "longestStreak": 14,
+    "xpMultiplier": 1.2
+  }
+}
