@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { Users, TrendingUp, Target, Zap, Clock, Award, Bell, Radar, Trophy, ChevronRight, Play, CircleCheck as CheckCircle, TriangleAlert as AlertTriangle, Heart, Flame, Star } from 'lucide-react-native';
+import { Users, TrendingUp, Target, Zap, Clock, Award, Bell, Radar, Trophy, ChevronRight, Play, CircleCheck as CheckCircle, TriangleAlert as AlertTriangle, Heart, Flame, Star, Users as Users2 } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
 import Svg, { Circle, Text as SvgText, Line, Defs, LinearGradient, Stop, Path } from 'react-native-svg';
 import PeerProgressSyncMeter from '@/components/PeerProgressSyncMeter';
+import AccountabilityNudges from '@/components/AccountabilityNudges';
 
 // Mock data
 const buddyData = {
@@ -24,9 +25,9 @@ const buddyProgressData = {
 };
 
 const mockNudges = [
-  { id: 1, type: 'motivation', message: "Arjun completed 25 PYQs today! Can you match that energy? 🔥", timestamp: "2 hours ago" },
-  { id: 2, type: 'reminder', message: "Meera is waiting for you to start the Biochemistry challenge!", timestamp: "4 hours ago" },
-  { id: 3, type: 'achievement', message: "You both unlocked 'Consistency Champion' badge! 🏆", timestamp: "1 day ago" }
+  { id: 1, type: 'catchup', message: "⚡ Meera is 250 PYQs ahead. Time to close the gap!", buddyFrom: "Meera", buddyTo: "Arjun", timestamp: "2 hours ago" },
+  { id: 2, type: 'challenge', message: "🎯 Arjun mastered DNA today. Can you match it?", buddyFrom: "Arjun", buddyTo: "Meera", timestamp: "4 hours ago" },
+  { id: 3, type: 'motivation', message: "🔥 You both are crushing it! Keep the momentum going!", buddyFrom: "System", buddyTo: "Both", timestamp: "6 hours ago" }
 ];
 
 const mockGapData = [
@@ -121,117 +122,6 @@ function CircularProgress({
         </Svg>
       </View>
     </View>
-  );
-}
-
-interface AccountabilityNudgesProps {
-  nudges: Array<{
-    id: number;
-    type: string;
-    message: string;
-    timestamp: string;
-  }>;
-}
-
-function AccountabilityNudges({ nudges }: AccountabilityNudgesProps) {
-  const getNudgeIcon = (type: string) => {
-    switch (type) {
-      case 'motivation': return <Flame size={16} color="#ffffff" />;
-      case 'reminder': return <Bell size={16} color="#ffffff" />;
-      case 'achievement': return <Trophy size={16} color="#ffffff" />;
-      default: return <Zap size={16} color="#ffffff" />;
-    }
-  };
-
-  const getNudgeColor = (type: string) => {
-    switch (type) {
-      case 'motivation': return 'from-red-500 to-orange-600';
-      case 'reminder': return 'from-amber-500 to-yellow-600';
-      case 'achievement': return 'from-emerald-500 to-teal-600';
-      default: return 'from-blue-500 to-indigo-600';
-    }
-  };
-
-  return (
-    <MotiView
-      from={{ opacity: 0, translateY: 30, scale: 0.95 }}
-      animate={{ opacity: 1, translateY: 0, scale: 1 }}
-      transition={{ type: 'spring', duration: 800, delay: 400 }}
-      className="bg-slate-800/60 rounded-2xl p-6 mb-6 border border-slate-700/40 shadow-lg"
-      style={{
-        shadowColor: '#f59e0b',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 6,
-      }}
-    >
-      {/* Header */}
-      <View className="flex-row items-center mb-6">
-        <View className="w-10 h-10 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl items-center justify-center mr-3 shadow-lg">
-          <Bell size={20} color="#ffffff" />
-        </View>
-        <View className="flex-1">
-          <Text className="text-2xl font-bold text-slate-100">Accountability Nudges</Text>
-          <Text className="text-slate-400 text-sm">
-            Smart notifications to keep you both motivated
-          </Text>
-        </View>
-        
-        {/* Active Nudges Count */}
-        <View className="bg-amber-500/20 rounded-full px-3 py-2 border border-amber-500/30">
-          <Text className="text-amber-400 font-bold text-lg">
-            {nudges.length}
-          </Text>
-          <Text className="text-amber-300/80 text-xs text-center">
-            active
-          </Text>
-        </View>
-      </View>
-
-      {/* Nudges List */}
-      <View className="space-y-3">
-        {nudges.map((nudge, index) => (
-          <MotiView
-            key={nudge.id}
-            from={{ opacity: 0, translateX: -20 }}
-            animate={{ opacity: 1, translateX: 0 }}
-            transition={{ type: 'spring', duration: 600, delay: 600 + index * 150 }}
-            className="bg-slate-700/40 rounded-xl p-4 border border-slate-600/30"
-          >
-            <View className="flex-row items-start">
-              <View className={`w-10 h-10 bg-gradient-to-br ${getNudgeColor(nudge.type)} rounded-full items-center justify-center mr-3 shadow-lg`}>
-                {getNudgeIcon(nudge.type)}
-              </View>
-              <View className="flex-1">
-                <Text className="text-slate-100 text-base leading-6 mb-2">
-                  {nudge.message}
-                </Text>
-                <Text className="text-slate-400 text-xs">
-                  {nudge.timestamp}
-                </Text>
-              </View>
-              <Pressable className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg px-3 py-2 active:scale-95">
-                <Text className="text-white font-medium text-sm">Act</Text>
-              </Pressable>
-            </View>
-          </MotiView>
-        ))}
-      </View>
-
-      {/* Nudge Settings */}
-      <View className="mt-6 bg-slate-700/40 rounded-xl p-4 border border-slate-600/30">
-        <View className="flex-row items-center justify-between">
-          <Text className="text-slate-100 font-semibold">Smart Nudge Settings</Text>
-          <Pressable className="bg-slate-600/50 rounded-lg px-3 py-2">
-            <Text className="text-slate-300 text-sm">Configure</Text>
-          </Pressable>
-        </View>
-        <Text className="text-slate-400 text-sm mt-2">
-          AI automatically sends motivational nudges based on your buddy's activity and progress patterns.
-        </Text>
-      </View>
-    </MotiView>
   );
 }
 
@@ -748,7 +638,11 @@ export default function BuddyModePage() {
         <PeerProgressSyncMeter data={buddyProgressData} />
 
         {/* Section 2: Accountability Nudges */}
-        <AccountabilityNudges nudges={mockNudges} />
+        <AccountabilityNudges 
+          nudges={mockNudges}
+          onNudgeDismiss={(nudgeId) => console.log('Dismissed nudge:', nudgeId)}
+          onNudgeAction={(nudge) => console.log('Action on nudge:', nudge)}
+        />
 
         {/* Section 3: Buddy Gap Radar */}
         <BuddyGapRadar gapData={mockGapData} />
