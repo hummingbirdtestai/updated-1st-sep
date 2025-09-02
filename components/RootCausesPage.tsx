@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { TriangleAlert as AlertTriangle, Brain, ChartBar as BarChart3, Clock, Target, TrendingDown, Gauge, Filter, ChevronDown, GitBranch, Lightbulb } from 'lucide-react-native';
+import { TriangleAlert as AlertTriangle, Brain, ChartBar as BarChart3, Clock, Target, TrendingDown, Gauge, ListFilter as Filter, ChevronDown, GitBranch, Lightbulb } from 'lucide-react-native';
 import ErrorFingerprintProfile from './ErrorFingerprintProfile';
 import ConceptPrerequisiteMap from './ConceptPrerequisiteMap';
 import mockRootCausesData from '@/data/mockRootCausesData.json';
