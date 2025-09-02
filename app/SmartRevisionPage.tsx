@@ -12,28 +12,6 @@ export default function SmartRevisionPage() {
     <View className="flex-1 bg-slate-900">
       <StatusBar style="light" />
       
-      {/* Header */}
-      <MotiView
-        from={{ opacity: 0, translateY: -20 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: 'spring', duration: 600 }}
-        className="flex-row items-center justify-between p-6 pt-12 border-b border-slate-700/50"
-      >
-        <View className="flex-row items-center">
-          <View className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl items-center justify-center mr-4 shadow-lg">
-            <RotateCcw size={20} color="#ffffff" />
-          </View>
-          <View className="flex-1">
-            <Text className="text-2xl font-bold text-slate-100">
-              Smart Revision
-            </Text>
-            <Text className="text-sm text-slate-400 mt-1">
-              Spaced repetition engine for MCQs + flashcards
-            </Text>
-          </View>
-        </View>
-      </MotiView>
-
       {/* Main Content */}
       <ScrollView 
         className="flex-1"
