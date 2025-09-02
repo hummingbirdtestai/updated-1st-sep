@@ -59,15 +59,23 @@ function DonutMeter({ score, size = 140, strokeWidth = 16, animated = true }: Do
     }
 
     const timer = setInterval(() => {
-      setAnimatedScore(prev => {
-        const increment = (score * 100) / 60; // Animate over ~60 frames
-        if (prev < score * 100) {
-          return Math.min(prev + increment, score * 100);
-        }
-        return score * 100;
-      });
-    }, 16);
+    let frame = 0;
+    const totalFrames = 60; // ~1 second animation
+    const target = score * 100;
+    const start = animatedScore;
 
+    function animate() {
+      frame++;
+      const progress = frame / totalFrames;
+      setAnimatedScore(start + (target - start) * progress);
+      if (frame < totalFrames) {
+        requestAnimationFrame(animate);
+      }
+    }
+
+    requestAnimationFrame(animate);
+    }, 16);
+    
     return () => clearInterval(timer);
   }, [score, animated]);
 
