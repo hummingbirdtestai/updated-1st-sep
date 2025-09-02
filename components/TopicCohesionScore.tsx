@@ -59,16 +59,21 @@ function DonutMeter({ score, size = 140, strokeWidth = 16, animated = true }: Do
     }
 
     const timer = setInterval(() => {
-      setAnimatedScore(prev => {
-        const increment = (score * 100) / 60; // Animate over ~60 frames
-        if (prev < score * 100) {
-          return Math.min(prev + increment, score * 100);
-        }
-        return score * 100;
-      });
-    }, 16);
+    let frame = 0;
+    const totalFrames = 60; // ~1 second animation
+    const target = score * 100;
+    const start = animatedScore;
 
-    return () => clearInterval(timer);
+    function animate() {
+      frame++;
+      const progress = frame / totalFrames;
+      setAnimatedScore(start + (target - start) * progress);
+      if (frame < totalFrames) {
+        requestAnimationFrame(animate);
+      }
+    }
+
+    requestAnimationFrame(animate);
   }, [score, animated]);
 
   // Get color based on cohesion score
@@ -319,8 +324,8 @@ export default function TopicCohesionScore({
       transition={{ type: 'spring', duration: 800, delay: 200 }}
       className="bg-slate-800/60 rounded-2xl p-6 mb-6 border border-slate-700/40 shadow-lg"
       style={{
-        shadowColor: cohesionData!.cohesionScore >= 0.7 ? '#10b981' : 
-                    cohesionData!.cohesionScore >= 0.4 ? '#f59e0b' : '#ef4444',
+        shadowColor: cohesionData.cohesionScore >= 0.7 ? '#10b981' : 
+                    cohesionData.cohesionScore >= 0.4 ? '#f59e0b' : '#ef4444',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.15,
         shadowRadius: 12,
@@ -376,6 +381,7 @@ export default function TopicCohesionScore({
             </Pressable>
             
             <View className="bg-slate-700/50 rounded-lg px-3 py-2">
+              <Text className="text-slate-300 text-sm font-medium">
               <Text className="text-slate-300 text-sm font-medium">
                 {currentCohort + 1} / {mockCohorts.length}
               </Text>
@@ -646,57 +652,57 @@ export default function TopicCohesionScore({
             }}
           >
             <View>
-              <View className="flex-row items-center mb-4">
-                <MotiView
-                  from={{ scale: 0, rotate: -90 }}
-                  animate={{ scale: 1, rotate: 0 }}
-                  transition={{ type: 'spring', duration: 600, delay: 1400 }}
-                  className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl items-center justify-center mr-3 shadow-lg"
-                >
-                  <Brain size={20} color="#ffffff" />
-                </MotiView>
-                <Text className="text-xl font-bold text-indigo-100">
-                  AI Cohort Comparison Analysis
+            <View className="flex-row items-center mb-4">
+              <MotiView
+                from={{ scale: 0, rotate: -90 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ type: 'spring', duration: 600, delay: 1400 }}
+                className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl items-center justify-center mr-3 shadow-lg"
+              >
+                <Brain size={20} color="#ffffff" />
+              </MotiView>
+              <Text className="text-xl font-bold text-indigo-100">
+                AI Cohort Comparison Analysis
+              </Text>
+            </View>
+            
+            <Text className="text-indigo-200 text-lg leading-8 font-medium">
+              {generateComparisonInsights(cohortAData!, cohortBData!)}
+            </Text>
+
+            {/* Comparison Metrics */}
+            <View className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <View className="bg-slate-800/40 rounded-xl p-4 border border-slate-600/30">
+                <Text className="text-cyan-400 font-semibold text-sm mb-2">Score Gap</Text>
+                <Text className="text-cyan-200 text-2xl font-bold">
+                  {Math.abs((cohortAData!.cohesionScore - cohortBData!.cohesionScore) * 100).toFixed(1)}%
+                </Text>
+                <Text className="text-cyan-300/80 text-xs">
+                  difference
                 </Text>
               </View>
               
-              <Text className="text-indigo-200 text-lg leading-8 font-medium">
-                {generateComparisonInsights(cohortAData!, cohortBData!)}
-              </Text>
-
-              {/* Comparison Metrics */}
-              <View className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-                <View className="bg-slate-800/40 rounded-xl p-4 border border-slate-600/30">
-                  <Text className="text-cyan-400 font-semibold text-sm mb-2">Score Gap</Text>
-                  <Text className="text-cyan-200 text-2xl font-bold">
-                    {Math.abs((cohortAData!.cohesionScore - cohortBData!.cohesionScore) * 100).toFixed(1)}%
-                  </Text>
-                  <Text className="text-cyan-300/80 text-xs">
-                    difference
-                  </Text>
-                </View>
-                
-                <View className="bg-slate-800/40 rounded-xl p-4 border border-slate-600/30">
-                  <Text className="text-emerald-400 font-semibold text-sm mb-2">Focus Overlap</Text>
-                  <Text className="text-emerald-200 text-lg font-bold">
-                    {cohortAData!.topTopics[0]?.topic === cohortBData!.topTopics[0]?.topic ? 'Same' : 'Different'}
-                  </Text>
-                  <Text className="text-emerald-300/80 text-xs">
-                    top priority
-                  </Text>
-                </View>
-                
-                <View className="bg-slate-800/40 rounded-xl p-4 border border-slate-600/30">
-                  <Text className="text-purple-400 font-semibold text-sm mb-2">Stronger Cohort</Text>
-                  <Text className="text-purple-200 text-lg font-bold">
-                    {cohortAData!.cohesionScore > cohortBData!.cohesionScore ? 'Cohort A' : 
-                     cohortBData!.cohesionScore > cohortAData!.cohesionScore ? 'Cohort B' : 'Tied'}
-                  </Text>
-                  <Text className="text-purple-300/80 text-xs">
-                    alignment leader
-                  </Text>
-                </View>
+              <View className="bg-slate-800/40 rounded-xl p-4 border border-slate-600/30">
+                <Text className="text-emerald-400 font-semibold text-sm mb-2">Focus Overlap</Text>
+                <Text className="text-emerald-200 text-lg font-bold">
+                  {cohortAData!.topTopics[0]?.topic === cohortBData!.topTopics[0]?.topic ? 'Same' : 'Different'}
+                </Text>
+                <Text className="text-emerald-300/80 text-xs">
+                  top priority
+                </Text>
               </View>
+              
+              <View className="bg-slate-800/40 rounded-xl p-4 border border-slate-600/30">
+                <Text className="text-purple-400 font-semibold text-sm mb-2">Stronger Cohort</Text>
+                <Text className="text-purple-200 text-lg font-bold">
+                  {cohortAData!.cohesionScore > cohortBData!.cohesionScore ? 'Cohort A' : 
+                   cohortBData!.cohesionScore > cohortAData!.cohesionScore ? 'Cohort B' : 'Tied'}
+                </Text>
+                <Text className="text-purple-300/80 text-xs">
+                  alignment leader
+                </Text>
+              </View>
+            </View>
             </View>
           </MotiView>
         </View>
