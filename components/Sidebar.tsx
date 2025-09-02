@@ -194,6 +194,8 @@ export default function Sidebar({
       onQuickFixNavigate?.();
     } else if (item.route === '/AchievementsRewardsPage') {
       onAchievementsNavigate?.();
+    } else if (item.route === '/analytics/peer-comparison') {
+      onPeerComparisonNavigate?.();
     } else {
       onAnalyticsNavigate?.(item.route);
     }
