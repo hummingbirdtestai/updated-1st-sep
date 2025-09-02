@@ -560,7 +560,7 @@ export default function SafePercentileBands({ data = mockData }: SafePercentileB
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <View className="w-4 h-4 rounded-full bg-red-500 mr-3" />
-                  <Text className="text-slate-300 text-sm">Bottom 25% (<25th percentile)</Text>
+                  <Text className="text-slate-300 text-sm">Bottom 25% (&lt;25th percentile)</Text>
                 </View>
                 <Text className="text-red-400 text-sm font-semibold">
                   {needsImprovement} subjects
