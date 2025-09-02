@@ -794,7 +794,7 @@ export default function EffortRewardDashboard({
                   : "Below cohort average. Consider optimizing study methods for better XP/time ratio."
                 }
               </Text>
-            </div>
+            </View>
           </View>
         </MotiView>
 
