@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { MotiView, AnimatePresence } from 'moti';
-import { Calendar, Clock, X, AlertTriangle, Lightbulb, Target, BookOpen, Play, Info } from 'lucide-react-native';
+import { Calendar, Clock, X, TriangleAlert as AlertTriangle, Lightbulb, Target, BookOpen, Play, Info } from 'lucide-react-native';
 
 interface MistakeEvent {
   date: string;
