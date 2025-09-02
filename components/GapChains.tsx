@@ -975,4 +975,36 @@ export default function TopicCohesionScore({
               <View className="flex-row items-center justify-between">
                 <View className="flex-row items-center">
                   <View className="w-4 h-4 rounded-full bg-emerald-500 mr-3" />
-                  <Text className="text-slate-300 text-sm">High Cohesion (
+                  <Text className="text-slate-300 text-sm">High Cohesion (70%+)</Text>
+                </View>
+                <Text className="text-emerald-400 text-sm">Strong alignment, excellent for group study</Text>
+              </View>
+              
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center">
+                  <View className="w-4 h-4 rounded-full bg-amber-500 mr-3" />
+                  <Text className="text-slate-300 text-sm">Moderate Cohesion (35-69%)</Text>
+                </View>
+                <Text className="text-amber-400 text-sm">Some alignment, mixed study approaches</Text>
+              </View>
+              
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center">
+                  <View className="w-4 h-4 rounded-full bg-red-500 mr-3" />
+                  <Text className="text-slate-300 text-sm">Low Cohesion (&lt;35%)</Text>
+                </View>
+                <Text className="text-red-400 text-sm">Diverse patterns, individual mentoring needed</Text>
+              </View>
+            </View>
+            
+            <View className="mt-4 pt-3 border-t border-slate-600/30">
+              <Text className="text-slate-400 text-xs text-center">
+                💡 Cohesion Score = (Top 3 Topics Time) ÷ (Total Cohort Time)
+              </Text>
+            </View>
+          </MotiView>
+        </View>
+      )}
+    </MotiView>
+  );
+}
