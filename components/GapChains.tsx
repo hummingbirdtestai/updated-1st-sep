@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
 import { GitBranch, Target, TrendingUp, ListFilter as Filter, ChevronDown, X, CircleCheck as CheckCircle, CircleX as XCircle, Circle, TriangleAlert as AlertTriangle, Award, Clock, ChartBar as BarChart3, Play, BookOpen, Video, RotateCcw, ExternalLink, Lightbulb } from 'lucide-react-native';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import Svg, { Circle as SvgCircle, Line, Text as SvgText, Path, Defs, LinearGradient, Stop, G } from 'react-native-svg';
 import gapChainsData from '@/data/gap-chains-data.json';
 
@@ -140,6 +141,524 @@ function ChainTooltip({ chain, position, onClose }: ChainTooltipProps) {
             ))}
           </View>
         </View>
+      </View>
+    </MotiView>
+  );
+}
+
+// Mock data for tabbed charts
+const mockSubjectChainData = [
+  {
+    "subject": "Anatomy",
+    "chains_mcq1": 20,
+    "chains_mcq2": 5,
+    "chains_mcq3": 3,
+    "chains_mcq4": 2,
+    "chains_mcq5": 1,
+    "chains_mcq6": 0,
+    "avg_chain_length": 1.3
+  },
+  {
+    "subject": "Physiology",
+    "chains_mcq1": 15,
+    "chains_mcq2": 10,
+    "chains_mcq3": 5,
+    "chains_mcq4": 3,
+    "chains_mcq5": 2,
+    "chains_mcq6": 1,
+    "avg_chain_length": 2.4
+  },
+  {
+    "subject": "Biochemistry",
+    "chains_mcq1": 12,
+    "chains_mcq2": 8,
+    "chains_mcq3": 6,
+    "chains_mcq4": 4,
+    "chains_mcq5": 2,
+    "chains_mcq6": 1,
+    "avg_chain_length": 2.8
+  },
+  {
+    "subject": "Pathology",
+    "chains_mcq1": 8,
+    "chains_mcq2": 6,
+    "chains_mcq3": 6,
+    "chains_mcq4": 4,
+    "chains_mcq5": 3,
+    "chains_mcq6": 2,
+    "avg_chain_length": 3.8
+  },
+  {
+    "subject": "Pharmacology",
+    "chains_mcq1": 10,
+    "chains_mcq2": 7,
+    "chains_mcq3": 5,
+    "chains_mcq4": 3,
+    "chains_mcq5": 2,
+    "chains_mcq6": 1,
+    "avg_chain_length": 3.1
+  }
+];
+
+type TabKey = 'overview' | 'distribution' | 'length';
+
+interface SubjectChainTabsProps {
+  data?: typeof mockSubjectChainData;
+}
+
+function SubjectChainTabs({ data = mockSubjectChainData }: SubjectChainTabsProps) {
+  const { width } = Dimensions.get('window');
+  const isMobile = width < 768;
+  
+  const [activeTab, setActiveTab] = useState<TabKey>('distribution');
+
+  const tabs = [
+    { key: 'distribution' as TabKey, label: 'Chain Distribution', icon: BarChart3 },
+    { key: 'length' as TabKey, label: 'Average Length', icon: TrendingUp },
+  ];
+
+  // Get subject color
+  const getSubjectColor = (subject: string) => {
+    const colors: Record<string, string> = {
+      'Anatomy': '#3b82f6',
+      'Physiology': '#10b981',
+      'Biochemistry': '#8b5cf6',
+      'Pharmacology': '#f59e0b',
+      'Pathology': '#ef4444',
+    };
+    return colors[subject] || '#64748b';
+  };
+
+  // Get MCQ level color (green to red scale)
+  const getMCQColor = (mcqLevel: number) => {
+    const colors = ['#10b981', '#22c55e', '#eab308', '#f59e0b', '#ef4444', '#dc2626'];
+    return colors[mcqLevel - 1] || '#64748b';
+  };
+
+  // Process data for stacked bar chart
+  const processStackedData = () => {
+    return data.map(subject => ({
+      subject: subject.subject,
+      mcq1: subject.chains_mcq1,
+      mcq2: subject.chains_mcq2,
+      mcq3: subject.chains_mcq3,
+      mcq4: subject.chains_mcq4,
+      mcq5: subject.chains_mcq5,
+      mcq6: subject.chains_mcq6,
+      total: subject.chains_mcq1 + subject.chains_mcq2 + subject.chains_mcq3 + 
+             subject.chains_mcq4 + subject.chains_mcq5 + subject.chains_mcq6,
+    }));
+  };
+
+  const stackedData = processStackedData();
+
+  // Custom tooltip for stacked chart
+  const StackedTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const total = payload.reduce((sum: number, entry: any) => sum + entry.value, 0);
+      
+      return (
+        <View className="bg-slate-800/95 rounded-lg p-4 border border-slate-600/50 shadow-xl">
+          <Text className="text-slate-100 font-semibold text-base mb-3">
+            {label}
+          </Text>
+          <View className="space-y-2">
+            {payload.reverse().map((entry: any, index: number) => (
+              <View key={entry.dataKey} className="flex-row items-center justify-between">
+                <View className="flex-row items-center">
+                  <View 
+                    className="w-3 h-3 rounded mr-2"
+                    style={{ backgroundColor: entry.color }}
+                  />
+                  <Text className="text-slate-300 text-sm">
+                    {entry.dataKey.toUpperCase()}
+                  </Text>
+                </View>
+                <Text className="text-slate-100 font-semibold text-sm">
+                  {entry.value} chains
+                </Text>
+              </View>
+            ))}
+            <View className="pt-2 border-t border-slate-600/30">
+              <View className="flex-row justify-between">
+                <Text className="text-slate-400 text-sm">Total Chains:</Text>
+                <Text className="text-slate-200 font-bold text-sm">{total}</Text>
+              </View>
+            </View>
+          </View>
+        </View>
+      );
+    }
+    return null;
+  };
+
+  // Custom tooltip for length chart
+  const LengthTooltip = ({ active, payload, label }: any) => {
+    if (active && payload && payload.length) {
+      const data = payload[0].payload;
+      return (
+        <View className="bg-slate-800/95 rounded-lg p-3 border border-slate-600/50 shadow-xl">
+          <Text className="text-slate-100 font-semibold text-sm mb-2">
+            {label}
+          </Text>
+          <Text className="text-amber-300 text-sm">
+            Average Length: {data.avg_chain_length.toFixed(1)} MCQs
+          </Text>
+          <Text className="text-slate-400 text-xs mt-1">
+            {data.avg_chain_length <= 2 ? 'Strong subject' : 
+             data.avg_chain_length <= 3.5 ? 'Moderate difficulty' : 'Needs focus'}
+          </Text>
+        </View>
+      );
+    }
+    return null;
+  };
+
+  return (
+    <MotiView
+      from={{ opacity: 0, translateY: 30, scale: 0.95 }}
+      animate={{ opacity: 1, translateY: 0, scale: 1 }}
+      transition={{ type: 'spring', duration: 800, delay: 800 }}
+      className="bg-slate-800/60 rounded-2xl border border-slate-700/40 shadow-lg mb-6"
+      style={{
+        shadowColor: '#8b5cf6',
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 8,
+        elevation: 6,
+      }}
+    >
+      {/* Tab Header */}
+      <View className="flex-row items-center justify-between p-6 border-b border-slate-700/30">
+        <View className="flex-row items-center">
+          <View className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg items-center justify-center mr-3">
+            <BarChart3 size={16} color="#ffffff" />
+          </View>
+          <Text className="text-lg font-bold text-slate-100">
+            Subject Analysis
+          </Text>
+        </View>
+      </View>
+
+      {/* Tab Navigation */}
+      <View className="flex-row justify-center p-4 border-b border-slate-700/30">
+        {tabs.map((tab) => {
+          const IconComponent = tab.icon;
+          const isActive = activeTab === tab.key;
+          
+          return (
+            <Pressable
+              key={tab.key}
+              onPress={() => setActiveTab(tab.key)}
+              className={`flex-row items-center px-6 py-3 mx-2 rounded-xl ${
+                isActive
+                  ? 'bg-gradient-to-r from-purple-600 to-indigo-600 shadow-lg'
+                  : 'bg-slate-700/50 border border-slate-600/50'
+              }`}
+              style={{
+                shadowColor: isActive ? '#8b5cf6' : 'transparent',
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.3,
+                shadowRadius: 8,
+                elevation: isActive ? 4 : 0,
+              }}
+            >
+              <IconComponent size={18} color={isActive ? '#ffffff' : '#94a3b8'} />
+              <Text className={`ml-2 font-semibold ${
+                isActive ? 'text-white' : 'text-slate-400'
+              }`}>
+                {tab.label}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+
+      {/* Tab Content */}
+      <View className="p-6">
+        {/* Chain Distribution Tab */}
+        {activeTab === 'distribution' && (
+          <MotiView
+            from={{ opacity: 0, translateY: 20 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ type: 'spring', duration: 600 }}
+            className="space-y-6"
+          >
+            <View className="flex-row items-center mb-4">
+              <View className="w-6 h-6 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg items-center justify-center mr-3">
+                <BarChart3 size={14} color="#ffffff" />
+              </View>
+              <Text className="text-xl font-bold text-slate-100">
+                Subject Chain Distribution
+              </Text>
+            </View>
+            
+            <Text className="text-slate-400 text-sm mb-6">
+              Stacked bars show where chains end per subject. Green segments (MCQ1) = strong performance, Red segments (MCQ6) = needs focus.
+            </Text>
+
+            {/* Stacked Bar Chart */}
+            <View className="bg-slate-900/40 rounded-xl p-4 border border-slate-600/30">
+              <View style={{ width: '100%', height: 400 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={stackedData}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3,3" stroke="#334155" opacity={0.3} />
+                    <XAxis 
+                      dataKey="subject"
+                      stroke="#94a3b8"
+                      fontSize={12}
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
+                    />
+                    <YAxis 
+                      stroke="#94a3b8"
+                      fontSize={12}
+                      label={{ value: 'Number of Chains', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#94a3b8' } }}
+                    />
+                    <Tooltip content={<StackedTooltip />} />
+                    
+                    {/* Stacked bars for each MCQ level */}
+                    <Bar dataKey="mcq1" stackId="chains" fill="#10b981" name="MCQ1 (Perfect)" />
+                    <Bar dataKey="mcq2" stackId="chains" fill="#22c55e" name="MCQ2 (Excellent)" />
+                    <Bar dataKey="mcq3" stackId="chains" fill="#eab308" name="MCQ3 (Good)" />
+                    <Bar dataKey="mcq4" stackId="chains" fill="#f59e0b" name="MCQ4 (Fair)" />
+                    <Bar dataKey="mcq5" stackId="chains" fill="#ef4444" name="MCQ5 (Poor)" />
+                    <Bar dataKey="mcq6" stackId="chains" fill="#dc2626" name="MCQ6 (Critical)" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </View>
+            </View>
+
+            {/* Distribution Legend */}
+            <View className="bg-slate-700/40 rounded-xl p-4 border border-slate-600/30">
+              <Text className="text-slate-100 font-semibold mb-3">Chain Ending Distribution</Text>
+              <View className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {[
+                  { mcq: 'MCQ1', color: '#10b981', label: 'Perfect (Solved immediately)' },
+                  { mcq: 'MCQ2', color: '#22c55e', label: 'Excellent (1 retry)' },
+                  { mcq: 'MCQ3', color: '#eab308', label: 'Good (2 retries)' },
+                  { mcq: 'MCQ4', color: '#f59e0b', label: 'Fair (3 retries)' },
+                  { mcq: 'MCQ5', color: '#ef4444', label: 'Poor (4 retries)' },
+                  { mcq: 'MCQ6', color: '#dc2626', label: 'Critical (5+ retries)' },
+                ].map((item) => (
+                  <View key={item.mcq} className="flex-row items-center">
+                    <View 
+                      className="w-4 h-4 rounded mr-2"
+                      style={{ backgroundColor: item.color }}
+                    />
+                    <View className="flex-1">
+                      <Text className="text-slate-300 text-sm font-medium">
+                        {item.mcq}
+                      </Text>
+                      <Text className="text-slate-400 text-xs">
+                        {item.label}
+                      </Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            </View>
+
+            {/* Subject Performance Summary */}
+            <View className="space-y-3">
+              <Text className="text-lg font-semibold text-slate-100">Subject Performance Summary</Text>
+              {data.map((subject, index) => {
+                const totalChains = subject.chains_mcq1 + subject.chains_mcq2 + subject.chains_mcq3 + 
+                                  subject.chains_mcq4 + subject.chains_mcq5 + subject.chains_mcq6;
+                const perfectRate = totalChains > 0 ? (subject.chains_mcq1 / totalChains) * 100 : 0;
+                const subjectColor = getSubjectColor(subject.subject);
+                
+                return (
+                  <MotiView
+                    key={subject.subject}
+                    from={{ opacity: 0, translateX: -20 }}
+                    animate={{ opacity: 1, translateX: 0 }}
+                    transition={{ type: 'spring', duration: 600, delay: index * 100 + 200 }}
+                    className="bg-slate-700/40 rounded-xl p-4 border border-slate-600/30"
+                  >
+                    <View className="flex-row items-center justify-between">
+                      <View className="flex-row items-center">
+                        <View 
+                          className="w-4 h-4 rounded-full mr-3"
+                          style={{ backgroundColor: subjectColor }}
+                        />
+                        <View>
+                          <Text className="text-slate-100 font-semibold text-base">
+                            {subject.subject}
+                          </Text>
+                          <Text className="text-slate-400 text-sm">
+                            {totalChains} total chains
+                          </Text>
+                        </View>
+                      </View>
+                      
+                      <View className="items-end">
+                        <Text 
+                          className="text-lg font-bold"
+                          style={{ color: perfectRate >= 60 ? '#10b981' : perfectRate >= 40 ? '#f59e0b' : '#ef4444' }}
+                        >
+                          {perfectRate.toFixed(0)}%
+                        </Text>
+                        <Text className="text-slate-400 text-xs">
+                          perfect (MCQ1)
+                        </Text>
+                      </div>
+                    </View>
+                  </MotiView>
+                );
+              })}
+            </View>
+          </MotiView>
+        )}
+
+        {/* Average Length Tab */}
+        {activeTab === 'length' && (
+          <MotiView
+            from={{ opacity: 0, translateY: 20 }}
+            animate={{ opacity: 1, translateY: 0 }}
+            transition={{ type: 'spring', duration: 600 }}
+            className="space-y-6"
+          >
+            <View className="flex-row items-center mb-4">
+              <View className="w-6 h-6 bg-gradient-to-br from-amber-500 to-orange-600 rounded-lg items-center justify-center mr-3">
+                <TrendingUp size={14} color="#ffffff" />
+              </View>
+              <Text className="text-xl font-bold text-slate-100">
+                Average Chain Length by Subject
+              </Text>
+            </View>
+            
+            <Text className="text-slate-400 text-sm mb-6">
+              Shorter bars indicate stronger subjects (fewer MCQs needed to solve). Longer bars suggest knowledge gaps requiring more attempts.
+            </Text>
+
+            {/* Average Length Bar Chart */}
+            <View className="bg-slate-900/40 rounded-xl p-4 border border-slate-600/30">
+              <View style={{ width: '100%', height: 350 }}>
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart
+                    data={data}
+                    margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
+                  >
+                    <CartesianGrid strokeDasharray="3,3" stroke="#334155" opacity={0.3} />
+                    <XAxis 
+                      dataKey="subject"
+                      stroke="#94a3b8"
+                      fontSize={12}
+                      angle={-45}
+                      textAnchor="end"
+                      height={80}
+                    />
+                    <YAxis 
+                      stroke="#94a3b8"
+                      fontSize={12}
+                      label={{ value: 'Average Chain Length', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#94a3b8' } }}
+                      domain={[0, 'dataMax + 0.5']}
+                    />
+                    <Tooltip content={<LengthTooltip />} />
+                    
+                    <Bar dataKey="avg_chain_length" radius={[4, 4, 0, 0]}>
+                      {data.map((entry, index) => (
+                        <Cell 
+                          key={`cell-${index}`} 
+                          fill={getSubjectColor(entry.subject)}
+                        />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </View>
+            </View>
+
+            {/* Length Analysis */}
+            <View className="bg-slate-700/40 rounded-xl p-4 border border-slate-600/30">
+              <Text className="text-slate-100 font-semibold mb-3">Chain Length Analysis</Text>
+              <View className="space-y-3">
+                {data
+                  .sort((a, b) => a.avg_chain_length - b.avg_chain_length)
+                  .map((subject, index) => {
+                    const strengthLevel = subject.avg_chain_length <= 2 ? 'Strong' : 
+                                        subject.avg_chain_length <= 3.5 ? 'Moderate' : 'Weak';
+                    const strengthColor = subject.avg_chain_length <= 2 ? '#10b981' : 
+                                         subject.avg_chain_length <= 3.5 ? '#f59e0b' : '#ef4444';
+                    
+                    return (
+                      <MotiView
+                        key={subject.subject}
+                        from={{ opacity: 0, translateX: -20 }}
+                        animate={{ opacity: 1, translateX: 0 }}
+                        transition={{ type: 'spring', duration: 600, delay: index * 100 + 200 }}
+                        className="flex-row items-center justify-between"
+                      >
+                        <View className="flex-row items-center">
+                          <Text className="text-slate-300 text-sm w-4 text-center">
+                            #{index + 1}
+                          </Text>
+                          <View 
+                            className="w-3 h-3 rounded-full mx-3"
+                            style={{ backgroundColor: getSubjectColor(subject.subject) }}
+                          />
+                          <Text className="text-slate-100 font-medium">
+                            {subject.subject}
+                          </Text>
+                        </View>
+                        
+                        <View className="flex-row items-center">
+                          <Text className="text-slate-300 text-sm mr-3">
+                            {subject.avg_chain_length.toFixed(1)} MCQs
+                          </Text>
+                          <View 
+                            className="px-2 py-1 rounded-full border"
+                            style={{ 
+                              backgroundColor: `${strengthColor}20`,
+                              borderColor: `${strengthColor}50`
+                            }}
+                          >
+                            <Text 
+                              className="text-xs font-bold"
+                              style={{ color: strengthColor }}
+                            >
+                              {strengthLevel}
+                            </Text>
+                          </View>
+                        </View>
+                      </MotiView>
+                    );
+                  })}
+              </View>
+            </View>
+
+            {/* Insights */}
+            <View className="bg-slate-700/40 rounded-xl p-4 border border-slate-600/30">
+              <View className="flex-row items-center mb-3">
+                <Lightbulb size={16} color="#fbbf24" />
+                <Text className="text-slate-100 font-semibold ml-2">Length Insights</Text>
+              </View>
+              
+              <View className="space-y-2">
+                <Text className="text-slate-300 text-sm">
+                  <Text className="font-bold text-emerald-400">Strongest Subject:</Text> {
+                    data.reduce((min, s) => s.avg_chain_length < min.avg_chain_length ? s : min).subject
+                  } (avg {data.reduce((min, s) => s.avg_chain_length < min.avg_chain_length ? s : min).avg_chain_length} MCQs)
+                </Text>
+                
+                <Text className="text-slate-300 text-sm">
+                  <Text className="font-bold text-red-400">Needs Most Work:</Text> {
+                    data.reduce((max, s) => s.avg_chain_length > max.avg_chain_length ? s : max).subject
+                  } (avg {data.reduce((max, s) => s.avg_chain_length > max.avg_chain_length ? s : max).avg_chain_length} MCQs)
+                </Text>
+                
+                <Text className="text-slate-400 text-xs leading-4 mt-3">
+                  Shorter chains indicate better conceptual understanding. Focus study time on subjects with longer average chains to improve efficiency.
+                </Text>
+              </View>
+            </View>
+          </MotiView>
+        )}
       </View>
     </MotiView>
   );
@@ -714,6 +1233,9 @@ export default function GapChains() {
             ))}
           </View>
         </MotiView>
+
+        {/* Subject Analysis Tabs */}
+        <SubjectChainTabs />
 
         {/* Insights Panel */}
         <MotiView
