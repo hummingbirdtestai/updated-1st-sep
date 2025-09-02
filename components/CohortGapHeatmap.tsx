@@ -193,6 +193,14 @@ export default function CohortGapHeatmap({ data = cohortData }: CohortGapHeatmap
     sum + topic.students.reduce((topicSum, student) => topicSum + student.gap_intensity, 0) / topic.students.length, 0
   ) / heatmapData.length;
 
+  // Calculate cohort progress metrics
+  const totalPYQsAttempted = data.reduce((sum, student) => sum + student.pyqs_attempted, 0);
+  const totalMinutesSpent = totalPYQsAttempted * 4.5;
+  const totalPossibleMinutes = 9960 * 4.5; // Total NEET prep time
+  const cohortProgressPercent = (totalMinutesSpent / totalPossibleMinutes) * 100;
+  const remainingPYQs = 9960 - totalPYQsAttempted;
+  const remainingHours = (remainingPYQs * 4.5) / 60;
+
   return (
     <View className="flex-1 bg-slate-900">
       {/* Header */}
@@ -604,6 +612,215 @@ export default function CohortGapHeatmap({ data = cohortData }: CohortGapHeatmap
             <Text className="text-slate-400 text-xs mt-3 text-center">
               💡 Pulsing cells indicate critical gaps (≥80%) • Tap cells for detailed analysis
             </Text>
+          </View>
+        </MotiView>
+
+        {/* Cohort Progress Bar */}
+        <MotiView
+          from={{ opacity: 0, translateY: 30, scale: 0.95 }}
+          animate={{ opacity: 1, translateY: 0, scale: 1 }}
+          transition={{ type: 'spring', duration: 800, delay: 1800 }}
+          className="bg-slate-800/60 rounded-2xl p-6 border border-slate-700/40 shadow-lg mb-8"
+          style={{
+            shadowColor: '#10b981',
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+            elevation: 6,
+          }}
+        >
+          <View className="flex-row items-center justify-between mb-6">
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg items-center justify-center mr-3">
+                <TrendingUp size={16} color="#ffffff" />
+              </View>
+              <View className="flex-1">
+                <Text className="text-xl font-bold text-slate-100">
+                  Cohort Progress Tracker
+                </Text>
+                <Text className="text-slate-400 text-sm">
+                  Collective progress towards NEET prep completion
+                </Text>
+              </View>
+            </View>
+
+            {/* Progress Percentage Badge */}
+            <View className="items-center">
+              <View className="bg-emerald-500/20 rounded-xl px-4 py-3 border border-emerald-500/30 shadow-lg">
+                <Text className="text-emerald-400 font-bold text-2xl">
+                  {cohortProgressPercent.toFixed(1)}%
+                </Text>
+                <Text className="text-emerald-300/80 text-xs text-center font-medium">
+                  complete
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Progress Bar Container */}
+          <View className="bg-slate-900/40 rounded-xl p-6 border border-slate-600/30">
+            {/* Progress Bar */}
+            <View className="mb-6">
+              <View className="flex-row justify-between items-center mb-3">
+                <Text className="text-slate-300 font-semibold">Cohort Progress</Text>
+                <Text className="text-emerald-400 font-bold">
+                  {totalPYQsAttempted.toLocaleString()} / {(9960).toLocaleString()} PYQs
+                </Text>
+              </View>
+              
+              {/* Main Progress Bar */}
+              <View className="w-full bg-slate-700/60 rounded-full h-6 overflow-hidden shadow-inner">
+                <MotiView
+                  from={{ width: '0%' }}
+                  animate={{ width: `${cohortProgressPercent}%` }}
+                  transition={{ 
+                    type: 'spring', 
+                    duration: 2000, 
+                    delay: 2000,
+                    damping: 15,
+                    stiffness: 100
+                  }}
+                  className="h-6 rounded-full shadow-lg"
+                  style={{
+                    background: 'linear-gradient(90deg, #10b981 0%, #34d399 50%, #6ee7b7 100%)',
+                    shadowColor: '#10b981',
+                    shadowOffset: { width: 0, height: 2 },
+                    shadowOpacity: 0.4,
+                    shadowRadius: 6,
+                    elevation: 4,
+                  }}
+                />
+                
+                {/* Animated glow effect */}
+                <MotiView
+                  from={{ translateX: '-100%' }}
+                  animate={{ translateX: '400%' }}
+                  transition={{
+                    loop: true,
+                    type: 'timing',
+                    duration: 3000,
+                    delay: 2500,
+                  }}
+                  className="absolute inset-0 w-1/4 bg-gradient-to-r from-transparent via-white/30 to-transparent"
+                  style={{ transform: [{ skewX: '-20deg' }] }}
+                />
+              </View>
+              
+              {/* Progress Labels */}
+              <View className="flex-row justify-between mt-2">
+                <Text className="text-slate-500 text-xs">0 PYQs</Text>
+                <Text className="text-emerald-400 text-xs font-semibold">
+                  {cohortProgressPercent.toFixed(1)}% Complete
+                </Text>
+                <Text className="text-slate-500 text-xs">9,960 PYQs</Text>
+              </View>
+            </View>
+
+            {/* Detailed Metrics Grid */}
+            <View className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <MotiView
+                from={{ opacity: 0, translateY: 20 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{ type: 'spring', duration: 600, delay: 2200 }}
+                className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4"
+              >
+                <View className="flex-row items-center mb-2">
+                  <Target size={16} color="#3b82f6" />
+                  <Text className="text-blue-400 font-semibold text-sm ml-2">Total PYQs</Text>
+                </View>
+                <Text className="text-blue-200 text-xl font-bold">
+                  {totalPYQsAttempted.toLocaleString()}
+                </Text>
+                <Text className="text-blue-300/80 text-xs">
+                  attempted
+                </Text>
+              </MotiView>
+
+              <MotiView
+                from={{ opacity: 0, translateY: 20 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{ type: 'spring', duration: 600, delay: 2300 }}
+                className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4"
+              >
+                <View className="flex-row items-center mb-2">
+                  <Clock size={16} color="#10b981" />
+                  <Text className="text-emerald-400 font-semibold text-sm ml-2">Time Spent</Text>
+                </View>
+                <Text className="text-emerald-200 text-xl font-bold">
+                  {(totalMinutesSpent / 60).toFixed(0)}h
+                </Text>
+                <Text className="text-emerald-300/80 text-xs">
+                  {totalMinutesSpent.toLocaleString()} min
+                </Text>
+              </MotiView>
+
+              <MotiView
+                from={{ opacity: 0, translateY: 20 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{ type: 'spring', duration: 600, delay: 2400 }}
+                className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4"
+              >
+                <View className="flex-row items-center mb-2">
+                  <Target size={16} color="#f59e0b" />
+                  <Text className="text-amber-400 font-semibold text-sm ml-2">Remaining</Text>
+                </View>
+                <Text className="text-amber-200 text-xl font-bold">
+                  {(remainingPYQs / 1000).toFixed(1)}k
+                </Text>
+                <Text className="text-amber-300/80 text-xs">
+                  PYQs left
+                </Text>
+              </MotiView>
+
+              <MotiView
+                from={{ opacity: 0, translateY: 20 }}
+                animate={{ opacity: 1, translateY: 0 }}
+                transition={{ type: 'spring', duration: 600, delay: 2500 }}
+                className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4"
+              >
+                <View className="flex-row items-center mb-2">
+                  <Clock size={16} color="#8b5cf6" />
+                  <Text className="text-purple-400 font-semibold text-sm ml-2">ETA</Text>
+                </View>
+                <Text className="text-purple-200 text-xl font-bold">
+                  {(remainingHours / 24).toFixed(0)}d
+                </Text>
+                <Text className="text-purple-300/80 text-xs">
+                  {remainingHours.toFixed(0)}h left
+                </Text>
+              </MotiView>
+            </View>
+          </View>
+
+          {/* Progress Insights */}
+          <View className="mt-4 bg-slate-700/40 rounded-xl p-4 border border-slate-600/30">
+            <View className="flex-row items-center mb-3">
+              <TrendingUp size={16} color="#06b6d4" />
+              <Text className="text-slate-100 font-semibold ml-2">Cohort Progress Insights</Text>
+            </View>
+            
+            <View className="space-y-2">
+              <Text className="text-slate-300 text-sm">
+                <Text className="font-bold text-emerald-400">Collective Achievement:</Text> {cohortProgressPercent.toFixed(1)}% of total NEET prep completed
+              </Text>
+              
+              <Text className="text-slate-300 text-sm">
+                <Text className="font-bold text-blue-400">Study Time Invested:</Text> {(totalMinutesSpent / 60).toFixed(0)} hours across {totalStudents} students
+              </Text>
+              
+              <Text className="text-slate-300 text-sm">
+                <Text className="font-bold text-amber-400">Remaining Effort:</Text> {(remainingHours / 24).toFixed(0)} days worth of study time left
+              </Text>
+              
+              <Text className="text-slate-400 text-xs leading-4 mt-3">
+                {cohortProgressPercent >= 20 
+                  ? "Strong cohort momentum! The group is making excellent progress towards NEET prep completion."
+                  : cohortProgressPercent >= 10
+                  ? "Good progress with room for acceleration. Consider group study sessions for challenging topics."
+                  : "Early stage preparation. Focus on building consistent study habits and addressing critical gaps."
+                }
+              </Text>
+            </View>
           </View>
         </MotiView>
 
