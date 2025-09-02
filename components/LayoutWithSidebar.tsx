@@ -11,6 +11,7 @@ import QuickFixLessonsPage from "@/app/QuickFixLessonsPage";
 import AchievementsRewardsPage from '@/app/AchievementsRewardsPage';
 import PeerComparisonPage from '@/components/PeerComparisonPage';
 import BuddyModePage from '@/app/BuddyModePage';
+import DynamicCohortsPage from '@/app/DynamicCohortsPage';
 
 
 export default function LayoutWithSidebar() {
@@ -19,6 +20,7 @@ export default function LayoutWithSidebar() {
   const isMobile = width < 768;
   const sidebarWidth = 240;
   const [currentView, setCurrentView] = useState<"home" | "exam" | "subject" | "analytics" | "concept-map" | "confidence" | "smart-revision" | "quick-fix" | "achievements" | "peer-comparison" | "buddy-mode">("analytics");
+  const [currentView, setCurrentView] = useState<"home" | "exam" | "subject" | "analytics" | "concept-map" | "confidence" | "smart-revision" | "quick-fix" | "achievements" | "peer-comparison" | "buddy-mode" | "dynamic-cohorts">("analytics");
   const [analyticsRoute, setAnalyticsRoute] = useState("/analytics/prep-overview");
   const [examId, setExamId] = useState<string | null>(null);
   const [subjectId, setSubjectId] = useState<string | null>(null);
@@ -75,6 +77,7 @@ export default function LayoutWithSidebar() {
         }}
         onPeerComparisonNavigate={() => { setCurrentView("peer-comparison"); if (isMobile) setSidebarOpen(false); }}
         onBuddyModeNavigate={() => { setCurrentView("buddy-mode"); if (isMobile) setSidebarOpen(false); }}
+        onDynamicCohortsNavigate={() => { setCurrentView("dynamic-cohorts"); if (isMobile) setSidebarOpen(false); }}
       />
 
       {/* Main Content */}
@@ -102,6 +105,7 @@ export default function LayoutWithSidebar() {
           {currentView === "achievements" && <AchievementsRewardsPage />}
           {currentView === "peer-comparison" && <PeerComparisonPage />}
           {currentView === "buddy-mode" && <BuddyModePage />}
+          {currentView === "dynamic-cohorts" && <DynamicCohortsPage />}
           {(currentView === "exam" || currentView === "subject") && (
             <AdaptiveChat examId={examId || ""} subjectId={subjectId || ""} />
           )}

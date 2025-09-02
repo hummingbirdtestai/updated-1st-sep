@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { MotiView } from "moti";
 import { Chromium as Home, Map, GitBranch, CircleAlert as AlertCircle, Radar, Clock, Navigation, ChartBar as BarChart3, Zap, Target, RotateCcw, BookMarked, Award, Users, UserCheck, UsersRound, Heart, TrendingUp, ChevronRight, ChevronDown, Bird, User, LogOut } from "lucide-react-native";
+import { Flame } from "lucide-react-native";
 import { Users as Users2 } from "lucide-react-native";
 import { Wrench } from "lucide-react-native";
 import { Gauge } from "lucide-react-native";
@@ -89,7 +90,7 @@ const navigationGroups: NavigationGroup[] = [
     items: [
       { id: 'peer-comparison', name: 'Peer Comparison', icon: Users2, route: '/analytics/peer-comparison' },
       { id: 'buddy-mode', name: 'Buddy Mode', icon: UserCheck, route: '/analytics/buddy-mode' },
-      { id: 'dynamic-cohorts', name: 'Dynamic Cohorts', icon: UsersRound, route: '/analytics/dynamic-cohorts' },
+      { id: 'dynamic-cohorts', name: 'Dynamic Cohorts', icon: Flame, route: '/analytics/dynamic-cohorts' },
       { id: 'wellness-balance', name: 'Wellness & Balance', icon: Heart, route: '/analytics/wellness-balance' },
     ]
   },
@@ -119,6 +120,7 @@ interface SidebarProps {
   onAchievementsNavigate?: () => void;
   onPeerComparisonNavigate?: () => void;
   onBuddyModeNavigate?: () => void;
+  onDynamicCohortsNavigate?: () => void;
 }
 
 export default function Sidebar({
@@ -136,6 +138,7 @@ export default function Sidebar({
   onAchievementsNavigate,
   onPeerComparisonNavigate,
   onBuddyModeNavigate,
+  onDynamicCohortsNavigate,
 }: SidebarProps) {
   const [isExamsExpanded, setIsExamsExpanded] = useState(false);
   const [isSubjectsExpanded, setIsSubjectsExpanded] = useState(false);
@@ -197,6 +200,8 @@ export default function Sidebar({
       onPeerComparisonNavigate?.();
     } else if (item.id === 'buddy-mode') {
       onBuddyModeNavigate?.();
+    } else if (item.id === 'dynamic-cohorts') {
+      onDynamicCohortsNavigate?.();
     } else {
       onAnalyticsNavigate?.(item.route);
     }
