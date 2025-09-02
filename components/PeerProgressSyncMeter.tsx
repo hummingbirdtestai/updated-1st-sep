@@ -646,5 +646,6 @@ export default function PeerProgressSyncMeter({ data = mockData }: PeerProgressS
           </View>
         </View>
       </MotiView>
+    </MotiView>
   );
 }
