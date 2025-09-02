@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { Users2, Target, TrendingUp, GitBranch } from 'lucide-react-native';
+import { Users as Users2, Target, TrendingUp, GitBranch } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
 import SafePercentileBands from '@/components/SafePercentileBands';
 import GapOverlapHeatmap from '@/components/GapOverlapHeatmap';
