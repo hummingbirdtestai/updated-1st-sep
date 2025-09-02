@@ -308,7 +308,7 @@ export default function SafePercentileBands({ data = mockData }: SafePercentileB
               {needsImprovement}
             </Text>
             <Text className="text-red-300/80 text-xs">
-              <25th percentile
+              {"<25th percentile"}
             </Text>
           </MotiView>
         </View>
