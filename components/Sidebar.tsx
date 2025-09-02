@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { MotiView } from "moti";
 import { Chrome as Home, Map, GitBranch, CircleAlert as AlertCircle, Radar, Clock, Navigation, ChartBar as BarChart3, Zap, Target, RotateCcw, BookMarked, Award, Users, UserCheck, UsersRound, Heart, TrendingUp, ChevronRight, ChevronDown, Bird, User, LogOut } from "lucide-react-native";
+import { Gauge } from "lucide-react-native";
 
 // modals
 import PhoneLoginModal from "./modals/PhoneLoginModal";
@@ -64,6 +65,7 @@ const navigationGroups: NavigationGroup[] = [
       { id: 'study-sessions', name: 'Study Sessions', icon: BarChart3, route: '/analytics/study-sessions' },
       { id: 'speed-accuracy', name: 'Speed & Accuracy', icon: Zap, route: '/analytics/speed-accuracy' },
       { id: 'confidence-reality', name: 'Confidence vs Reality', icon: Target, route: '/analytics/confidence-reality' },
+     { id: 'confidence-vs-reality', name: 'Confidence vs Reality', icon: Gauge, route: '/confidence-vs-reality' },
       { id: 'smart-revision', name: 'Smart Revision', icon: RotateCcw, route: '/analytics/smart-revision' },
       { id: 'quick-fix-lessons', name: 'Quick Fix Lessons', icon: Zap, route: '/analytics/quick-fix-lessons' },
       { id: 'mistakes-correct', name: 'Mistakes to Correct', icon: AlertCircle, route: '/analytics/mistakes-correct' },
@@ -109,6 +111,7 @@ interface SidebarProps {
   onHomeClick?: () => void;
   onAnalyticsNavigate?: (route: string) => void;
   onConceptMapNavigate?: () => void;
+  onConfidenceNavigate?: () => void;
 }
 
 export default function Sidebar({
@@ -121,6 +124,7 @@ export default function Sidebar({
   onHomeClick,
   onAnalyticsNavigate,
   onConceptMapNavigate,
+  onConfidenceNavigate,
 }: SidebarProps) {
   const [isExamsExpanded, setIsExamsExpanded] = useState(false);
   const [isSubjectsExpanded, setIsSubjectsExpanded] = useState(false);
@@ -353,6 +357,13 @@ export default function Sidebar({
                         <Pressable
                           key={item.id}
                           onPress={() => handleAnalyticsItemClick(item)}
+                         onPress={() => {
+                           if (item.route === '/confidence-vs-reality') {
+                             onConfidenceNavigate?.();
+                           } else {
+                             handleAnalyticsItemClick(item);
+                           }
+                         }}
                           className={`flex-row items-center p-2 rounded-lg mb-1 ${
                             isActive
                               ? "bg-teal-600/30 border border-teal-500/50"
