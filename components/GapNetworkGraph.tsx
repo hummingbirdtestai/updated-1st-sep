@@ -491,17 +491,13 @@ export default function GapNetworkGraph({ data = mockData }: GapNetworkGraphProp
               return (
                 <G key={node.id}>
                   {/* Outer glow effect */}
-                  <G onPress={(event) => handleNodePress(node, event)}>
-  <Circle
-    cx={node.x}
-    cy={node.y}
-    r={nodeSize * pulseScale}
-    fill={colors.fill}
-    stroke={colors.stroke}
-    strokeWidth="3"
-  />
-</G>
-
+                  <Circle
+                    cx={node.x}
+                    cy={node.y}
+                    r={(nodeSize * pulseScale) + 25}
+                    fill={`url(#${colors.glow})`}
+                    opacity={pulseOpacity}
+                  />
 
                   {/* Pulse glow for student gaps */}
                   {shouldPulse && (
@@ -525,17 +521,17 @@ export default function GapNetworkGraph({ data = mockData }: GapNetworkGraphProp
                   )}
                   
                   {/* Main node bubble */}
-                  <Pressable onPress={(event) => handleNodePress(node, event)}>
-                    <Circle
-                      cx={node.x}
-                      cy={node.y}
-                      r={nodeSize * pulseScale}
-                      fill={colors.fill}
-                      stroke={colors.stroke}
-                      strokeWidth="3"
-                      filter="drop-shadow(0 4px 12px rgba(0,0,0,0.3))"
-                    />
-                  </Pressable>
+                  <G onPress={(event) => handleNodePress(node, event)}>
+  <Circle
+    cx={node.x}
+    cy={node.y}
+    r={nodeSize * pulseScale}
+    fill={colors.fill}
+    stroke={colors.stroke}
+    strokeWidth="3"
+  />
+</G>
+
 
                   {/* Inner highlight */}
                   <Circle
