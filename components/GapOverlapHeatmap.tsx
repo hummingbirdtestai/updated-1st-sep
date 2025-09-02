@@ -73,9 +73,9 @@ const mockData: GapData[] = [
 ];
 
 const peerBands = [
-  { key: 'Top10', label: 'Top 10%', description: 'High performers' },
-  { key: 'Mid50', label: 'Mid 50%', description: 'Average performers' },
-  { key: 'Bottom40', label: 'At-risk 40%', description: 'Struggling students' }
+  { key: 'Top10', label: 'Top 10%', description: 'High performers', color: '#10b981' },
+  { key: 'Mid50', label: 'Mid 50%', description: 'Average performers', color: '#f59e0b' },
+  { key: 'Bottom40', label: 'At-risk 40%', description: 'Struggling students', color: '#ef4444' },
 ];
 
 function HeatmapCell({ 
@@ -154,7 +154,11 @@ function HeatmapCell({
           elevation: 4,
         }}
       >
-        <View className="flex-1 p-3 items-center justify-center">
+        <MotiView
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="flex-1 p-4 items-center justify-center"
+        >
           <Text className="text-white font-bold text-xl mb-1">
             {overlapPercent}%
           </Text>
@@ -171,7 +175,7 @@ function HeatmapCell({
               <Text className="text-white text-xs font-bold">!</Text>
             </View>
           )}
-        </View>
+        </MotiView>
       </Pressable>
     </MotiView>
   );
@@ -304,14 +308,6 @@ export default function GapOverlapHeatmap({ data = mockData }: GapOverlapHeatmap
   const [selectedTooltip, setSelectedTooltip] = useState<TooltipData | null>(null);
   const [animationProgress, setAnimationProgress] = useState(0);
 
-  // Animation effect
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setAnimationProgress(prev => (prev + 0.02) % 1);
-    }, 50);
-    return () => clearInterval(timer);
-  }, []);
-
   // Calculate max overlap for color scaling
   const maxOverlap = Math.max(
     ...data.flatMap(gap => [gap.overlap.Top10, gap.overlap.Mid50, gap.overlap.Bottom40])
@@ -341,6 +337,14 @@ export default function GapOverlapHeatmap({ data = mockData }: GapOverlapHeatmap
       default: return { color: '#64748b', bg: 'bg-slate-500/10', border: 'border-slate-500/30' };
     }
   };
+
+  // Animation effect
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setAnimationProgress(prev => (prev + 0.02) % 1);
+    }, 50);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <View className="flex-1 bg-slate-900">
@@ -464,7 +468,7 @@ export default function GapOverlapHeatmap({ data = mockData }: GapOverlapHeatmap
           from={{ opacity: 0, translateY: 30, scale: 0.95 }}
           animate={{ opacity: 1, translateY: 0, scale: 1 }}
           transition={{ type: 'spring', duration: 800, delay: 600 }}
-          className="bg-slate-800/60 rounded-2xl p-6 border border-slate-700/40 shadow-lg mb-8"
+          className="bg-slate-800/60 rounded-2xl border border-slate-700/40 shadow-lg mb-8"
           style={{
             shadowColor: '#8b5cf6',
             shadowOffset: { width: 0, height: 4 },
@@ -474,92 +478,114 @@ export default function GapOverlapHeatmap({ data = mockData }: GapOverlapHeatmap
           }}
         >
           {/* Heatmap Header */}
-          <View className="flex-row items-center mb-6">
-            <View className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg items-center justify-center mr-3">
-              <Users size={16} color="#ffffff" />
+          <View className="flex-row items-center justify-between p-6 border-b border-slate-700/30">
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg items-center justify-center mr-3">
+                <Users size={16} color="#ffffff" />
+              </View>
+              <Text className="text-xl font-bold text-slate-100">
+                Gap-Peer Overlap Matrix
+              </Text>
             </View>
-            <Text className="text-xl font-bold text-slate-100">
-              Gap-Peer Overlap Matrix
+            <Text className="text-slate-400 text-sm">
+              Tap cells for detailed analysis
             </Text>
           </View>
 
-          {/* Column Headers */}
-          <View className="flex-row mb-4">
-            <View className="w-32" /> {/* Space for row labels */}
-            <View className="flex-1 flex-row justify-around">
-              {peerBands.map((band, index) => {
-                const colors = getPeerBandColor(band.key);
-                return (
-                  <MotiView
-                    key={band.key}
-                    from={{ opacity: 0, translateY: -10 }}
-                    animate={{ opacity: 1, translateY: 0 }}
-                    transition={{ type: 'spring', duration: 400, delay: index * 100 + 200 }}
-                    className={`${colors.bg} border ${colors.border} rounded-xl p-3 min-w-[120px]`}
-                  >
-                    <Text 
-                      className="font-bold text-sm text-center"
-                      style={{ color: colors.color }}
+          {/* Sticky Column Headers */}
+          <View className="bg-slate-900/60 border-b border-slate-700/30">
+            <View className="flex-row p-4">
+              <View className="w-32" /> {/* Space for row labels */}
+              <View className="flex-1 flex-row justify-around">
+                {peerBands.map((band, index) => {
+                  const colors = getPeerBandColor(band.key);
+                  return (
+                    <MotiView
+                      key={band.key}
+                      from={{ opacity: 0, translateY: -10 }}
+                      animate={{ opacity: 1, translateY: 0 }}
+                      transition={{ type: 'spring', duration: 400, delay: index * 100 + 200 }}
+                      className={`${colors.bg} border ${colors.border} rounded-xl p-4 min-w-[120px] shadow-lg`}
+                      style={{
+                        shadowColor: colors.color,
+                        shadowOffset: { width: 0, height: 2 },
+                        shadowOpacity: 0.15,
+                        shadowRadius: 6,
+                        elevation: 3,
+                      }}
                     >
-                      {band.label}
-                    </Text>
-                    <Text className="text-slate-400 text-xs text-center mt-1">
-                      {band.description}
-                    </Text>
-                  </MotiView>
-                );
-              })}
+                      <Text 
+                        className="font-bold text-base text-center mb-1"
+                        style={{ color: colors.color }}
+                      >
+                        {band.label}
+                      </Text>
+                      <Text className="text-slate-400 text-xs text-center">
+                        {band.description}
+                      </Text>
+                    </MotiView>
+                  );
+                })}
+              </View>
             </View>
           </View>
 
           {/* Heatmap Rows */}
-          <View className="space-y-3">
-            {data.map((gapData, rowIndex) => (
-              <MotiView
-                key={gapData.gap}
-                from={{ opacity: 0, translateX: -20 }}
-                animate={{ opacity: 1, translateX: 0 }}
-                transition={{ type: 'spring', duration: 600, delay: 800 + rowIndex * 100 }}
-                className="flex-row items-center"
-              >
-                {/* Row Label */}
-                <View className="w-32 mr-4">
-                  <View className="bg-slate-700/40 rounded-lg p-3 border border-slate-600/30">
-                    <Text className="text-slate-100 font-semibold text-sm text-center">
-                      {gapData.gap}
-                    </Text>
-                    <Text className="text-slate-400 text-xs text-center mt-1">
-                      {gapData.avg_time_lost_hr.toFixed(1)}h avg loss
-                    </Text>
+          <View className="p-4">
+            <View className="space-y-4">
+              {data.map((gapData, rowIndex) => (
+                <MotiView
+                  key={gapData.gap}
+                  from={{ opacity: 0, translateX: -20 }}
+                  animate={{ opacity: 1, translateX: 0 }}
+                  transition={{ type: 'spring', duration: 600, delay: 800 + rowIndex * 100 }}
+                  className="flex-row items-center"
+                >
+                  {/* Row Label */}
+                  <View className="w-32 mr-4">
+                    <View className="bg-slate-700/60 rounded-xl p-4 border border-slate-600/40 shadow-lg">
+                      <Text className="text-slate-100 font-bold text-sm text-center mb-2">
+                        {gapData.gap}
+                      </Text>
+                      <View className="items-center">
+                        <View className="flex-row items-center">
+                          <Clock size={12} color="#f59e0b" />
+                          <Text className="text-amber-400 text-xs ml-1 font-semibold">
+                            {gapData.avg_time_lost_hr.toFixed(1)}h
+                          </Text>
+                        </View>
+                        <Text className="text-slate-500 text-xs">avg loss</Text>
+                      </View>
+                    </View>
                   </View>
-                </View>
 
-                {/* Heatmap Cells */}
-                <View className="flex-1 flex-row justify-around">
-                  {peerBands.map((band, colIndex) => {
-                    const overlapPercent = gapData.overlap[band.key as keyof GapOverlap];
-                    return (
-                      <HeatmapCell
-                        key={`${gapData.gap}-${band.key}`}
-                        gap={gapData.gap}
-                        peerBand={band.label}
-                        overlapPercent={overlapPercent}
-                        avgTimeLost={gapData.avg_time_lost_hr}
-                        maxOverlap={maxOverlap}
-                        onPress={handleCellPress}
-                        rowIndex={rowIndex}
-                        colIndex={colIndex}
-                      />
-                    );
-                  })}
-                </View>
-              </MotiView>
-            ))}
+                  {/* Heatmap Cells */}
+                  <View className="flex-1 flex-row justify-around">
+                    {peerBands.map((band, colIndex) => {
+                      const overlapPercent = gapData.overlap[band.key as keyof GapOverlap];
+                      return (
+                        <HeatmapCell
+                          key={`${gapData.gap}-${band.key}`}
+                          gap={gapData.gap}
+                          peerBand={band.label}
+                          overlapPercent={overlapPercent}
+                          avgTimeLost={gapData.avg_time_lost_hr}
+                          maxOverlap={maxOverlap}
+                          onPress={handleCellPress}
+                          rowIndex={rowIndex}
+                          colIndex={colIndex}
+                        />
+                      );
+                    })}
+                  </View>
+                </MotiView>
+              ))}
+            </View>
           </View>
 
           {/* Heatmap Legend */}
-          <View className="mt-6 bg-slate-700/40 rounded-xl p-4 border border-slate-600/30">
-            <Text className="text-slate-100 font-semibold mb-3">Overlap Intensity Legend</Text>
+          <View className="p-6 border-t border-slate-700/30 bg-slate-900/20">
+            <Text className="text-slate-100 font-semibold mb-4 text-center">Overlap Intensity Legend</Text>
             <View className="grid grid-cols-2 md:grid-cols-5 gap-3">
               <View className="flex-row items-center">
                 <View className="w-4 h-4 rounded bg-red-600 mr-2" />
@@ -678,45 +704,60 @@ export default function GapOverlapHeatmap({ data = mockData }: GapOverlapHeatmap
           </View>
         </MotiView>
 
-        {/* Insights Panel */}
+        {/* Insights Summary */}
         <MotiView
           from={{ opacity: 0, translateY: 20 }}
           animate={{ opacity: 1, translateY: 0 }}
           transition={{ type: 'spring', duration: 600, delay: 1800 }}
-          className="bg-slate-700/40 rounded-xl p-4 border border-slate-600/30"
+          className="bg-slate-700/40 rounded-xl p-4 border border-slate-600/30 mt-6"
         >
           <View className="flex-row items-center mb-3">
             <Info size={16} color="#06b6d4" />
-            <Text className="text-slate-100 font-semibold ml-2">Peer Overlap Insights</Text>
+            <Text className="text-slate-100 font-semibold ml-2">Key Insights & Recommendations</Text>
           </View>
           
-          <View className="space-y-3">
-            <View className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+          <View className="space-y-4">
+            {/* Critical Gap */}
+            <View className="bg-red-500/10 border border-red-500/20 rounded-lg p-4">
+              <Text className="text-red-300 font-semibold mb-2">
+                🚨 Most Critical Gap
+              </Text>
               <Text className="text-red-200 text-sm">
-                <Text className="font-bold">Most Challenging Gap:</Text> {mostCommonGap.gap} affects 
-                {' '}{Math.max(...Object.values(mostCommonGap.overlap))}% of peers in the most affected band.
+                <Text className="font-bold">{mostCommonGap.gap}</Text> shows highest peer overlap. 
+                Focus here for maximum impact and consider group study resources.
               </Text>
             </View>
-            
-            <View className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+
+            {/* Time Impact */}
+            <View className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+              <Text className="text-amber-300 font-semibold mb-2">
+                ⏰ Time Impact Analysis
+              </Text>
               <Text className="text-amber-200 text-sm">
-                <Text className="font-bold">Time Impact:</Text> Students lose an average of {averageTimeLost.toFixed(1)} hours 
-                per learning gap, with {mostCommonGap.gap} being the costliest at {mostCommonGap.avg_time_lost_hr.toFixed(1)} hours.
+                Students lose an average of <Text className="font-bold">{averageTimeLost.toFixed(1)} hours</Text> per 
+                learning gap. High overlap areas benefit most from collaborative study approaches.
               </Text>
             </View>
-            
-            <View className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-3">
-              <Text className="text-emerald-200 text-sm">
-                <Text className="font-bold">Study Strategy:</Text> High overlap gaps (≥60%) benefit from group study and shared resources. 
-                Low overlap gaps need personalized attention.
+
+            {/* Study Strategy */}
+            <View className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4">
+              <Text className="text-emerald-300 font-semibold mb-2">
+                🎯 Recommended Study Strategy
               </Text>
-            </View>
-            
-            <View className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-3">
-              <Text className="text-blue-200 text-sm">
-                <Text className="font-bold">Peer Learning:</Text> {highOverlapCells} cells show high overlap, 
-                indicating common struggle areas where peer collaboration could be beneficial.
-              </Text>
+              <View className="space-y-1">
+                <Text className="text-emerald-200 text-sm">
+                  <Text className="font-bold">1.</Text> Target high overlap gaps (≥60%) with group study sessions
+                </Text>
+                <Text className="text-emerald-200 text-sm">
+                  <Text className="font-bold">2.</Text> Share resources for commonly struggled concepts
+                </Text>
+                <Text className="text-emerald-200 text-sm">
+                  <Text className="font-bold">3.</Text> Use individual study for low overlap gaps
+                </Text>
+                <Text className="text-emerald-200 text-sm">
+                  <Text className="font-bold">4.</Text> Monitor progress and adjust based on peer movement
+                </Text>
+              </View>
             </View>
           </View>
         </MotiView>
