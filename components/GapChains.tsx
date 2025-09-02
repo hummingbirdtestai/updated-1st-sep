@@ -1106,15 +1106,17 @@ export default function GapChains() {
                         />
                         
                         {/* Main bubble */}
-                        <SvgCircle
-                          cx={position.x}
-                          cy={position.y}
-                          r={bubbleSize}
-                          fill={colors.color}
-                          stroke={subjectColor}
-                          strokeWidth="2"
-                          onPress={() => handleChainPress(chain, position.x, position.y)}
-                        />
+                        <Pressable onPress={() => handleChainPress(chain, position.x, position.y)}>
+                          <SvgCircle
+                            cx={position.x}
+                            cy={position.y}
+                            r={bubbleSize}
+                            fill={colors.color}
+                            stroke={subjectColor}
+                            strokeWidth="2"
+                          />
+                        </Pressable>
+
 
 
                         {/* Chain length indicator */}
