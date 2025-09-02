@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { TriangleAlert as AlertTriangle, Brain, ChartBar as BarChart3, Clock, Target, TrendingDown, Gauge, ListFilter as Filter, ChevronDown, GitBranch, Lightbulb } from 'lucide-react-native';
+import { TriangleAlert as AlertTriangle, Brain, ChartBar as BarChart3, Clock, Target, TrendingDown, Gauge, ListFilter as Filter, ChevronDown, GitBranch, Lightbulb, X, ExternalLink, Play, BookOpen, Video, RotateCcw } from 'lucide-react-native';
 import ErrorFingerprintProfile from './ErrorFingerprintProfile';
 import ConceptPrerequisiteMap from './ConceptPrerequisiteMap';
 import mockRootCausesData from '@/data/mockRootCausesData.json';
@@ -13,6 +13,26 @@ interface ProgressSummaryProps {
   totalTimeSpent: number;
   timeWasted: number;
   improvementPotential: number;
+}
+
+interface AISuggestion {
+  type: 'mcq_retry' | 'flashcard' | 'video' | 'concept_review';
+  title: string;
+  description: string;
+  link: string;
+  estimated_time: number; // minutes
+}
+
+interface SidePanelData {
+  title: string;
+  type: 'error_gap' | 'concept';
+  impact: {
+    pyqs_affected?: number;
+    time_wasted?: number;
+    pyqs_blocked?: number;
+    time_blocked?: number;
+  };
+  suggestions: AISuggestion[];
 }
 
 function ProgressSummary({ 
@@ -170,6 +190,7 @@ export default function RootCausesPage() {
   
   const [activeFilter, setActiveFilter] = useState<FilterTab>('overall');
   const [showFilters, setShowFilters] = useState(false);
+  const [sidePanelData, setSidePanelData] = useState<SidePanelData | null>(null);
 
   // Calculate metrics from mock data
   const pyqsCompleted = mockRootCausesData.pyqs_completed;
@@ -183,8 +204,120 @@ export default function RootCausesPage() {
     { key: 'overall', label: 'Overall', icon: BarChart3 },
   ];
 
+  // Mock AI suggestions generator
+  const generateAISuggestions = (title: string, type: 'error_gap' | 'concept'): AISuggestion[] => {
+    const baseTitle = title.split(' ')[0]; // Get first word for suggestions
+    
+    if (type === 'error_gap') {
+      return [
+        {
+          type: 'mcq_retry',
+          title: `Retry 5 linked PYQs on ${baseTitle}`,
+          description: 'Practice similar questions to reinforce correct patterns',
+          link: 'https://example.com/mcq-retry',
+          estimated_time: 15
+        },
+        {
+          type: 'flashcard',
+          title: `Review Flashcards: ${title} Q&A`,
+          description: 'Quick review of key concepts and common mistakes',
+          link: 'https://example.com/flashcards',
+          estimated_time: 8
+        },
+        {
+          type: 'video',
+          title: `Watch 3-min video explainer on ${baseTitle}`,
+          description: 'Visual explanation of the concept and common pitfalls',
+          link: 'https://example.com/video',
+          estimated_time: 3
+        }
+      ];
+    } else {
+      return [
+        {
+          type: 'concept_review',
+          title: `Master ${baseTitle} Fundamentals`,
+          description: 'Comprehensive review of prerequisite knowledge',
+          link: 'https://example.com/concept-review',
+          estimated_time: 20
+        },
+        {
+          type: 'flashcard',
+          title: `${title} Foundation Cards`,
+          description: 'Essential flashcards for building strong fundamentals',
+          link: 'https://example.com/foundation-cards',
+          estimated_time: 12
+        },
+        {
+          type: 'mcq_retry',
+          title: `Practice ${baseTitle} Prerequisites`,
+          description: 'Targeted questions to strengthen foundational understanding',
+          link: 'https://example.com/prerequisite-mcqs',
+          estimated_time: 18
+        },
+        {
+          type: 'video',
+          title: `${baseTitle} Concept Map Video`,
+          description: 'Visual breakdown of how this concept connects to others',
+          link: 'https://example.com/concept-video',
+          estimated_time: 7
+        }
+      ];
+    }
+  };
+
+  // Handle error gap click
+  const handleErrorGapClick = (gap: any) => {
+    const suggestions = generateAISuggestions(gap.gap, 'error_gap');
+    setSidePanelData({
+      title: gap.gap,
+      type: 'error_gap',
+      impact: {
+        pyqs_affected: gap.pyqs_affected,
+        time_wasted: gap.time_wasted_min
+      },
+      suggestions
+    });
+  };
+
+  // Handle concept click
+  const handleConceptClick = (concept: any) => {
+    const suggestions = generateAISuggestions(concept.concept, 'concept');
+    setSidePanelData({
+      title: concept.concept,
+      type: 'concept',
+      impact: {
+        pyqs_blocked: concept.pyqs_blocked,
+        time_blocked: concept.time_blocked_min
+      },
+      suggestions
+    });
+  };
+
+  // Get suggestion icon
+  const getSuggestionIcon = (type: string) => {
+    switch (type) {
+      case 'mcq_retry': return <RotateCcw size={16} color="#ffffff" />;
+      case 'flashcard': return <BookOpen size={16} color="#ffffff" />;
+      case 'video': return <Video size={16} color="#ffffff" />;
+      case 'concept_review': return <Brain size={16} color="#ffffff" />;
+      default: return <Play size={16} color="#ffffff" />;
+    }
+  };
+
+  // Get suggestion color
+  const getSuggestionColor = (type: string) => {
+    switch (type) {
+      case 'mcq_retry': return 'from-emerald-600 to-teal-600';
+      case 'flashcard': return 'from-blue-600 to-indigo-600';
+      case 'video': return 'from-purple-600 to-violet-600';
+      case 'concept_review': return 'from-amber-600 to-orange-600';
+      default: return 'from-slate-600 to-slate-700';
+    }
+  };
+
   return (
-    <View className="flex-1 bg-slate-900">
+    <View className="flex-1 bg-slate-900 relative">
       {/* Sticky Header */}
       <MotiView
         from={{ opacity: 0, translateY: -20 }}
@@ -303,7 +436,7 @@ export default function RootCausesPage() {
               Error Fingerprint Profile
             </Text>
           </View>
-          <ErrorFingerprintProfile />
+          <ErrorFingerprintProfile onErrorGapClick={handleErrorGapClick} />
         </MotiView>
 
         {/* Bottom Section: Concept Prerequisite Map */}
@@ -321,7 +454,7 @@ export default function RootCausesPage() {
               Concept Prerequisite Dependencies
             </Text>
           </View>
-          <ConceptPrerequisiteMap />
+          <ConceptPrerequisiteMap onConceptClick={handleConceptClick} />
         </MotiView>
 
         {/* Insights Summary */}
@@ -423,6 +556,211 @@ export default function RootCausesPage() {
           </MotiView>
         )}
       </ScrollView>
+
+      {/* AI Reroute Fix Suggestions Side Panel */}
+      {sidePanelData && (
+        <MotiView
+          from={{ opacity: 0, translateX: 400 }}
+          animate={{ opacity: 1, translateX: 0 }}
+          transition={{ type: 'spring', duration: 600 }}
+          className="absolute right-0 top-0 bottom-0 w-96 bg-slate-800/95 border-l border-slate-700/50 shadow-2xl z-50"
+          style={{
+            shadowColor: '#f59e0b',
+            shadowOffset: { width: -4, height: 0 },
+            shadowOpacity: 0.2,
+            shadowRadius: 12,
+            elevation: 10,
+          }}
+        >
+          {/* Panel Header */}
+          <View className="flex-row items-center justify-between p-6 border-b border-slate-700/30">
+            <View className="flex-1">
+              <Text className="text-xl font-bold text-slate-100 mb-1">
+                AI Reroute Fixes
+              </Text>
+              <Text className="text-sm text-amber-400">
+                {sidePanelData.title}
+              </Text>
+              <Text className="text-xs text-slate-500 mt-1 capitalize">
+                {sidePanelData.type.replace('_', ' ')} Analysis
+              </Text>
+            </View>
+            <Pressable
+              onPress={() => setSidePanelData(null)}
+              className="w-8 h-8 rounded-full bg-slate-700/50 items-center justify-center active:scale-95"
+            >
+              <X size={16} color="#94a3b8" />
+            </Pressable>
+          </View>
+
+          <ScrollView showsVerticalScrollIndicator={false} className="flex-1 p-6">
+            {/* Impact Analysis */}
+            <View className="mb-6">
+              <View className="flex-row items-center mb-3">
+                <AlertTriangle size={16} color="#ef4444" />
+                <Text className="text-slate-100 font-semibold ml-2">Impact Analysis</Text>
+              </View>
+              <View className="space-y-3">
+                {sidePanelData.impact.pyqs_affected && (
+                  <View className="bg-red-500/10 border border-red-500/20 rounded-lg p-3">
+                    <Text className="text-red-200 text-sm">
+                      <Text className="font-bold">{sidePanelData.impact.pyqs_affected} PYQs affected</Text> by this error pattern
+                    </Text>
+                  </View>
+                )}
+                {sidePanelData.impact.time_wasted && (
+                  <View className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-3">
+                    <Text className="text-amber-200 text-sm">
+                      <Text className="font-bold">{sidePanelData.impact.time_wasted.toFixed(1)} minutes wasted</Text> on repeat mistakes
+                    </Text>
+                  </View>
+                )}
+                {sidePanelData.impact.pyqs_blocked && (
+                  <View className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-3">
+                    <Text className="text-purple-200 text-sm">
+                      <Text className="font-bold">{sidePanelData.impact.pyqs_blocked} PYQs blocked</Text> by prerequisite gaps
+                    </Text>
+                  </View>
+                )}
+                {sidePanelData.impact.time_blocked && (
+                  <View className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg p-3">
+                    <Text className="text-cyan-200 text-sm">
+                      <Text className="font-bold">{(sidePanelData.impact.time_blocked / 60).toFixed(1)} hours blocked</Text> by missing fundamentals
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+
+            {/* AI Suggestions */}
+            <View className="mb-6">
+              <View className="flex-row items-center mb-3">
+                <Lightbulb size={16} color="#fbbf24" />
+                <Text className="text-slate-100 font-semibold ml-2">Recommended Fixes</Text>
+              </View>
+              
+              <View className="space-y-3">
+                {sidePanelData.suggestions.map((suggestion, index) => (
+                  <MotiView
+                    key={`${suggestion.type}-${index}`}
+                    from={{ opacity: 0, translateX: 20 }}
+                    animate={{ opacity: 1, translateX: 0 }}
+                    transition={{ type: 'spring', duration: 400, delay: index * 100 + 200 }}
+                  >
+                    <Pressable
+                      onPress={() => {
+                        // Handle suggestion action - will be replaced with real links later
+                        console.log(`Opening ${suggestion.type}:`, suggestion.link);
+                      }}
+                      className={`bg-gradient-to-r ${getSuggestionColor(suggestion.type)} rounded-xl p-4 shadow-lg active:scale-95 border border-white/10`}
+                      style={{
+                        shadowColor: suggestion.type === 'mcq_retry' ? '#10b981' : 
+                                   suggestion.type === 'flashcard' ? '#3b82f6' : 
+                                   suggestion.type === 'video' ? '#8b5cf6' : '#f59e0b',
+                        shadowOffset: { width: 0, height: 4 },
+                        shadowOpacity: 0.3,
+                        shadowRadius: 8,
+                        elevation: 4,
+                      }}
+                    >
+                      <View className="flex-row items-center">
+                        <View className="w-10 h-10 bg-white/20 rounded-full items-center justify-center mr-3">
+                          {getSuggestionIcon(suggestion.type)}
+                        </View>
+                        <View className="flex-1">
+                          <Text className="text-white font-semibold text-base mb-1">
+                            {suggestion.title}
+                          </Text>
+                          <Text className="text-white/80 text-sm mb-2">
+                            {suggestion.description}
+                          </Text>
+                          <View className="flex-row items-center">
+                            <Clock size={12} color="#ffffff" style={{ opacity: 0.7 }} />
+                            <Text className="text-white/70 text-xs ml-1">
+                              ~{suggestion.estimated_time} min
+                            </Text>
+                          </View>
+                        </View>
+                        <ExternalLink size={14} color="#ffffff" style={{ opacity: 0.7 }} />
+                      </View>
+                    </Pressable>
+                  </MotiView>
+                ))}
+              </View>
+            </View>
+
+            {/* Study Plan */}
+            <View className="mb-6">
+              <View className="flex-row items-center mb-3">
+                <Target size={16} color="#10b981" />
+                <Text className="text-slate-100 font-semibold ml-2">Suggested Study Plan</Text>
+              </View>
+              <View className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4">
+                <View className="space-y-2">
+                  <Text className="text-emerald-200 text-sm">
+                    <Text className="font-bold">1.</Text> Start with the {sidePanelData.type === 'concept' ? 'concept review' : 'video explainer'} (quickest impact)
+                  </Text>
+                  <Text className="text-emerald-200 text-sm">
+                    <Text className="font-bold">2.</Text> Review flashcards for reinforcement
+                  </Text>
+                  <Text className="text-emerald-200 text-sm">
+                    <Text className="font-bold">3.</Text> Practice with targeted MCQs
+                  </Text>
+                  <Text className="text-emerald-200 text-sm">
+                    <Text className="font-bold">4.</Text> Return to original problem area when confident
+                  </Text>
+                </View>
+              </View>
+            </View>
+
+            {/* Time Investment Summary */}
+            <View className="bg-slate-700/40 rounded-xl p-4 border border-slate-600/30">
+              <View className="flex-row items-center mb-3">
+                <Clock size={16} color="#06b6d4" />
+                <Text className="text-slate-100 font-semibold ml-2">Time Investment</Text>
+              </View>
+              <View className="space-y-2">
+                <View className="flex-row justify-between">
+                  <Text className="text-slate-400 text-sm">Total Estimated Time</Text>
+                  <Text className="text-cyan-400 font-bold text-sm">
+                    {sidePanelData.suggestions.reduce((sum, s) => sum + s.estimated_time, 0)} min
+                  </Text>
+                </View>
+                <View className="flex-row justify-between">
+                  <Text className="text-slate-400 text-sm">Potential Time Saved</Text>
+                  <Text className="text-emerald-400 font-bold text-sm">
+                    {sidePanelData.impact.time_wasted 
+                      ? `${sidePanelData.impact.time_wasted.toFixed(0)} min`
+                      : sidePanelData.impact.time_blocked
+                      ? `${sidePanelData.impact.time_blocked.toFixed(0)} min`
+                      : 'N/A'
+                    }
+                  </Text>
+                </View>
+                <View className="flex-row justify-between">
+                  <Text className="text-slate-400 text-sm">ROI Ratio</Text>
+                  <Text className="text-purple-400 font-bold text-sm">
+                    {(() => {
+                      const timeToSave = sidePanelData.impact.time_wasted || sidePanelData.impact.time_blocked || 0;
+                      const timeToInvest = sidePanelData.suggestions.reduce((sum, s) => sum + s.estimated_time, 0);
+                      const roi = timeToInvest > 0 ? (timeToSave / timeToInvest) : 0;
+                      return `${roi.toFixed(1)}x`;
+                    })()}
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+        </MotiView>
+      )}
+
+      {/* Overlay for Side Panel */}
+      {sidePanelData && (
+        <Pressable
+          onPress={() => setSidePanelData(null)}
+          className="absolute inset-0 bg-black/30 z-40"
+        />
+      )}
     </View>
   );
 }

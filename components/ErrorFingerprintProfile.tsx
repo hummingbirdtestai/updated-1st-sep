@@ -22,7 +22,11 @@ interface ErrorFingerprintData {
   };
 }
 
-export default function ErrorFingerprintProfile() {
+interface ErrorFingerprintProfileProps {
+  onErrorGapClick?: (gap: ErrorGap) => void;
+}
+
+export default function ErrorFingerprintProfile({ onErrorGapClick }: ErrorFingerprintProfileProps) {
   const { width } = Dimensions.get('window');
   const isMobile = width < 768;
   
@@ -295,7 +299,10 @@ export default function ErrorFingerprintProfile() {
                 transition={{ type: 'spring', duration: 600, delay: 800 + index * 100 }}
                 className={`${colors.bg} border ${colors.border} rounded-xl p-4`}
               >
-                <View className="flex-row items-center justify-between">
+                <Pressable
+                  onPress={() => onErrorGapClick?.(gap)}
+                  className="flex-row items-center justify-between active:bg-black/10"
+                >
                   <View className="flex-1 mr-4">
                     <Text className="text-slate-100 font-semibold text-base mb-2">
                       {gap.gap}
@@ -320,7 +327,7 @@ export default function ErrorFingerprintProfile() {
                       {impactLevel} Impact
                     </Text>
                   </View>
-                </View>
+                </Pressable>
 
                 {/* Progress Bar showing relative impact */}
                 <View className="mt-3">
