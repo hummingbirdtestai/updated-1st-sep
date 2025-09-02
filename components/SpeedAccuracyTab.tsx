@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { Zap, TrendingDown, TrendingUp, Filter, ChevronDown } from 'lucide-react-native';
+import { Zap, TrendingDown, TrendingUp, ListFilter as Filter, ChevronDown } from 'lucide-react-native';
 import FatigueImpactCurve from './FatigueImpactCurve';
 import AdaptiveDifficultyResponse from './AdaptiveDifficultyResponse';
 import { mockAttempts } from '@/data/mockAttempts';
