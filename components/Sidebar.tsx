@@ -88,7 +88,6 @@ const navigationGroups: NavigationGroup[] = [
     icon: Users2,
     items: [
       { id: 'peer-comparison', name: 'Peer Comparison', icon: Users2, route: '/analytics/peer-comparison' },
-      { id: 'peer-comparison', name: 'Peer Comparison', icon: Users2, route: '/analytics/peer-comparison' },
       { id: 'buddy-mode', name: 'Buddy Mode', icon: UserCheck, route: '/analytics/buddy-mode' },
       { id: 'dynamic-cohorts', name: 'Dynamic Cohorts', icon: UsersRound, route: '/analytics/dynamic-cohorts' },
       { id: 'wellness-balance', name: 'Wellness & Balance', icon: Heart, route: '/analytics/wellness-balance' },
