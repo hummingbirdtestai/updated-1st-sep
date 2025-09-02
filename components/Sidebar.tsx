@@ -119,7 +119,6 @@ interface SidebarProps {
   onQuickFixNavigate?: () => void;
   onAchievementsNavigate?: () => void;
   onPeerComparisonNavigate?: () => void;
-  onPeerComparisonNavigate?: () => void;
 }
 
 export default function Sidebar({
@@ -135,7 +134,6 @@ export default function Sidebar({
   onSmartRevisionNavigate,
   onQuickFixNavigate,
   onAchievementsNavigate,
-  onPeerComparisonNavigate,
   onPeerComparisonNavigate,
 }: SidebarProps) {
   const [isExamsExpanded, setIsExamsExpanded] = useState(false);
