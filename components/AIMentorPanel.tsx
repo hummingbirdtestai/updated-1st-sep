@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { Brain, BookOpen, Play, RotateCcw, Target, Clock, Zap, TrendingUp, AlertTriangle, Lightbulb } from 'lucide-react-native';
+import { Brain, BookOpen, Play, RotateCcw, Target, Clock, Zap, TrendingUp, TriangleAlert as AlertTriangle, Lightbulb } from 'lucide-react-native';
 
 interface MistakeData {
   id: string;
