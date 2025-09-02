@@ -31,7 +31,6 @@ export default function SmartRevisionPage() {
               Spaced repetition engine for MCQs + flashcards
             </Text>
           </View>
-        </MotiView>
       </MotiView>
 
       {/* Main Content */}
