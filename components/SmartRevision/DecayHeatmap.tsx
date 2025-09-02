@@ -265,7 +265,7 @@ export default function DecayHeatmap({ data = [], onCellSelect }: DecayHeatmapPr
             </View>
             <View className="flex-row items-center">
               <View className="w-4 h-4 bg-red-500 rounded mr-2" />
-              <Text className="text-slate-300 text-sm">Low (<60%)</Text>
+              <Text className="text-slate-300 text-sm">Low {"(<60%)"}</Text>
             </View>
           </View>
           <Text className="text-slate-400 text-xs mt-2 text-center">
