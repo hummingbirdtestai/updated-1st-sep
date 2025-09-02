@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { MotiView } from "moti";
 import { Chromium as Home, Map, GitBranch, CircleAlert as AlertCircle, Radar, Clock, Navigation, ChartBar as BarChart3, Zap, Target, RotateCcw, BookMarked, Award, Users, UserCheck, UsersRound, Heart, TrendingUp, ChevronRight, ChevronDown, Bird, User, LogOut } from "lucide-react-native";
+import { Wrench } from "lucide-react-native";
 import { Gauge } from "lucide-react-native";
 
 // modals
@@ -67,7 +68,7 @@ const navigationGroups: NavigationGroup[] = [
       { id: 'confidence-reality', name: 'Confidence vs Reality', icon: Target, route: '/analytics/confidence-reality' },
      { id: 'confidence-vs-reality', name: 'Confidence vs Reality', icon: Gauge, route: '/confidence-vs-reality' },
       { id: 'smart-revision', name: 'Smart Revision', icon: RotateCcw, route: '/SmartRevisionPage' },
-      { id: 'quick-fix-lessons', name: 'Quick Fix Lessons', icon: Zap, route: '/analytics/quick-fix-lessons' },
+      { id: 'quick-fix-lessons', name: 'Quick Fix Lessons', icon: Wrench, route: '/QuickFixLessonsPage' },
       { id: 'mistakes-correct', name: 'Mistakes to Correct', icon: AlertCircle, route: '/analytics/mistakes-correct' },
     ]
   },
@@ -113,6 +114,7 @@ interface SidebarProps {
   onConceptMapNavigate?: () => void;
   onConfidenceNavigate?: () => void;
   onSmartRevisionNavigate?: () => void;
+  onQuickFixNavigate?: () => void;
 }
 
 export default function Sidebar({
@@ -126,6 +128,7 @@ export default function Sidebar({
   onAnalyticsNavigate,
   onConceptMapNavigate,
   onSmartRevisionNavigate,
+  onQuickFixNavigate,
 }: SidebarProps) {
   const [isExamsExpanded, setIsExamsExpanded] = useState(false);
   const [isSubjectsExpanded, setIsSubjectsExpanded] = useState(false);
@@ -179,6 +182,8 @@ export default function Sidebar({
     // Handle special routes
     if (item.route === '/SmartRevisionPage') {
       onSmartRevisionNavigate?.();
+    } else if (item.route === '/QuickFixLessonsPage') {
+      onQuickFixNavigate?.();
     } else {
       onAnalyticsNavigate?.(item.route);
     }
