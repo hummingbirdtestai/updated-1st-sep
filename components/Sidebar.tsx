@@ -70,6 +70,7 @@ const navigationGroups: NavigationGroup[] = [
       { id: 'smart-revision', name: 'Smart Revision', icon: RotateCcw, route: '/SmartRevisionPage' },
       { id: 'quick-fix-lessons', name: 'Quick Fix Lessons', icon: Wrench, route: '/QuickFixLessonsPage' },
       { id: 'mistakes-correct', name: 'Mistakes to Correct', icon: AlertCircle, route: '/analytics/mistakes-correct' },
+      { id: 'achievements-rewards', name: 'Achievements & Rewards', icon: Award, route: '/AchievementsRewardsPage' },
     ]
   },
   {
@@ -78,7 +79,6 @@ const navigationGroups: NavigationGroup[] = [
     icon: BookMarked,
     items: [
       { id: 'flashcards-bookmarks', name: 'Flashcards & Bookmarks', icon: BookMarked, route: '/analytics/flashcards-bookmarks' },
-      { id: 'achievements-rewards', name: 'Achievements & Rewards', icon: Award, route: '/analytics/achievements-rewards' },
     ]
   },
   {
@@ -115,6 +115,7 @@ interface SidebarProps {
   onConfidenceNavigate?: () => void;
   onSmartRevisionNavigate?: () => void;
   onQuickFixNavigate?: () => void;
+  onAchievementsNavigate?: () => void;
 }
 
 export default function Sidebar({
@@ -129,6 +130,7 @@ export default function Sidebar({
   onConceptMapNavigate,
   onSmartRevisionNavigate,
   onQuickFixNavigate,
+  onAchievementsNavigate,
 }: SidebarProps) {
   const [isExamsExpanded, setIsExamsExpanded] = useState(false);
   const [isSubjectsExpanded, setIsSubjectsExpanded] = useState(false);

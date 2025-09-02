@@ -8,13 +8,14 @@ import ConceptPrerequisiteMap from "@/components/ConceptPrerequisiteMap";
 import ConfidenceVsRealityPage from "@/app/confidence-vs-reality";
 import SmartRevisionPage from "@/app/SmartRevisionPage";
 import QuickFixLessonsPage from "@/app/QuickFixLessonsPage";
+import AchievementsRewardsPage from "@/app/AchievementsRewardsPage";
 
 export default function LayoutWithSidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { width } = Dimensions.get("window");
   const isMobile = width < 768;
   const sidebarWidth = 240;
-  const [currentView, setCurrentView] = useState<"home" | "exam" | "subject" | "analytics" | "concept-map" | "confidence" | "smart-revision" | "quick-fix">("analytics");
+  const [currentView, setCurrentView] = useState<"home" | "exam" | "subject" | "analytics" | "concept-map" | "confidence" | "smart-revision" | "quick-fix" | "achievements">("analytics");
   const [analyticsRoute, setAnalyticsRoute] = useState("/analytics/prep-overview");
   const [examId, setExamId] = useState<string | null>(null);
   const [subjectId, setSubjectId] = useState<string | null>(null);
@@ -65,6 +66,10 @@ export default function LayoutWithSidebar() {
           setCurrentView("quick-fix");
           if (isMobile) setSidebarOpen(false);
         }}
+        onAchievementsNavigate={() => {
+          setCurrentView("achievements");
+          if (isMobile) setSidebarOpen(false);
+        }}
       />
 
       {/* Main Content */}
@@ -89,6 +94,7 @@ export default function LayoutWithSidebar() {
           {currentView === "confidence" && <ConfidenceVsRealityPage />}
           {currentView === "smart-revision" && <SmartRevisionPage />}
           {currentView === "quick-fix" && <QuickFixLessonsPage />}
+          {currentView === "achievements" && <AchievementsRewardsPage />}
           {(currentView === "exam" || currentView === "subject") && (
             <AdaptiveChat examId={examId || ""} subjectId={subjectId || ""} />
           )}
