@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Dimensions, Pressable } from 'react-native';
 import { MotiView } from 'moti';
-import { TrendingDown, Clock, Target, Brain, TriangleAlert as AlertTriangle, Filter, ChevronDown, X, Calendar, BookOpen } from 'lucide-react-native';
+import { TrendingDown, Clock, Target, Brain, TriangleAlert as AlertTriangle, ListFilter as Filter, ChevronDown, X, Calendar, BookOpen } from 'lucide-react-native';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { mockAttempts } from '@/data/mockAttempts';
 
