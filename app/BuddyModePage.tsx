@@ -4,6 +4,7 @@ import { MotiView } from 'moti';
 import { Users, TrendingUp, Target, Zap, Clock, Award, Bell, Radar, Trophy, ChevronRight, Play, CircleCheck as CheckCircle, TriangleAlert as AlertTriangle, Heart, Flame, Star } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
 import Svg, { Circle, Text as SvgText, Line, Defs, LinearGradient, Stop, Path } from 'react-native-svg';
+import PeerProgressSyncMeter from '@/components/PeerProgressSyncMeter';
 
 // Mock data
 const buddyData = {
@@ -14,6 +15,12 @@ const buddyData = {
 const mockProgressData = {
   arjun: { pyqs_completed: 1250, accuracy: 72, study_hours: 85, streak: 7 },
   meera: { pyqs_completed: 1180, accuracy: 68, study_hours: 92, streak: 5 }
+};
+
+const buddyProgressData = {
+  buddyA: { name: "Arjun", completedPYQs: 1800 },
+  buddyB: { name: "Meera", completedPYQs: 2100 },
+  totalPYQs: 9960
 };
 
 const mockNudges = [
@@ -114,145 +121,6 @@ function CircularProgress({
         </Svg>
       </View>
     </View>
-  );
-}
-
-interface PeerProgressSyncMeterProps {
-  buddyA: { name: string };
-  buddyB: { name: string };
-  progressData: any;
-}
-
-function PeerProgressSyncMeter({ buddyA, buddyB, progressData }: PeerProgressSyncMeterProps) {
-  const { width } = Dimensions.get('window');
-  const isMobile = width < 768;
-
-  const arjunData = progressData.arjun;
-  const meeraData = progressData.meera;
-
-  // Calculate sync score (how aligned their progress is)
-  const syncScore = Math.round(100 - Math.abs(arjunData.accuracy - meeraData.accuracy) - Math.abs(arjunData.streak - meeraData.streak) * 2);
-
-  return (
-    <MotiView
-      from={{ opacity: 0, translateY: 30, scale: 0.95 }}
-      animate={{ opacity: 1, translateY: 0, scale: 1 }}
-      transition={{ type: 'spring', duration: 800, delay: 200 }}
-      className="bg-slate-800/60 rounded-2xl p-6 mb-6 border border-slate-700/40 shadow-lg"
-      style={{
-        shadowColor: '#3b82f6',
-        shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 6,
-      }}
-    >
-      {/* Header */}
-      <View className="flex-row items-center mb-6">
-        <View className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl items-center justify-center mr-3 shadow-lg">
-          <TrendingUp size={20} color="#ffffff" />
-        </View>
-        <View className="flex-1">
-          <Text className="text-2xl font-bold text-slate-100">Peer Progress Sync Meter</Text>
-          <Text className="text-slate-400 text-sm">
-            How aligned are you and your buddy's learning journeys?
-          </Text>
-        </View>
-        
-        {/* Sync Score Badge */}
-        <View className="items-center">
-          <View 
-            className="w-16 h-16 rounded-full border-4 items-center justify-center"
-            style={{ borderColor: syncScore >= 80 ? '#10b981' : syncScore >= 60 ? '#f59e0b' : '#ef4444' }}
-          >
-            <Text 
-              className="text-lg font-bold"
-              style={{ color: syncScore >= 80 ? '#10b981' : syncScore >= 60 ? '#f59e0b' : '#ef4444' }}
-            >
-              {syncScore}
-            </Text>
-            <Text className="text-slate-500 text-xs">sync</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* Progress Comparison */}
-      <View className={`${isMobile ? 'space-y-6' : 'grid grid-cols-2 gap-8'}`}>
-        {/* Arjun's Progress */}
-        <View className="bg-slate-700/40 rounded-xl p-4 border border-slate-600/30">
-          <View className="flex-row items-center mb-4">
-            <View className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-full items-center justify-center mr-3">
-              <Text className="text-white font-bold text-sm">A</Text>
-            </View>
-            <Text className="text-emerald-300 font-bold text-lg">{buddyA.name}</Text>
-          </View>
-          
-          <View className="space-y-4">
-            <View className="flex-row items-center justify-between">
-              <Text className="text-slate-300 text-sm">PYQs Completed</Text>
-              <Text className="text-emerald-400 font-bold">{arjunData.pyqs_completed.toLocaleString()}</Text>
-            </View>
-            <View className="flex-row items-center justify-between">
-              <Text className="text-slate-300 text-sm">Accuracy</Text>
-              <Text className="text-emerald-400 font-bold">{arjunData.accuracy}%</Text>
-            </View>
-            <View className="flex-row items-center justify-between">
-              <Text className="text-slate-300 text-sm">Study Hours</Text>
-              <Text className="text-emerald-400 font-bold">{arjunData.study_hours}h</Text>
-            </View>
-            <View className="flex-row items-center justify-between">
-              <Text className="text-slate-300 text-sm">Current Streak</Text>
-              <Text className="text-emerald-400 font-bold">{arjunData.streak} days</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Meera's Progress */}
-        <View className="bg-slate-700/40 rounded-xl p-4 border border-slate-600/30">
-          <View className="flex-row items-center mb-4">
-            <View className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-full items-center justify-center mr-3">
-              <Text className="text-white font-bold text-sm">M</Text>
-            </View>
-            <Text className="text-purple-300 font-bold text-lg">{buddyB.name}</Text>
-          </View>
-          
-          <View className="space-y-4">
-            <View className="flex-row items-center justify-between">
-              <Text className="text-slate-300 text-sm">PYQs Completed</Text>
-              <Text className="text-purple-400 font-bold">{meeraData.pyqs_completed.toLocaleString()}</Text>
-            </View>
-            <View className="flex-row items-center justify-between">
-              <Text className="text-slate-300 text-sm">Accuracy</Text>
-              <Text className="text-purple-400 font-bold">{meeraData.accuracy}%</Text>
-            </View>
-            <View className="flex-row items-center justify-between">
-              <Text className="text-slate-300 text-sm">Study Hours</Text>
-              <Text className="text-purple-400 font-bold">{meeraData.study_hours}h</Text>
-            </View>
-            <View className="flex-row items-center justify-between">
-              <Text className="text-slate-300 text-sm">Current Streak</Text>
-              <Text className="text-purple-400 font-bold">{meeraData.streak} days</Text>
-            </View>
-          </View>
-        </View>
-      </View>
-
-      {/* Sync Analysis */}
-      <View className="mt-6 bg-slate-700/40 rounded-xl p-4 border border-slate-600/30">
-        <View className="flex-row items-center mb-3">
-          <Users size={16} color="#06b6d4" />
-          <Text className="text-slate-100 font-semibold ml-2">Sync Analysis</Text>
-        </View>
-        <Text className="text-slate-300 text-sm leading-5">
-          {syncScore >= 80 
-            ? `Excellent sync! You and ${buddyB.name} are progressing at a similar pace. Keep supporting each other!`
-            : syncScore >= 60
-            ? `Good alignment with some differences. Consider sharing study strategies to improve sync.`
-            : `Significant progress gap detected. The faster buddy should help mentor the other.`
-          }
-        </Text>
-      </View>
-    </MotiView>
   );
 }
 
@@ -877,11 +745,7 @@ export default function BuddyModePage() {
         }}
       >
         {/* Section 1: Peer Progress Sync Meter */}
-        <PeerProgressSyncMeter 
-          buddyA={buddyData.buddyA}
-          buddyB={buddyData.buddyB}
-          progressData={mockProgressData}
-        />
+        <PeerProgressSyncMeter data={buddyProgressData} />
 
         {/* Section 2: Accountability Nudges */}
         <AccountabilityNudges nudges={mockNudges} />
