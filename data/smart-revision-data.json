@@ -1,0 +1,131 @@
+{
+  "decayHeatmap": [
+    {
+      "subject": "Physiology",
+      "days": [
+        { "day": "Day 1", "retention": 90 },
+        { "day": "Day 2", "retention": 75 },
+        { "day": "Day 3", "retention": 55 },
+        { "day": "Day 4", "retention": 30 }
+      ]
+    },
+    {
+      "subject": "Biochemistry",
+      "days": [
+        { "day": "Day 1", "retention": 88 },
+        { "day": "Day 2", "retention": 70 },
+        { "day": "Day 3", "retention": 45 },
+        { "day": "Day 4", "retention": 20 }
+      ]
+    },
+    {
+      "subject": "Anatomy",
+      "days": [
+        { "day": "Day 1", "retention": 85 },
+        { "day": "Day 2", "retention": 68 },
+        { "day": "Day 3", "retention": 50 },
+        { "day": "Day 4", "retention": 35 }
+      ]
+    },
+    {
+      "subject": "Pharmacology",
+      "days": [
+        { "day": "Day 1", "retention": 92 },
+        { "day": "Day 2", "retention": 78 },
+        { "day": "Day 3", "retention": 60 },
+        { "day": "Day 4", "retention": 40 }
+      ]
+    },
+    {
+      "subject": "Pathology",
+      "days": [
+        { "day": "Day 1", "retention": 87 },
+        { "day": "Day 2", "retention": 72 },
+        { "day": "Day 3", "retention": 52 },
+        { "day": "Day 4", "retention": 28 }
+      ]
+    }
+  ],
+  "revisionQueue": [
+    {
+      "pyq_id": "pyq_101",
+      "subject": "Physiology",
+      "chapter": "Cardiovascular System",
+      "topic": "Cardiac Conduction",
+      "retention": 42,
+      "last_attempt_days_ago": 7,
+      "recommended_fix": "Review flashcard on AV node physiology",
+      "time_required_min": 4.5
+    },
+    {
+      "pyq_id": "pyq_202",
+      "subject": "Biochemistry",
+      "chapter": "Enzyme Kinetics",
+      "topic": "Michaelis-Menten",
+      "retention": 30,
+      "last_attempt_days_ago": 10,
+      "recommended_fix": "Retry MCQ on competitive inhibition",
+      "time_required_min": 4.5
+    },
+    {
+      "pyq_id": "pyq_303",
+      "subject": "Anatomy",
+      "chapter": "Neuroanatomy",
+      "topic": "Long Tracts",
+      "retention": 25,
+      "last_attempt_days_ago": 14,
+      "recommended_fix": "Watch explainer video on corticospinal tract",
+      "time_required_min": 4.5
+    },
+    {
+      "pyq_id": "pyq_404",
+      "subject": "Pharmacology",
+      "chapter": "CNS Drugs",
+      "topic": "Antidepressants",
+      "retention": 38,
+      "last_attempt_days_ago": 6,
+      "recommended_fix": "Review flashcard on SSRI mechanisms",
+      "time_required_min": 4.5
+    },
+    {
+      "pyq_id": "pyq_505",
+      "subject": "Pathology",
+      "chapter": "General Pathology",
+      "topic": "Inflammation",
+      "retention": 45,
+      "last_attempt_days_ago": 5,
+      "recommended_fix": "Retry MCQ on acute vs chronic inflammation",
+      "time_required_min": 4.5
+    },
+    {
+      "pyq_id": "pyq_606",
+      "subject": "Physiology",
+      "chapter": "Renal Physiology",
+      "topic": "Clearance",
+      "retention": 22,
+      "last_attempt_days_ago": 12,
+      "recommended_fix": "Watch video on creatinine clearance calculation",
+      "time_required_min": 4.5
+    },
+    {
+      "pyq_id": "pyq_707",
+      "subject": "Biochemistry",
+      "chapter": "Metabolism",
+      "topic": "Glycolysis",
+      "retention": 35,
+      "last_attempt_days_ago": 8,
+      "recommended_fix": "Review flashcard on rate-limiting enzymes",
+      "time_required_min": 4.5
+    },
+    {
+      "pyq_id": "pyq_808",
+      "subject": "Anatomy",
+      "chapter": "Upper Limb",
+      "topic": "Brachial Plexus",
+      "retention": 18,
+      "last_attempt_days_ago": 15,
+      "recommended_fix": "Watch video on nerve root organization",
+      "time_required_min": 4.5
+    }
+  ]
+}
