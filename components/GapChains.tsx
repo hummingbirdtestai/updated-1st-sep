@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { GitBranch, Target, Clock, TrendingUp, Trophy, Medal, Award, User, Filter, ChevronDown } from 'lucide-react-native';
+import { GitBranch, Target, Clock, TrendingUp, Trophy, Medal, Award, User, ListFilter as Filter, ChevronDown } from 'lucide-react-native';
 import gapChainsData from '@/data/gap-chains-data.json';
 
 interface ChainData {
