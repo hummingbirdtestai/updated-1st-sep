@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { View, Text, Pressable, ScrollView } from "react-native";
 import { MotiView } from "moti";
 import { Chromium as Home, Map, GitBranch, CircleAlert as AlertCircle, Radar, Clock, Navigation, ChartBar as BarChart3, Zap, Target, RotateCcw, BookMarked, Award, Users, UserCheck, UsersRound, Heart, TrendingUp, ChevronRight, ChevronDown, Bird, User, LogOut } from "lucide-react-native";
-import { Users2 } from "lucide-react-native";
+import { Users as Users2 } from "lucide-react-native";
 import { Wrench } from "lucide-react-native";
 import { Gauge } from "lucide-react-native";
 
@@ -191,8 +191,6 @@ export default function Sidebar({
       onQuickFixNavigate?.();
     } else if (item.route === '/AchievementsRewardsPage') {
       onAchievementsNavigate?.();
-    } else if (item.route === '/analytics/peer-comparison') {
-      onPeerComparisonNavigate?.();
     } else {
       onAnalyticsNavigate?.(item.route);
     }
