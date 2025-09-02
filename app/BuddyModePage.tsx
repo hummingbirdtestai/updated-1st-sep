@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { Users, TrendingUp, Target, Zap, Clock, Award, Bell, Radar, Trophy, ChevronRight, Play, CheckCircle, AlertTriangle, Heart, Flame, Star } from 'lucide-react-native';
+import { Users, TrendingUp, Target, Zap, Clock, Award, Bell, Radar, Trophy, ChevronRight, Play, CircleCheck as CheckCircle, TriangleAlert as AlertTriangle, Heart, Flame, Star } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
 import Svg, { Circle, Text as SvgText, Line, Defs, LinearGradient, Stop, Path } from 'react-native-svg';
 
