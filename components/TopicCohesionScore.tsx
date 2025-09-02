@@ -5,9 +5,6 @@ import { Users, Target, TrendingUp, ToggleLeft, ToggleRight, Brain } from 'lucid
 import Svg, { Circle, Text as SvgText, Defs, LinearGradient, Stop } from 'react-native-svg';
 import cohortData from '@/data/neet-cohort-data.json';
 
-// Define default values outside component to ensure stable references
-const defaultCohortB = cohortData.map(s => ({ ...s, student_id: s.student_id + '_b', name: s.name + ' (B)' }));
-
 interface Student {
   student_id: string;
   name: string;
@@ -170,7 +167,7 @@ export default function TopicCohesionScore({
   showMultipleCohorts = false,
   compareMode = false,
   cohortA = cohortData,
-  cohortB = defaultCohortB
+  cohortB = cohortData.map(s => ({ ...s, student_id: s.student_id + '_b', name: s.name + ' (B)' }))
 }: TopicCohesionScoreProps) {
   const { width } = Dimensions.get('window');
   const isMobile = width < 768;
@@ -379,6 +376,7 @@ export default function TopicCohesionScore({
             </Pressable>
             
             <View className="bg-slate-700/50 rounded-lg px-3 py-2">
+              <Text className="text-slate-300 text-sm font-medium">
               <Text className="text-slate-300 text-sm font-medium">
                 {currentCohort + 1} / {mockCohorts.length}
               </Text>
