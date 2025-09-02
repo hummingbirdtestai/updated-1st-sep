@@ -481,7 +481,7 @@ export default function GapNetworkGraph({ data = mockData }: GapNetworkGraphProp
                   </View>
                   <View className="flex-row items-center">
                     <View className="w-6 h-1 bg-emerald-500 rounded mr-3" />
-                    <Text className="text-slate-300 text-sm">Low Overlap (<40%)</Text>
+                    <Text className="text-slate-300 text-sm">Low Overlap (&lt;40%)</Text>
                   </View>
                   <Text className="text-slate-400 text-xs">
                     Line thickness = Overlap strength
