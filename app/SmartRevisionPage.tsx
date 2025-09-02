@@ -29,24 +29,6 @@ export default function SmartRevisionPage() {
     }
   };
 
-  // Temporary handler for cell selection
-  const handleCellSelect = (subject: string, day: string, retention: number) => {
-    if (typeof window !== 'undefined' && window.alert) {
-      window.alert(`Selected: ${subject} - ${day} - ${retention}% retention`);
-    } else {
-      console.log(`Selected: ${subject} - ${day} - ${retention}% retention`);
-    }
-  };
-
-  // Temporary handler for review action
-  const handleReviewNow = (item: any) => {
-    if (typeof window !== 'undefined' && window.alert) {
-      window.alert(`Starting review for: ${item.subject} - ${item.topic}`);
-    } else {
-      console.log(`Starting review for: ${item.subject} - ${item.topic}`);
-    }
-  };
-
   return (
     <View className="flex-1 bg-slate-900">
       <StatusBar style="light" />
