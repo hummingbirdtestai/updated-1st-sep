@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { Target, TrendingUp, Award, X, Info } from 'lucide-react-native';
-import Svg, { Circle, Text as SvgText, G, Defs, RadialGradient, Stop } from 'react-native-svg';
+import { Target, TrendingUp, Award, X, Info, Users } from 'lucide-react-native';
+import Svg, { Circle, Text as SvgText, G, Defs, RadialGradient, Stop, LinearGradient } from 'react-native-svg';
 
 interface SubjectData {
   subject: string;
@@ -27,6 +27,19 @@ const mockData: SubjectData[] = [
   { "subject": "Pathology", "pyqs_completed": 400, "hours_spent": 30, "percentile_band": "35th" }
 ];
 
+// Mock peer data for ghost circles
+const mockPeerData = [
+  { subject: "Physiology", percentile: 45, x: 0, y: 0 },
+  { subject: "Physiology", percentile: 72, x: 0, y: 0 },
+  { subject: "Physiology", percentile: 28, x: 0, y: 0 },
+  { subject: "Biochemistry", percentile: 55, x: 0, y: 0 },
+  { subject: "Biochemistry", percentile: 81, x: 0, y: 0 },
+  { subject: "Biochemistry", percentile: 33, x: 0, y: 0 },
+  { subject: "Pathology", percentile: 42, x: 0, y: 0 },
+  { subject: "Pathology", percentile: 67, x: 0, y: 0 },
+  { subject: "Pathology", percentile: 19, x: 0, y: 0 },
+];
+
 function SubjectTooltip({ subject, position, onClose }: { 
   subject: SubjectData; 
   position: { x: number; y: number }; 
@@ -34,9 +47,9 @@ function SubjectTooltip({ subject, position, onClose }: {
 }) {
   const percentileValue = parseInt(subject.percentile_band.replace(/\D/g, ''));
   const getBandColor = (percentile: number) => {
-    if (percentile >= 75) return { color: '#10b981', label: 'Top 25%' };
-    if (percentile >= 25) return { color: '#f59e0b', label: 'Mid 50%' };
-    return { color: '#ef4444', label: 'Bottom 25%' };
+    if (percentile >= 75) return { color: '#10b981', label: 'Safe Zone', zone: '🟢' };
+    if (percentile >= 25) return { color: '#f59e0b', label: 'Mid Zone', zone: '🟡' };
+    return { color: '#ef4444', label: 'Risk Zone', zone: '🔴' };
   };
 
   const bandInfo = getBandColor(percentileValue);
@@ -48,88 +61,138 @@ function SubjectTooltip({ subject, position, onClose }: {
       from={{ opacity: 0, scale: 0.8, translateY: 10 }}
       animate={{ opacity: 1, scale: 1, translateY: 0 }}
       transition={{ type: 'spring', duration: 400 }}
-      className="absolute bg-slate-800/95 rounded-xl p-4 border border-slate-600/50 shadow-xl z-50"
+      className="absolute bg-slate-800/95 rounded-2xl p-6 border border-slate-600/50 shadow-2xl z-50"
       style={{
-        left: Math.max(10, Math.min(position.x - 120, Dimensions.get('window').width - 250)),
-        top: position.y - 160,
-        width: 240,
+        left: Math.max(10, Math.min(position.x - 140, Dimensions.get('window').width - 290)),
+        top: position.y - 200,
+        width: 280,
         shadowColor: bandInfo.color,
-        shadowOffset: { width: 0, height: 4 },
+        shadowOffset: { width: 0, height: 8 },
         shadowOpacity: 0.3,
-        shadowRadius: 8,
-        elevation: 8,
+        shadowRadius: 16,
+        elevation: 12,
       }}
     >
       {/* Close Button */}
       <Pressable
         onPress={onClose}
-        className="absolute top-2 right-2 w-6 h-6 rounded-full bg-slate-700/50 items-center justify-center"
+        className="absolute top-3 right-3 w-8 h-8 rounded-full bg-slate-700/50 items-center justify-center active:scale-95"
       >
-        <X size={12} color="#94a3b8" />
+        <X size={16} color="#94a3b8" />
       </Pressable>
 
-      {/* Subject Info */}
-      <View className="pr-6">
-        <Text className="text-slate-100 font-bold text-base mb-1">
-          {subject.subject}
-        </Text>
-        <Text 
-          className="text-sm font-semibold mb-3"
-          style={{ color: bandInfo.color }}
-        >
-          {subject.percentile_band} Percentile • {bandInfo.label}
-        </Text>
-        
-        <View className="space-y-2">
-          <View className="flex-row justify-between">
-            <Text className="text-slate-400 text-xs">PYQs Completed</Text>
-            <Text className="text-slate-300 text-xs font-semibold">
-              {subject.pyqs_completed.toLocaleString()}
+      {/* Subject Header */}
+      <View className="pr-8 mb-4">
+        <View className="flex-row items-center mb-2">
+          <Text className="text-2xl mr-3">{bandInfo.zone}</Text>
+          <View className="flex-1">
+            <Text className="text-slate-100 font-bold text-xl">
+              {subject.subject}
             </Text>
-          </View>
-          
-          <View className="flex-row justify-between">
-            <Text className="text-slate-400 text-xs">Hours Spent</Text>
-            <Text className="text-slate-300 text-xs font-semibold">
-              {subject.hours_spent}h
-            </Text>
-          </View>
-          
-          <View className="flex-row justify-between">
-            <Text className="text-slate-400 text-xs">Expected Time</Text>
-            <Text className="text-slate-300 text-xs">
-              {expectedTime.toFixed(1)}h
-            </Text>
-          </View>
-          
-          <View className="flex-row justify-between">
-            <Text className="text-slate-400 text-xs">Time Efficiency</Text>
-            <Text className={`text-xs font-semibold ${
-              efficiency <= 1.1 ? 'text-emerald-400' : 
-              efficiency <= 1.3 ? 'text-amber-400' : 'text-red-400'
-            }`}>
-              {efficiency <= 1.1 ? 'Efficient' : 
-               efficiency <= 1.3 ? 'On Track' : 'Slow'}
+            <Text 
+              className="text-base font-semibold"
+              style={{ color: bandInfo.color }}
+            >
+              {subject.percentile_band} Percentile
             </Text>
           </View>
         </View>
-
-        {/* Performance Band */}
-        <View className="mt-3 pt-3 border-t border-slate-600/30">
-          <View 
-            className="px-3 py-1 rounded-full border"
-            style={{ 
-              backgroundColor: `${bandInfo.color}20`,
-              borderColor: `${bandInfo.color}50`
-            }}
+        
+        <View 
+          className="px-4 py-2 rounded-full border-2"
+          style={{ 
+            backgroundColor: `${bandInfo.color}20`,
+            borderColor: `${bandInfo.color}60`
+          }}
+        >
+          <Text 
+            className="text-center font-bold text-base"
+            style={{ color: bandInfo.color }}
           >
-            <Text 
-              className="text-xs font-bold text-center"
-              style={{ color: bandInfo.color }}
-            >
-              {bandInfo.label}
-            </Text>
+            {bandInfo.label}
+          </Text>
+        </View>
+      </View>
+
+      {/* Metrics Grid */}
+      <View className="space-y-4">
+        <View className="bg-slate-700/40 rounded-xl p-4 border border-slate-600/30">
+          <Text className="text-slate-100 font-semibold mb-3">Performance Metrics</Text>
+          <View className="space-y-3">
+            <View className="flex-row justify-between items-center">
+              <Text className="text-slate-400 text-sm">PYQs Completed</Text>
+              <Text className="text-slate-100 text-lg font-bold">
+                {subject.pyqs_completed.toLocaleString()}
+              </Text>
+            </View>
+            
+            <View className="flex-row justify-between items-center">
+              <Text className="text-slate-400 text-sm">Study Hours</Text>
+              <Text className="text-slate-100 text-lg font-bold">
+                {subject.hours_spent}h
+              </Text>
+            </View>
+            
+            <View className="flex-row justify-between items-center">
+              <Text className="text-slate-400 text-sm">Expected Time</Text>
+              <Text className="text-slate-300 text-sm">
+                {expectedTime.toFixed(1)}h
+              </Text>
+            </View>
+            
+            <View className="flex-row justify-between items-center">
+              <Text className="text-slate-400 text-sm">Efficiency</Text>
+              <Text className={`text-sm font-bold ${
+                efficiency <= 1.1 ? 'text-emerald-400' : 
+                efficiency <= 1.3 ? 'text-amber-400' : 'text-red-400'
+              }`}>
+                {efficiency <= 1.1 ? '🚀 Efficient' : 
+                 efficiency <= 1.3 ? '⚡ Good' : '🐌 Needs Focus'}
+              </Text>
+            </View>
           </View>
+        </View>
+
+        {/* Percentile Progress */}
+        <View className="bg-slate-700/40 rounded-xl p-4 border border-slate-600/30">
+          <Text className="text-slate-100 font-semibold mb-3">Percentile Progress</Text>
+          <View className="w-full bg-slate-600 rounded-full h-3 overflow-hidden">
+            <MotiView
+              from={{ width: '0%' }}
+              animate={{ width: `${percentileValue}%` }}
+              transition={{ type: 'spring', duration: 1200, delay: 200 }}
+              className="h-3 rounded-full"
+              style={{ backgroundColor: bandInfo.color }}
+            />
+          </View>
+          <View className="flex-row justify-between mt-2">
+            <Text className="text-slate-500 text-xs">0th</Text>
+            <Text className="text-slate-300 text-xs font-semibold">
+              {percentileValue}th percentile
+            </Text>
+            <Text className="text-slate-500 text-xs">100th</Text>
+          </View>
+        </View>
+
+        {/* Zone Description */}
+        <View 
+          className="rounded-xl p-4 border-2"
+          style={{ 
+            backgroundColor: `${bandInfo.color}10`,
+            borderColor: `${bandInfo.color}30`
+          }}
+        >
+          <Text 
+            className="text-base font-semibold mb-2"
+            style={{ color: bandInfo.color }}
+          >
+            {bandInfo.zone} {bandInfo.label}
+          </Text>
+          <Text className="text-slate-300 text-sm leading-5">
+            {percentileValue >= 75 && "Excellent performance! You're in the top quartile. Focus on maintaining consistency across all subjects."}
+            {percentileValue >= 25 && percentileValue < 75 && "Good progress with room for improvement. Target moving into the safe zone (75th+ percentile)."}
+            {percentileValue < 25 && "Significant improvement needed. Focus on fundamentals and consider additional study resources for this subject."}
+          </Text>
         </View>
       </View>
     </MotiView>
@@ -142,47 +205,96 @@ export default function SafePercentileBands({ data = mockData }: SafePercentileB
   
   const [selectedTooltip, setSelectedTooltip] = useState<TooltipData | null>(null);
   const [animationProgress, setAnimationProgress] = useState(0);
+  const [ripplePhase, setRipplePhase] = useState(0);
 
   // Chart dimensions
-  const chartSize = Math.min(width * 0.8, 400);
+  const chartSize = Math.min(width * 0.8, 450);
   const centerX = chartSize / 2;
   const centerY = chartSize / 2;
-  const maxRadius = chartSize * 0.4;
+  const maxRadius = chartSize * 0.42;
 
-  // Animation effect
+  // Animation effects
   useEffect(() => {
     const timer = setInterval(() => {
-      setAnimationProgress(prev => (prev + 0.02) % 1);
+      setAnimationProgress(prev => (prev + 0.01) % 1);
     }, 50);
     return () => clearInterval(timer);
   }, []);
 
-  // Get band radius based on percentile
+  useEffect(() => {
+    const rippleTimer = setInterval(() => {
+      setRipplePhase(prev => (prev + 1) % 8);
+    }, 400);
+    return () => clearInterval(rippleTimer);
+  }, []);
+
+  // Get band radius based on percentile (inverted - higher percentile = inner ring)
   const getBandRadius = (percentile: number) => {
-    if (percentile >= 75) return maxRadius * 0.3; // Top 25% - inner ring
-    if (percentile >= 25) return maxRadius * 0.65; // Mid 50% - middle ring
-    return maxRadius * 0.95; // Bottom 25% - outer ring
+    if (percentile >= 75) return maxRadius * 0.35; // Safe Zone - inner ring
+    if (percentile >= 25) return maxRadius * 0.68; // Mid Zone - middle ring
+    return maxRadius * 0.95; // Risk Zone - outer ring
   };
 
-  // Get band color based on percentile
-  const getBandColor = (percentile: number) => {
-    if (percentile >= 75) return { color: '#10b981', glow: 'emeraldGlow', label: 'Top 25%' };
-    if (percentile >= 25) return { color: '#f59e0b', glow: 'amberGlow', label: 'Mid 50%' };
-    return { color: '#ef4444', glow: 'redGlow', label: 'Bottom 25%' };
+  // Get band color and info
+  const getBandInfo = (percentile: number) => {
+    if (percentile >= 75) return { 
+      color: '#10b981', 
+      glow: 'safeGlow', 
+      label: 'Safe Zone',
+      description: 'Top 25% - Excellent Performance',
+      emoji: '🟢'
+    };
+    if (percentile >= 25) return { 
+      color: '#f59e0b', 
+      glow: 'midGlow', 
+      label: 'Mid Zone',
+      description: 'Mid 50% - Good Progress',
+      emoji: '🟡'
+    };
+    return { 
+      color: '#ef4444', 
+      glow: 'riskGlow', 
+      label: 'Risk Zone',
+      description: 'Bottom 25% - Needs Focus',
+      emoji: '🔴'
+    };
   };
 
-  // Get subject position on the ring
+  // Get subject position on the appropriate ring
   const getSubjectPosition = (subject: SubjectData, index: number) => {
     const percentileValue = parseInt(subject.percentile_band.replace(/\D/g, ''));
     const radius = getBandRadius(percentileValue);
     
-    // Distribute subjects around the ring based on their index
-    const angle = (index / data.length) * 2 * Math.PI;
+    // Distribute subjects around their respective rings
+    const subjectsInSameBand = data.filter(s => {
+      const p = parseInt(s.percentile_band.replace(/\D/g, ''));
+      if (percentileValue >= 75) return p >= 75;
+      if (percentileValue >= 25) return p >= 25 && p < 75;
+      return p < 25;
+    });
+    
+    const indexInBand = subjectsInSameBand.findIndex(s => s.subject === subject.subject);
+    const angleStep = (2 * Math.PI) / Math.max(subjectsInSameBand.length, 1);
+    const angle = indexInBand * angleStep - Math.PI / 2; // Start from top
+    
     const x = centerX + radius * Math.cos(angle);
     const y = centerY + radius * Math.sin(angle);
     
-    return { x, y, radius, percentileValue };
+    return { x, y, radius, percentileValue, angle };
   };
+
+  // Generate peer positions
+  const generatePeerPositions = () => {
+    return mockPeerData.map((peer, index) => {
+      const radius = getBandRadius(peer.percentile);
+      const angle = (index * 0.7) % (2 * Math.PI); // Spread peers around
+      const x = centerX + radius * Math.cos(angle);
+      const y = centerY + radius * Math.sin(angle);
+      return { ...peer, x, y };
+    });
+  };
+
+  const peerPositions = generatePeerPositions();
 
   // Handle subject press
   const handleSubjectPress = (subject: SubjectData, position: { x: number; y: number }) => {
@@ -193,576 +305,527 @@ export default function SafePercentileBands({ data = mockData }: SafePercentileB
   const averagePercentile = data.reduce((sum, s) => sum + parseInt(s.percentile_band.replace(/\D/g, '')), 0) / data.length;
   const totalPYQs = data.reduce((sum, s) => sum + s.pyqs_completed, 0);
   const totalHours = data.reduce((sum, s) => sum + s.hours_spent, 0);
-  const topPerformers = data.filter(s => parseInt(s.percentile_band.replace(/\D/g, '')) >= 75).length;
-  const needsImprovement = data.filter(s => parseInt(s.percentile_band.replace(/\D/g, '')) < 25).length;
+  const safeZoneSubjects = data.filter(s => parseInt(s.percentile_band.replace(/\D/g, '')) >= 75).length;
+  const riskZoneSubjects = data.filter(s => parseInt(s.percentile_band.replace(/\D/g, '')) < 25).length;
 
   return (
-    <View className="flex-1 bg-slate-900">
+    <MotiView
+      from={{ opacity: 0, translateY: 30, scale: 0.95 }}
+      animate={{ opacity: 1, translateY: 0, scale: 1 }}
+      transition={{ type: 'spring', duration: 800, delay: 200 }}
+      className="bg-slate-800/60 rounded-3xl p-8 border border-slate-700/40 shadow-2xl"
+      style={{
+        shadowColor: '#8b5cf6',
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.15,
+        shadowRadius: 24,
+        elevation: 12,
+      }}
+    >
       {/* Header */}
-      <MotiView
-        from={{ opacity: 0, translateY: -20 }}
-        animate={{ opacity: 1, translateY: 0 }}
-        transition={{ type: 'spring', duration: 600 }}
-        className="flex-row items-center justify-between p-6 border-b border-slate-700/50"
-      >
+      <View className="flex-row items-center justify-between mb-8">
         <View className="flex-row items-center">
-          <View className="w-10 h-10 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-xl items-center justify-center mr-4 shadow-lg">
-            <Target size={20} color="#ffffff" />
-          </View>
+          <MotiView
+            from={{ scale: 0, rotate: -180 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{ type: 'spring', duration: 800, delay: 400 }}
+            className="w-12 h-12 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-2xl items-center justify-center mr-4 shadow-xl"
+            style={{
+              shadowColor: '#8b5cf6',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.4,
+              shadowRadius: 12,
+              elevation: 8,
+            }}
+          >
+            <Target size={24} color="#ffffff" />
+          </MotiView>
           <View className="flex-1">
-            <Text className="text-2xl font-bold text-slate-100">Safe Percentile Bands</Text>
-            <Text className="text-sm text-slate-400">
-              Performance normalized by time progress • {data.length} subjects tracked
+            <Text className="text-3xl font-bold text-slate-100 mb-1">
+              Performance Zones
+            </Text>
+            <Text className="text-slate-400 text-base">
+              Your position in the peer landscape
             </Text>
           </View>
         </View>
 
-        {/* Average Percentile Badge */}
-        <View className="items-center">
-          <View className="bg-purple-500/20 rounded-xl px-4 py-3 border border-purple-500/30">
-            <Text className="text-purple-400 font-bold text-xl">
-              {averagePercentile.toFixed(0)}
-            </Text>
-            <Text className="text-purple-300/80 text-xs text-center">
-              Avg Percentile
-            </Text>
-          </View>
-        </View>
-      </MotiView>
-
-      <ScrollView 
-        className="flex-1"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{
-          paddingHorizontal: isMobile ? 16 : 24,
-          paddingVertical: 24,
-        }}
-      >
-        {/* Summary Metrics */}
-        <View className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-          <MotiView
-            from={{ opacity: 0, translateY: 20 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ type: 'spring', duration: 600, delay: 200 }}
-            className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4"
-          >
-            <View className="flex-row items-center mb-2">
-              <Award size={16} color="#10b981" />
-              <Text className="text-emerald-400 font-semibold text-sm ml-2">Top Performers</Text>
-            </View>
-            <Text className="text-emerald-200 text-xl font-bold">
-              {topPerformers}
-            </Text>
-            <Text className="text-emerald-300/80 text-xs">
-              ≥75th percentile
-            </Text>
-          </MotiView>
-
-          <MotiView
-            from={{ opacity: 0, translateY: 20 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ type: 'spring', duration: 600, delay: 300 }}
-            className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4"
-          >
-            <View className="flex-row items-center mb-2">
-              <Target size={16} color="#f59e0b" />
-              <Text className="text-amber-400 font-semibold text-sm ml-2">Total PYQs</Text>
-            </View>
-            <Text className="text-amber-200 text-xl font-bold">
-              {totalPYQs.toLocaleString()}
-            </Text>
-            <Text className="text-amber-300/80 text-xs">
-              across subjects
-            </Text>
-          </MotiView>
-
-          <MotiView
-            from={{ opacity: 0, translateY: 20 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ type: 'spring', duration: 600, delay: 400 }}
-            className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4"
-          >
-            <View className="flex-row items-center mb-2">
-              <TrendingUp size={16} color="#3b82f6" />
-              <Text className="text-blue-400 font-semibold text-sm ml-2">Total Hours</Text>
-            </View>
-            <Text className="text-blue-200 text-xl font-bold">
-              {totalHours}h
-            </Text>
-            <Text className="text-blue-300/80 text-xs">
-              study time
-            </Text>
-          </MotiView>
-
-          <MotiView
-            from={{ opacity: 0, translateY: 20 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ type: 'spring', duration: 600, delay: 500 }}
-            className="bg-red-500/10 border border-red-500/20 rounded-lg p-4"
-          >
-            <View className="flex-row items-center mb-2">
-              <Info size={16} color="#ef4444" />
-              <Text className="text-red-400 font-semibold text-sm ml-2">Needs Focus</Text>
-            </View>
-            <Text className="text-red-200 text-xl font-bold">
-              {needsImprovement}
-            </Text>
-            <Text className="text-red-300/80 text-xs">
-              {"<25th percentile"}
-            </Text>
-          </MotiView>
-        </View>
-
-        {/* Radial Band Visualization */}
+        {/* Overall Score Badge */}
         <MotiView
-          from={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: 'spring', duration: 800, delay: 600 }}
-          className="bg-slate-800/60 rounded-2xl p-6 mb-6 border border-slate-700/40 shadow-lg"
-          style={{
-            shadowColor: '#8b5cf6',
-            shadowOffset: { width: 0, height: 4 },
-            shadowOpacity: 0.1,
-            shadowRadius: 8,
-            elevation: 6,
-          }}
+          from={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', duration: 600, delay: 600 }}
+          className="items-center"
         >
-          <View className="flex-row items-center mb-6">
-            <View className="w-8 h-8 bg-gradient-to-br from-purple-500 to-indigo-600 rounded-lg items-center justify-center mr-3">
-              <Target size={16} color="#ffffff" />
-            </View>
-            <Text className="text-xl font-bold text-slate-100">
-              Percentile Band Visualization
-            </Text>
-          </View>
-
-          {/* Chart Container */}
-          <View className="items-center">
+          <View className="relative">
             <View 
-              className="bg-slate-900/40 rounded-full border border-slate-600/30 relative"
-              style={{ width: chartSize, height: chartSize }}
+              className="w-20 h-20 rounded-full border-4 items-center justify-center shadow-xl"
+              style={{ 
+                borderColor: getBandInfo(averagePercentile).color,
+                backgroundColor: `${getBandInfo(averagePercentile).color}20`
+              }}
             >
-              <Svg width={chartSize} height={chartSize} className="absolute inset-0">
-                <Defs>
-                  {/* Gradient definitions for bands */}
-                  <RadialGradient id="topBandGradient" cx="50%" cy="50%" r="50%">
-                    <Stop offset="0%" stopColor="#10b981" stopOpacity="0.3" />
-                    <Stop offset="100%" stopColor="#10b981" stopOpacity="0.1" />
-                  </RadialGradient>
-                  <RadialGradient id="midBandGradient" cx="50%" cy="50%" r="50%">
-                    <Stop offset="0%" stopColor="#f59e0b" stopOpacity="0.3" />
-                    <Stop offset="100%" stopColor="#f59e0b" stopOpacity="0.1" />
-                  </RadialGradient>
-                  <RadialGradient id="bottomBandGradient" cx="50%" cy="50%" r="50%">
-                    <Stop offset="0%" stopColor="#ef4444" stopOpacity="0.3" />
-                    <Stop offset="100%" stopColor="#ef4444" stopOpacity="0.1" />
-                  </RadialGradient>
+              <Text 
+                className="text-2xl font-bold"
+                style={{ color: getBandInfo(averagePercentile).color }}
+              >
+                {averagePercentile.toFixed(0)}
+              </Text>
+              <Text className="text-slate-400 text-xs">avg</Text>
+            </View>
+            
+            {/* Pulsing ring for overall score */}
+            <MotiView
+              from={{ scale: 1, opacity: 0.8 }}
+              animate={{ scale: 1.4, opacity: 0 }}
+              transition={{
+                loop: true,
+                type: 'timing',
+                duration: 2000,
+              }}
+              className="absolute inset-0 rounded-full border-2"
+              style={{ borderColor: getBandInfo(averagePercentile).color }}
+            />
+          </View>
+          <Text 
+            className="text-sm font-bold mt-2"
+            style={{ color: getBandInfo(averagePercentile).color }}
+          >
+            {getBandInfo(averagePercentile).label}
+          </Text>
+        </MotiView>
+      </View>
 
-                  {/* Glow effects for subject dots */}
-                  <RadialGradient id="emeraldGlow" cx="50%" cy="50%" r="50%">
-                    <Stop offset="0%" stopColor="#10b981" stopOpacity="0.8" />
-                    <Stop offset="100%" stopColor="#10b981" stopOpacity="0" />
-                  </RadialGradient>
-                  <RadialGradient id="amberGlow" cx="50%" cy="50%" r="50%">
-                    <Stop offset="0%" stopColor="#f59e0b" stopOpacity="0.8" />
-                    <Stop offset="100%" stopColor="#f59e0b" stopOpacity="0" />
-                  </RadialGradient>
-                  <RadialGradient id="redGlow" cx="50%" cy="50%" r="50%">
-                    <Stop offset="0%" stopColor="#ef4444" stopOpacity="0.8" />
-                    <Stop offset="100%" stopColor="#ef4444" stopOpacity="0" />
-                  </RadialGradient>
-                </Defs>
+      {/* Concentric Rings Visualization */}
+      <View className="items-center mb-8">
+        <MotiView
+          from={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', duration: 1000, delay: 800 }}
+          className="relative"
+        >
+          <View 
+            className="bg-slate-900/60 rounded-full border-2 border-slate-700/50 relative overflow-hidden"
+            style={{ width: chartSize, height: chartSize }}
+          >
+            <Svg width={chartSize} height={chartSize} className="absolute inset-0">
+              <Defs>
+                {/* Zone Gradients */}
+                <RadialGradient id="safeZoneGradient" cx="50%" cy="50%" r="35%">
+                  <Stop offset="0%" stopColor="#10b981" stopOpacity="0.4" />
+                  <Stop offset="80%" stopColor="#10b981" stopOpacity="0.2" />
+                  <Stop offset="100%" stopColor="#10b981" stopOpacity="0.05" />
+                </RadialGradient>
+                <RadialGradient id="midZoneGradient" cx="50%" cy="50%" r="68%">
+                  <Stop offset="35%" stopColor="#f59e0b" stopOpacity="0" />
+                  <Stop offset="50%" stopColor="#f59e0b" stopOpacity="0.3" />
+                  <Stop offset="68%" stopColor="#f59e0b" stopOpacity="0.15" />
+                  <Stop offset="100%" stopColor="#f59e0b" stopOpacity="0.05" />
+                </RadialGradient>
+                <RadialGradient id="riskZoneGradient" cx="50%" cy="50%" r="95%">
+                  <Stop offset="68%" stopColor="#ef4444" stopOpacity="0" />
+                  <Stop offset="80%" stopColor="#ef4444" stopOpacity="0.25" />
+                  <Stop offset="95%" stopColor="#ef4444" stopOpacity="0.15" />
+                  <Stop offset="100%" stopColor="#ef4444" stopOpacity="0.1" />
+                </RadialGradient>
 
-                {/* Band Rings */}
-                {/* Bottom 25% - Outer Ring */}
+                {/* Glow effects for dots */}
+                <RadialGradient id="studentGlow" cx="50%" cy="50%" r="50%">
+                  <Stop offset="0%" stopColor="#3b82f6" stopOpacity="0.8" />
+                  <Stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+                </RadialGradient>
+                <RadialGradient id="peerGlow" cx="50%" cy="50%" r="50%">
+                  <Stop offset="0%" stopColor="#64748b" stopOpacity="0.4" />
+                  <Stop offset="100%" stopColor="#64748b" stopOpacity="0" />
+                </RadialGradient>
+
+                {/* Ripple gradient */}
+                <RadialGradient id="rippleGradient" cx="50%" cy="50%" r="50%">
+                  <Stop offset="0%" stopColor="#06b6d4" stopOpacity="0" />
+                  <Stop offset="50%" stopColor="#06b6d4" stopOpacity="0.6" />
+                  <Stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
+                </RadialGradient>
+              </Defs>
+
+              {/* Zone Rings */}
+              {/* Risk Zone - Outer Ring */}
+              <Circle
+                cx={centerX}
+                cy={centerY}
+                r={maxRadius * 0.95}
+                fill="url(#riskZoneGradient)"
+                stroke="#ef4444"
+                strokeWidth="3"
+                strokeOpacity="0.6"
+                strokeDasharray="12,8"
+              />
+
+              {/* Mid Zone - Middle Ring */}
+              <Circle
+                cx={centerX}
+                cy={centerY}
+                r={maxRadius * 0.68}
+                fill="url(#midZoneGradient)"
+                stroke="#f59e0b"
+                strokeWidth="3"
+                strokeOpacity="0.6"
+                strokeDasharray="12,8"
+              />
+
+              {/* Safe Zone - Inner Ring */}
+              <Circle
+                cx={centerX}
+                cy={centerY}
+                r={maxRadius * 0.35}
+                fill="url(#safeZoneGradient)"
+                stroke="#10b981"
+                strokeWidth="3"
+                strokeOpacity="0.6"
+                strokeDasharray="12,8"
+              />
+
+              {/* Animated Ripple Effect */}
+              <Circle
+                cx={centerX}
+                cy={centerY}
+                r={maxRadius * 0.2 + (ripplePhase * 10)}
+                fill="none"
+                stroke="url(#rippleGradient)"
+                strokeWidth="2"
+                opacity={1 - (ripplePhase / 8)}
+              />
+
+              {/* Center Point */}
+              <Circle
+                cx={centerX}
+                cy={centerY}
+                r="6"
+                fill="#1e293b"
+                stroke="#64748b"
+                strokeWidth="2"
+              />
+
+              {/* Zone Labels */}
+              <SvgText
+                x={centerX}
+                y={centerY - maxRadius * 0.35 - 25}
+                textAnchor="middle"
+                fontSize="16"
+                fontWeight="bold"
+                fill="#10b981"
+              >
+                🟢 Safe Zone
+              </SvgText>
+              <SvgText
+                x={centerX + maxRadius * 0.68 + 30}
+                y={centerY}
+                textAnchor="start"
+                fontSize="16"
+                fontWeight="bold"
+                fill="#f59e0b"
+              >
+                🟡 Mid Zone
+              </SvgText>
+              <SvgText
+                x={centerX}
+                y={centerY + maxRadius * 0.95 + 35}
+                textAnchor="middle"
+                fontSize="16"
+                fontWeight="bold"
+                fill="#ef4444"
+              >
+                🔴 Risk Zone
+              </SvgText>
+
+              {/* Peer Ghost Circles */}
+              {peerPositions.map((peer, index) => (
                 <Circle
-                  cx={centerX}
-                  cy={centerY}
-                  r={maxRadius * 0.95}
-                  fill="url(#bottomBandGradient)"
-                  stroke="#ef4444"
-                  strokeWidth="3"
-                  strokeOpacity="0.6"
-                  strokeDasharray="8,4"
-                />
-
-                {/* Mid 50% - Middle Ring */}
-                <Circle
-                  cx={centerX}
-                  cy={centerY}
-                  r={maxRadius * 0.65}
-                  fill="url(#midBandGradient)"
-                  stroke="#f59e0b"
-                  strokeWidth="3"
-                  strokeOpacity="0.6"
-                  strokeDasharray="8,4"
-                />
-
-                {/* Top 25% - Inner Ring */}
-                <Circle
-                  cx={centerX}
-                  cy={centerY}
-                  r={maxRadius * 0.3}
-                  fill="url(#topBandGradient)"
-                  stroke="#10b981"
-                  strokeWidth="3"
-                  strokeOpacity="0.6"
-                  strokeDasharray="8,4"
-                />
-
-                {/* Center Point */}
-                <Circle
-                  cx={centerX}
-                  cy={centerY}
+                  key={`peer-${index}`}
+                  cx={peer.x}
+                  cy={peer.y}
                   r="4"
                   fill="#64748b"
-                  stroke="#ffffff"
-                  strokeWidth="2"
+                  opacity="0.3"
+                  stroke="#94a3b8"
+                  strokeWidth="1"
+                  strokeOpacity="0.5"
                 />
+              ))}
 
-                {/* Subject Dots */}
-                {data.map((subject, index) => {
-                  const position = getSubjectPosition(subject, index);
-                  const colors = getBandColor(position.percentileValue);
-                  const dotSize = 8 + (subject.pyqs_completed / 200); // Size based on PYQs
+              {/* Student Subject Dots */}
+              {data.map((subject, index) => {
+                const position = getSubjectPosition(subject, index);
+                const bandInfo = getBandInfo(position.percentileValue);
+                const dotSize = 8 + (subject.pyqs_completed / 200); // Size based on PYQs
 
-                  return (
-                    <G key={subject.subject}>
-                      {/* Glow effect */}
+                return (
+                  <G key={subject.subject}>
+                    {/* Pulsing Glow Effect */}
+                    <MotiView
+                      from={{ scale: 1, opacity: 0.8 }}
+                      animate={{ scale: 1.6, opacity: 0 }}
+                      transition={{
+                        loop: true,
+                        type: 'timing',
+                        duration: 2000,
+                        delay: index * 400,
+                      }}
+                    >
                       <Circle
                         cx={position.x}
                         cy={position.y}
-                        r={dotSize + 12}
-                        fill={`url(#${colors.glow})`}
-                        opacity="0.6"
+                        r={dotSize + 20}
+                        fill="url(#studentGlow)"
                       />
-                      
-                      {/* Main dot */}
-                      <Circle
-                        cx={position.x}
-                        cy={position.y}
-                        r={dotSize}
-                        fill={colors.color}
-                        stroke="#ffffff"
-                        strokeWidth="3"
-                        onPress={() => handleSubjectPress(subject, position)}
-                      />
+                    </MotiView>
+                    
+                    {/* Main Student Dot */}
+                    <Circle
+                      cx={position.x}
+                      cy={position.y}
+                      r={dotSize}
+                      fill="#3b82f6"
+                      stroke="#ffffff"
+                      strokeWidth="3"
+                      onPress={() => handleSubjectPress(subject, position)}
+                      style={{
+                        filter: 'drop-shadow(0 4px 8px rgba(59, 130, 246, 0.4))',
+                      }}
+                    />
 
-                      {/* Subject label */}
-                      <SvgText
-                        x={position.x}
-                        y={position.y + dotSize + 20}
-                        textAnchor="middle"
-                        fontSize="12"
-                        fontWeight="600"
-                        fill={colors.color}
-                      >
-                        {subject.subject}
-                      </SvgText>
+                    {/* Subject Label */}
+                    <SvgText
+                      x={position.x}
+                      y={position.y + dotSize + 20}
+                      textAnchor="middle"
+                      fontSize="12"
+                      fontWeight="bold"
+                      fill="#3b82f6"
+                    >
+                      {subject.subject}
+                    </SvgText>
 
-                      {/* Percentile label */}
-                      <SvgText
-                        x={position.x}
-                        y={position.y + dotSize + 35}
-                        textAnchor="middle"
-                        fontSize="10"
-                        fill="#94a3b8"
-                      >
-                        {subject.percentile_band}
-                      </SvgText>
-                    </G>
-                  );
-                })}
+                    {/* Percentile Badge */}
+                    <SvgText
+                      x={position.x}
+                      y={position.y + dotSize + 35}
+                      textAnchor="middle"
+                      fontSize="10"
+                      fontWeight="600"
+                      fill={bandInfo.color}
+                    >
+                      {subject.percentile_band}
+                    </SvgText>
 
-                {/* Band Labels */}
-                <SvgText
-                  x={centerX}
-                  y={centerY - maxRadius * 0.3 - 15}
-                  textAnchor="middle"
-                  fontSize="14"
-                  fontWeight="bold"
-                  fill="#10b981"
-                >
-                  Top 25%
-                </SvgText>
-                <SvgText
-                  x={centerX + maxRadius * 0.65 + 20}
-                  y={centerY}
-                  textAnchor="start"
-                  fontSize="14"
-                  fontWeight="bold"
-                  fill="#f59e0b"
-                >
-                  Mid 50%
-                </SvgText>
-                <SvgText
-                  x={centerX}
-                  y={centerY + maxRadius * 0.95 + 25}
-                  textAnchor="middle"
-                  fontSize="14"
-                  fontWeight="bold"
-                  fill="#ef4444"
-                >
-                  Bottom 25%
-                </SvgText>
-              </Svg>
+                    {/* Performance Indicator Ring */}
+                    <Circle
+                      cx={position.x}
+                      cy={position.y}
+                      r={dotSize + 6}
+                      fill="none"
+                      stroke={bandInfo.color}
+                      strokeWidth="2"
+                      strokeOpacity="0.8"
+                      strokeDasharray="4,4"
+                    />
+                  </G>
+                );
+              })}
 
-              {/* Animated Progress Ring */}
+              {/* Animated Scanning Line */}
               <MotiView
                 from={{ rotate: '0deg' }}
-                animate={{ rotate: `${animationProgress * 360}deg` }}
-                transition={{ type: 'timing', duration: 100 }}
-                className="absolute inset-0"
+                animate={{ rotate: '360deg' }}
+                transition={{
+                  loop: true,
+                  type: 'timing',
+                  duration: 8000,
+                }}
               >
-                <Svg width={chartSize} height={chartSize}>
+                <G transform={`rotate(${animationProgress * 360} ${centerX} ${centerY})`}>
+                  <LinearGradient id="scanGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <Stop offset="0%" stopColor="#06b6d4" stopOpacity="0" />
+                    <Stop offset="50%" stopColor="#06b6d4" stopOpacity="0.6" />
+                    <Stop offset="100%" stopColor="#06b6d4" stopOpacity="0" />
+                  </LinearGradient>
                   <Circle
                     cx={centerX}
                     cy={centerY}
                     r={maxRadius * 0.8}
                     fill="none"
-                    stroke="#06b6d4"
+                    stroke="url(#scanGradient)"
                     strokeWidth="2"
-                    strokeOpacity="0.3"
-                    strokeDasharray="4,20"
                   />
-                </Svg>
+                </G>
               </MotiView>
-            </View>
+            </Svg>
           </View>
+        </MotiView>
 
-          {/* Legend */}
-          <View className="mt-6 bg-slate-700/40 rounded-xl p-4 border border-slate-600/30">
-            <Text className="text-slate-100 font-semibold mb-3">Performance Bands</Text>
-            <View className="space-y-3">
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center">
-                  <View className="w-4 h-4 rounded-full bg-emerald-500 mr-3" />
-                  <Text className="text-slate-300 text-sm">Top 25% (75th+ percentile)</Text>
-                </View>
-                <Text className="text-emerald-400 text-sm font-semibold">
-                  {data.filter(s => parseInt(s.percentile_band.replace(/\D/g, '')) >= 75).length} subjects
+        {/* Zone Legend */}
+        <MotiView
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'spring', duration: 600, delay: 1200 }}
+          className="mt-8 bg-slate-700/40 rounded-2xl p-6 border border-slate-600/30"
+        >
+          <Text className="text-slate-100 font-bold text-lg mb-4 text-center">
+            Performance Zone Guide
+          </Text>
+          
+          <View className="space-y-4">
+            {/* Safe Zone */}
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 rounded-full bg-emerald-500 mr-4 items-center justify-center shadow-lg">
+                <Text className="text-white text-lg">🟢</Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-emerald-400 font-bold text-base">
+                  Safe Zone (75th+ percentile)
+                </Text>
+                <Text className="text-emerald-300/90 text-sm">
+                  Top 25% performance - Excellent preparation level
                 </Text>
               </View>
-              
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center">
-                  <View className="w-4 h-4 rounded-full bg-amber-500 mr-3" />
-                  <Text className="text-slate-300 text-sm">Mid 50% (25th-74th percentile)</Text>
-                </View>
-                <Text className="text-amber-400 text-sm font-semibold">
-                  {data.filter(s => {
-                    const p = parseInt(s.percentile_band.replace(/\D/g, ''));
-                    return p >= 25 && p < 75;
-                  }).length} subjects
-                </Text>
-              </View>
-              
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center">
-                  <View className="w-4 h-4 rounded-full bg-red-500 mr-3" />
-                  <Text className="text-slate-300 text-sm">Bottom 25% (&lt;25th percentile)</Text>
-                </View>
-                <Text className="text-red-400 text-sm font-semibold">
-                  {needsImprovement} subjects
-                </Text>
-              </View>
+              <Text className="text-emerald-400 font-bold text-lg">
+                {safeZoneSubjects}
+              </Text>
             </View>
-            
-            <View className="mt-4 pt-3 border-t border-slate-600/30">
-              <Text className="text-slate-400 text-xs text-center">
-                Dot size = PYQs completed • Tap dots for detailed metrics • Bands normalized by 4.5min/PYQ
+
+            {/* Mid Zone */}
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 rounded-full bg-amber-500 mr-4 items-center justify-center shadow-lg">
+                <Text className="text-white text-lg">🟡</Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-amber-400 font-bold text-base">
+                  Mid Zone (25th-74th percentile)
+                </Text>
+                <Text className="text-amber-300/90 text-sm">
+                  Average performance - Good progress with room to grow
+                </Text>
+              </View>
+              <Text className="text-amber-400 font-bold text-lg">
+                {data.filter(s => {
+                  const p = parseInt(s.percentile_band.replace(/\D/g, ''));
+                  return p >= 25 && p < 75;
+                }).length}
+              </Text>
+            </View>
+
+            {/* Risk Zone */}
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 rounded-full bg-red-500 mr-4 items-center justify-center shadow-lg">
+                <Text className="text-white text-lg">🔴</Text>
+              </View>
+              <View className="flex-1">
+                <Text className="text-red-400 font-bold text-base">
+                  Risk Zone (&lt;25th percentile)
+                </Text>
+                <Text className="text-red-300/90 text-sm">
+                  Needs focused attention - High improvement potential
+                </Text>
+              </View>
+              <Text className="text-red-400 font-bold text-lg">
+                {riskZoneSubjects}
               </Text>
             </View>
           </View>
-        </MotiView>
 
-        {/* Performance Analysis */}
-        <MotiView
-          from={{ opacity: 0, translateY: 30 }}
-          animate={{ opacity: 1, translateY: 0 }}
-          transition={{ type: 'spring', duration: 800, delay: 800 }}
-          className="bg-slate-800/60 rounded-2xl p-6 border border-slate-700/40 shadow-lg"
-        >
-          <View className="flex-row items-center mb-6">
-            <View className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg items-center justify-center mr-3">
-              <TrendingUp size={16} color="#ffffff" />
+          {/* Interactive Guide */}
+          <View className="mt-6 pt-4 border-t border-slate-600/30">
+            <View className="flex-row items-center justify-center space-x-6">
+              <View className="flex-row items-center">
+                <View className="w-4 h-4 rounded-full bg-blue-500 mr-2 shadow-lg" />
+                <Text className="text-slate-300 text-sm">Your Subjects (pulsing)</Text>
+              </View>
+              <View className="flex-row items-center">
+                <View className="w-4 h-4 rounded-full bg-slate-500 mr-2 opacity-50" />
+                <Text className="text-slate-300 text-sm">Peer Distribution</Text>
+              </View>
+              <View className="flex-row items-center">
+                <Users size={16} color="#06b6d4" />
+                <Text className="text-slate-300 text-sm ml-2">Tap dots for details</Text>
+              </View>
             </View>
-            <Text className="text-xl font-bold text-slate-100">
-              Performance Analysis
-            </Text>
-          </View>
-
-          <View className="space-y-4">
-            {data
-              .sort((a, b) => parseInt(b.percentile_band.replace(/\D/g, '')) - parseInt(a.percentile_band.replace(/\D/g, '')))
-              .map((subject, index) => {
-                const percentileValue = parseInt(subject.percentile_band.replace(/\D/g, ''));
-                const colors = getBandColor(percentileValue);
-                const expectedTime = subject.pyqs_completed * 4.5 / 60;
-                const efficiency = expectedTime > 0 ? (subject.hours_spent / expectedTime) : 1;
-
-                return (
-                  <MotiView
-                    key={subject.subject}
-                    from={{ opacity: 0, translateX: -20 }}
-                    animate={{ opacity: 1, translateX: 0 }}
-                    transition={{ type: 'spring', duration: 600, delay: 1000 + index * 150 }}
-                    className="bg-slate-700/40 rounded-xl p-4 border border-slate-600/30"
-                  >
-                    <View className="flex-row items-center justify-between">
-                      <View className="flex-1 mr-4">
-                        <View className="flex-row items-center mb-2">
-                          <View 
-                            className="w-4 h-4 rounded-full mr-3"
-                            style={{ backgroundColor: colors.color }}
-                          />
-                          <Text className="text-slate-100 font-semibold text-lg">
-                            {subject.subject}
-                          </Text>
-                          <View 
-                            className="ml-3 px-2 py-1 rounded-full border"
-                            style={{ 
-                              backgroundColor: `${colors.color}20`,
-                              borderColor: `${colors.color}50`
-                            }}
-                          >
-                            <Text 
-                              className="text-xs font-bold"
-                              style={{ color: colors.color }}
-                            >
-                              {colors.label}
-                            </Text>
-                          </View>
-                        </View>
-                        
-                        <View className="flex-row items-center space-x-6">
-                          <Text className="text-slate-400 text-sm">
-                            PYQs: <Text className="text-slate-300 font-semibold">
-                              {subject.pyqs_completed.toLocaleString()}
-                            </Text>
-                          </Text>
-                          <Text className="text-slate-400 text-sm">
-                            Hours: <Text className="text-slate-300 font-semibold">
-                              {subject.hours_spent}h
-                            </Text>
-                          </Text>
-                          <Text className="text-slate-400 text-sm">
-                            Efficiency: <Text className={`font-semibold ${
-                              efficiency <= 1.1 ? 'text-emerald-400' : 
-                              efficiency <= 1.3 ? 'text-amber-400' : 'text-red-400'
-                            }`}>
-                              {efficiency <= 1.1 ? 'High' : 
-                               efficiency <= 1.3 ? 'Good' : 'Low'}
-                            </Text>
-                          </Text>
-                        </View>
-                      </View>
-
-                      {/* Percentile Circle */}
-                      <View className="items-center">
-                        <View className="relative w-16 h-16">
-                          <View className="absolute inset-0 rounded-full border-4 border-slate-600" />
-                          <MotiView
-                            from={{ rotate: '0deg' }}
-                            animate={{ rotate: `${(percentileValue / 100) * 360}deg` }}
-                            transition={{ type: 'spring', duration: 1200, delay: 1200 + index * 150 }}
-                            className="absolute inset-0 rounded-full border-4 border-transparent"
-                            style={{
-                              borderTopColor: colors.color,
-                              borderRightColor: percentileValue > 25 ? colors.color : 'transparent',
-                              borderBottomColor: percentileValue > 50 ? colors.color : 'transparent',
-                              borderLeftColor: percentileValue > 75 ? colors.color : 'transparent',
-                            }}
-                          />
-                          <View className="absolute inset-0 items-center justify-center">
-                            <Text className="text-lg font-bold" style={{ color: colors.color }}>
-                              {percentileValue}
-                            </Text>
-                            <Text className="text-slate-500 text-xs">%ile</Text>
-                          </View>
-                        </View>
-                      </View>
-                    </View>
-
-                    {/* Progress Bar */}
-                    <View className="mt-3">
-                      <View className="w-full bg-slate-600 rounded-full h-2">
-                        <MotiView
-                          from={{ width: '0%' }}
-                          animate={{ width: `${percentileValue}%` }}
-                          transition={{ type: 'spring', duration: 1000, delay: 1400 + index * 150 }}
-                          className="h-2 rounded-full"
-                          style={{ backgroundColor: colors.color }}
-                        />
-                      </View>
-                      <Text className="text-slate-400 text-xs mt-1">
-                        Percentile progression: {percentileValue}% of cohort
-                      </Text>
-                    </View>
-                  </MotiView>
-                );
-              })}
           </View>
         </MotiView>
+      </View>
 
-        {/* Insights Panel */}
+      {/* Summary Stats */}
+      <View className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <MotiView
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'spring', duration: 600, delay: 1400 }}
+          className="bg-emerald-500/10 border border-emerald-500/20 rounded-xl p-4"
+        >
+          <View className="flex-row items-center mb-2">
+            <Award size={16} color="#10b981" />
+            <Text className="text-emerald-400 font-semibold text-sm ml-2">Safe Zone</Text>
+          </View>
+          <Text className="text-emerald-200 text-2xl font-bold">
+            {safeZoneSubjects}
+          </Text>
+          <Text className="text-emerald-300/80 text-xs">
+            subjects
+          </Text>
+        </MotiView>
+
+        <MotiView
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'spring', duration: 600, delay: 1500 }}
+          className="bg-amber-500/10 border border-amber-500/20 rounded-xl p-4"
+        >
+          <View className="flex-row items-center mb-2">
+            <Target size={16} color="#f59e0b" />
+            <Text className="text-amber-400 font-semibold text-sm ml-2">Total PYQs</Text>
+          </View>
+          <Text className="text-amber-200 text-2xl font-bold">
+            {(totalPYQs / 1000).toFixed(1)}k
+          </Text>
+          <Text className="text-amber-300/80 text-xs">
+            completed
+          </Text>
+        </MotiView>
+
         <MotiView
           from={{ opacity: 0, translateY: 20 }}
           animate={{ opacity: 1, translateY: 0 }}
           transition={{ type: 'spring', duration: 600, delay: 1600 }}
-          className="bg-slate-700/40 rounded-xl p-4 border border-slate-600/30"
+          className="bg-blue-500/10 border border-blue-500/20 rounded-xl p-4"
         >
-          <View className="flex-row items-center mb-3">
-            <Info size={16} color="#06b6d4" />
-            <Text className="text-slate-100 font-semibold ml-2">Performance Insights</Text>
+          <View className="flex-row items-center mb-2">
+            <TrendingUp size={16} color="#3b82f6" />
+            <Text className="text-blue-400 font-semibold text-sm ml-2">Study Hours</Text>
           </View>
-          
-          <View className="space-y-2">
-            <Text className="text-slate-300 text-sm">
-              <Text className="font-bold text-emerald-400">Strongest Subject:</Text> {
-                data.reduce((max, s) => {
-                  const maxPercentile = parseInt(max.percentile_band.replace(/\D/g, ''));
-                  const sPercentile = parseInt(s.percentile_band.replace(/\D/g, ''));
-                  return sPercentile > maxPercentile ? s : max;
-                }).subject
-              } ({data.reduce((max, s) => {
-                const maxPercentile = parseInt(max.percentile_band.replace(/\D/g, ''));
-                const sPercentile = parseInt(s.percentile_band.replace(/\D/g, ''));
-                return sPercentile > maxPercentile ? s : max;
-              }).percentile_band} percentile)
-            </Text>
-            
-            <Text className="text-slate-300 text-sm">
-              <Text className="font-bold text-red-400">Needs Focus:</Text> {
-                data.reduce((min, s) => {
-                  const minPercentile = parseInt(min.percentile_band.replace(/\D/g, ''));
-                  const sPercentile = parseInt(s.percentile_band.replace(/\D/g, ''));
-                  return sPercentile < minPercentile ? s : min;
-                }).subject
-              } ({data.reduce((min, s) => {
-                const minPercentile = parseInt(min.percentile_band.replace(/\D/g, ''));
-                const sPercentile = parseInt(s.percentile_band.replace(/\D/g, ''));
-                return sPercentile < minPercentile ? s : min;
-              }).percentile_band} percentile)
-            </Text>
-            
-            <Text className="text-slate-300 text-sm">
-              <Text className="font-bold text-purple-400">Overall Standing:</Text> {averagePercentile.toFixed(0)}th percentile average across subjects
-            </Text>
-            
-            <Text className="text-slate-400 text-xs leading-4 mt-3">
-              {averagePercentile >= 75 
-                ? "Excellent overall performance! You're in the top quartile across most subjects. Focus on maintaining consistency."
-                : averagePercentile >= 50
-                ? "Good progress with room for improvement. Target moving more subjects into the top 25% band."
-                : averagePercentile >= 25
-                ? "Moderate performance. Focus on strengthening fundamentals in lower-performing subjects."
-                : "Significant improvement needed. Consider reviewing study strategies and focusing on high-impact topics."
-              }
-            </Text>
-          </View>
+          <Text className="text-blue-200 text-2xl font-bold">
+            {totalHours}h
+          </Text>
+          <Text className="text-blue-300/80 text-xs">
+            invested
+          </Text>
         </MotiView>
-      </ScrollView>
+
+        <MotiView
+          from={{ opacity: 0, translateY: 20 }}
+          animate={{ opacity: 1, translateY: 0 }}
+          transition={{ type: 'spring', duration: 600, delay: 1700 }}
+          className="bg-red-500/10 border border-red-500/20 rounded-xl p-4"
+        >
+          <View className="flex-row items-center mb-2">
+            <Info size={16} color="#ef4444" />
+            <Text className="text-red-400 font-semibold text-sm ml-2">Risk Zone</Text>
+          </View>
+          <Text className="text-red-200 text-2xl font-bold">
+            {riskZoneSubjects}
+          </Text>
+          <Text className="text-red-300/80 text-xs">
+            subjects
+          </Text>
+        </MotiView>
+      </View>
 
       {/* Subject Tooltip */}
       {selectedTooltip && (
@@ -772,6 +835,6 @@ export default function SafePercentileBands({ data = mockData }: SafePercentileB
           onClose={() => setSelectedTooltip(null)}
         />
       )}
-    </View>
+    </MotiView>
   );
 }
