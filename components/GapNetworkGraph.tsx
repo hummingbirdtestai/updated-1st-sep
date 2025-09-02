@@ -491,13 +491,17 @@ export default function GapNetworkGraph({ data = mockData }: GapNetworkGraphProp
               return (
                 <G key={node.id}>
                   {/* Outer glow effect */}
-                  <Circle
-                    cx={node.x}
-                    cy={node.y}
-                    r={(nodeSize * pulseScale) + 25}
-                    fill={`url(#${colors.glow})`}
-                    opacity={pulseOpacity}
-                  />
+                  <G onPress={(event) => handleNodePress(node, event)}>
+  <Circle
+    cx={node.x}
+    cy={node.y}
+    r={nodeSize * pulseScale}
+    fill={colors.fill}
+    stroke={colors.stroke}
+    strokeWidth="3"
+  />
+</G>
+
 
                   {/* Pulse glow for student gaps */}
                   {shouldPulse && (
