@@ -451,7 +451,7 @@ export default function PeerProgressSyncMeter({ data = mockData }: PeerProgressS
                 : "Significant pace difference. Consider adjusting study strategies to better align."
               }
             </Text>
-          </div>
+          </View>
         </View>
       </View>
 
