@@ -455,8 +455,6 @@ export default function PeerProgressSyncMeter({ data = mockData }: PeerProgressS
         </View>
       </View>
 
-      </MotiView>
-
       {/* Detailed Metrics */}
 
       <View className="grid grid-cols-1 md:grid-cols-4 gap-4">
