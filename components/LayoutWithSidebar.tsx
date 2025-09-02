@@ -71,10 +71,7 @@ export default function LayoutWithSidebar() {
           setCurrentView("achievements");
           if (isMobile) setSidebarOpen(false);
         }}
-        onPeerComparisonNavigate={() => {
-          setCurrentView("peer-comparison");
-          if (isMobile) setSidebarOpen(false);
-        }}
+
       />
 
       {/* Main Content */}
