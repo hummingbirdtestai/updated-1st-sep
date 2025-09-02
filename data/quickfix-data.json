@@ -1,0 +1,136 @@
+{
+  "active_fixes": [
+    {
+      "id": "qf1",
+      "gap_id": "aaaa-bbbb-cccc-dddd-111111111111",
+      "gap_sentence": "Confusion between Aldosterone vs ADH action",
+      "quickfix_type": "flashcard",
+      "triggered_on": "2025-08-25T10:00:00Z",
+      "status": "active"
+    },
+    {
+      "id": "qf2",
+      "gap_id": "bbbb-cccc-dddd-eeee-222222222222",
+      "gap_sentence": "Misinterpretation of Oxygen Dissociation Curve shift",
+      "quickfix_type": "video",
+      "triggered_on": "2025-08-27T09:30:00Z",
+      "status": "active"
+    },
+    {
+      "id": "qf5",
+      "gap_id": "eeee-ffff-aaaa-5555-555555555555",
+      "gap_sentence": "Mixing up Sympathetic vs Parasympathetic effects",
+      "quickfix_type": "micro_explainer",
+      "triggered_on": "2025-08-29T14:20:00Z",
+      "status": "active"
+    },
+    {
+      "id": "qf6",
+      "gap_id": "ffff-aaaa-bbbb-6666-666666666666",
+      "gap_sentence": "Difficulty with Enzyme Kinetics Km vs Vmax",
+      "quickfix_type": "flashcard",
+      "triggered_on": "2025-08-30T11:45:00Z",
+      "status": "active"
+    },
+    {
+      "id": "qf7",
+      "gap_id": "aaaa-bbbb-cccc-7777-777777777777",
+      "gap_sentence": "Confusing Starling Forces in capillary exchange",
+      "quickfix_type": "video",
+      "triggered_on": "2025-08-31T16:30:00Z",
+      "status": "active"
+    }
+  ],
+  "completed_fixes": [
+    {
+      "id": "qf3",
+      "gap_id": "cccc-dddd-eeee-3333-333333333333",
+      "gap_sentence": "Forgetting mechanism of Insulin action",
+      "quickfix_type": "micro_explainer",
+      "pre_accuracy": 45,
+      "post_accuracy": 85,
+      "pre_avg_time_min": 5.2,
+      "post_avg_time_min": 3.8,
+      "impact_score": 40,
+      "completed_on": "2025-08-26T10:15:00Z"
+    },
+    {
+      "id": "qf4",
+      "gap_id": "dddd-eeee-ffff-4444-444444444444",
+      "gap_sentence": "Confusion in differentiating inspiratory vs expiratory muscles",
+      "quickfix_type": "video",
+      "pre_accuracy": 60,
+      "post_accuracy": 75,
+      "pre_avg_time_min": 6.0,
+      "post_avg_time_min": 4.5,
+      "impact_score": 28,
+      "completed_on": "2025-08-28T12:00:00Z"
+    },
+    {
+      "id": "qf8",
+      "gap_id": "bbbb-cccc-dddd-8888-888888888888",
+      "gap_sentence": "Misunderstanding Cardiac Output calculation",
+      "quickfix_type": "flashcard",
+      "pre_accuracy": 35,
+      "post_accuracy": 78,
+      "pre_avg_time_min": 7.1,
+      "post_avg_time_min": 4.2,
+      "impact_score": 43,
+      "completed_on": "2025-08-24T15:30:00Z"
+    },
+    {
+      "id": "qf9",
+      "gap_id": "cccc-dddd-eeee-9999-999999999999",
+      "gap_sentence": "Difficulty with Acid-Base compensation mechanisms",
+      "quickfix_type": "micro_explainer",
+      "pre_accuracy": 52,
+      "post_accuracy": 82,
+      "pre_avg_time_min": 6.8,
+      "post_avg_time_min": 4.1,
+      "impact_score": 35,
+      "completed_on": "2025-08-23T13:45:00Z"
+    },
+    {
+      "id": "qf10",
+      "gap_id": "dddd-eeee-ffff-aaaa-101010101010",
+      "gap_sentence": "Confusing Glomerular Filtration Rate factors",
+      "quickfix_type": "video",
+      "pre_accuracy": 48,
+      "post_accuracy": 73,
+      "pre_avg_time_min": 5.9,
+      "post_avg_time_min": 4.3,
+      "impact_score": 32,
+      "completed_on": "2025-08-22T09:20:00Z"
+    },
+    {
+      "id": "qf11",
+      "gap_id": "eeee-ffff-aaaa-bbbb-111111111111",
+      "gap_sentence": "Mixing up Glycolysis vs Gluconeogenesis pathways",
+      "quickfix_type": "flashcard",
+      "pre_accuracy": 41,
+      "post_accuracy": 79,
+      "pre_avg_time_min": 6.5,
+      "post_avg_time_min": 3.9,
+      "impact_score": 38,
+      "completed_on": "2025-08-21T11:10:00Z"
+    }
+  ],
+  "timeline": [
+    { "event_type": "completed", "event_time": "2025-08-21T11:10:00Z", "gap_sentence": "Glycolysis pathway mastered" },
+    { "event_type": "completed", "event_time": "2025-08-22T09:20:00Z", "gap_sentence": "GFR factors clarified" },
+    { "event_type": "completed", "event_time": "2025-08-23T13:45:00Z", "gap_sentence": "Acid-Base compensation fixed" },
+    { "event_type": "completed", "event_time": "2025-08-24T15:30:00Z", "gap_sentence": "Cardiac Output calculation mastered" },
+    { "event_type": "triggered", "event_time": "2025-08-25T10:00:00Z", "gap_sentence": "RAAS confusion" },
+    { "event_type": "completed", "event_time": "2025-08-26T10:15:00Z", "gap_sentence": "Insulin mechanism fixed" },
+    { "event_type": "triggered", "event_time": "2025-08-27T09:30:00Z", "gap_sentence": "O₂ Dissociation Curve slow solving" },
+    { "event_type": "completed", "event_time": "2025-08-28T12:00:00Z", "gap_sentence": "Respiratory muscles differentiated" },
+    { "event_type": "triggered", "event_time": "2025-08-29T14:20:00Z", "gap_sentence": "Autonomic system confusion" },
+    { "event_type": "escalated", "event_time": "2025-08-29T08:00:00Z", "gap_sentence": "Repeated error in Long Tracts" },
+    { "event_type": "triggered", "event_time": "2025-08-30T11:45:00Z", "gap_sentence": "Enzyme kinetics difficulty" },
+    { "event_type": "triggered", "event_time": "2025-08-31T16:30:00Z", "gap_sentence": "Starling Forces confusion" }
+  ],
+  "cumulative_impact": {
+    "minutes_saved": 46,
+    "total_prep_time_min": 44820
+  }
+}
