@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Dimensions } from 'react-native';
+import { View, Text, ScrollView, Dimensions, Pressable } from 'react-native';
 import { MotiView } from 'moti';
-import { TrendingUp, Clock, Target, Zap, TriangleAlert as AlertTriangle } from 'lucide-react-native';
+import { TrendingUp, Clock, Target, Zap, TriangleAlert as AlertTriangle, Filter, ChevronDown, X, BookOpen } from 'lucide-react-native';
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { mockAttempts } from '@/data/mockAttempts';
 
@@ -21,20 +21,73 @@ interface DifficultyMetrics {
   adaptabilityScore: number;
 }
 
+interface MCQModalData {
+  mcq_id: string;
+  stem: string;
+  learning_gap: string;
+  subject: string;
+  chapter: string;
+  topic: string;
+  is_correct: boolean;
+  response_time_sec: number;
+  attempt_time: string;
+  difficulty: string;
+}
+
+type TimeRange = 'today' | 'week' | 'month';
+
 export default function AdaptiveDifficultyResponse() {
   const { width } = Dimensions.get('window');
   const isMobile = width < 768;
   
   const [processedData, setProcessedData] = useState<DifficultyData[]>([]);
   const [difficultyMetrics, setDifficultyMetrics] = useState<DifficultyMetrics | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<string>('all');
+  const [selectedChapter, setSelectedChapter] = useState<string>('all');
+  const [selectedTopic, setSelectedTopic] = useState<string>('all');
+  const [timeRange, setTimeRange] = useState<TimeRange>('week');
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedMCQ, setSelectedMCQ] = useState<MCQModalData | null>(null);
 
   // Process mock attempts data
   const processAttempts = () => {
+    // Apply filters
+    let filteredAttempts = [...mockAttempts];
+    
+    if (selectedSubject !== 'all') {
+      filteredAttempts = filteredAttempts.filter(attempt => attempt.subject === selectedSubject);
+    }
+    if (selectedChapter !== 'all') {
+      filteredAttempts = filteredAttempts.filter(attempt => attempt.chapter === selectedChapter);
+    }
+    if (selectedTopic !== 'all') {
+      filteredAttempts = filteredAttempts.filter(attempt => attempt.topic === selectedTopic);
+    }
+    
+    // Apply time range filter
+    const now = new Date();
+    const timeThreshold = new Date();
+    switch (timeRange) {
+      case 'today':
+        timeThreshold.setHours(0, 0, 0, 0);
+        break;
+      case 'week':
+        timeThreshold.setDate(now.getDate() - 7);
+        break;
+      case 'month':
+        timeThreshold.setDate(now.getDate() - 30);
+        break;
+    }
+    
+    filteredAttempts = filteredAttempts.filter(attempt => 
+      new Date(attempt.attempt_time) >= timeThreshold
+    );
+
     // Bucket attempts by difficulty
     const buckets = {
-      Easy: mockAttempts.filter(attempt => attempt.mcq_key === 'mcq_1'),
-      Moderate: mockAttempts.filter(attempt => ['mcq_2', 'mcq_3'].includes(attempt.mcq_key)),
-      Hard: mockAttempts.filter(attempt => ['mcq_4', 'mcq_5', 'mcq_6'].includes(attempt.mcq_key))
+      Easy: filteredAttempts.filter(attempt => attempt.mcq_key === 'mcq_1'),
+      Moderate: filteredAttempts.filter(attempt => ['mcq_2', 'mcq_3'].includes(attempt.mcq_key)),
+      Hard: filteredAttempts.filter(attempt => ['mcq_4', 'mcq_5', 'mcq_6'].includes(attempt.mcq_key))
     };
 
     const difficultyData: DifficultyData[] = [];
@@ -67,6 +120,90 @@ export default function AdaptiveDifficultyResponse() {
     return difficultyData;
   };
 
+  // Get unique filter options
+  const getFilterOptions = () => {
+    const subjects = Array.from(new Set(mockAttempts.map(a => a.subject)));
+    const chapters = Array.from(new Set(
+      mockAttempts
+        .filter(a => selectedSubject === 'all' || a.subject === selectedSubject)
+        .map(a => a.chapter)
+    ));
+    const topics = Array.from(new Set(
+      mockAttempts
+        .filter(a => 
+          (selectedSubject === 'all' || a.subject === selectedSubject) &&
+          (selectedChapter === 'all' || a.chapter === selectedChapter)
+        )
+        .map(a => a.topic)
+    ));
+    
+    return { subjects, chapters, topics };
+  };
+
+  const { subjects, chapters, topics } = getFilterOptions();
+
+  // Generate mock MCQ modal data
+  const generateMockMCQData = (difficulty: string): MCQModalData => {
+    const mockMCQs = {
+      Easy: [
+        {
+          stem: "What is the normal resting heart rate range for adults?",
+          learning_gap: "Basic cardiovascular physiology fundamentals"
+        },
+        {
+          stem: "Which enzyme initiates glycolysis?",
+          learning_gap: "Confusion about metabolic pathway entry points"
+        }
+      ],
+      Moderate: [
+        {
+          stem: "How does the Frank-Starling mechanism affect cardiac output during exercise?",
+          learning_gap: "Difficulty connecting preload changes to stroke volume regulation"
+        },
+        {
+          stem: "What is the rate-limiting enzyme in gluconeogenesis?",
+          learning_gap: "Mixing up regulatory steps in opposing metabolic pathways"
+        }
+      ],
+      Hard: [
+        {
+          stem: "Explain the molecular mechanism of excitation-contraction coupling in cardiac muscle during ischemia.",
+          learning_gap: "Complex integration of calcium handling, energetics, and pathophysiology"
+        },
+        {
+          stem: "How do allosteric effectors modulate phosphofructokinase activity in different metabolic states?",
+          learning_gap: "Advanced enzyme regulation and metabolic integration concepts"
+        }
+      ]
+    };
+    
+    const difficultyMCQs = mockMCQs[difficulty as keyof typeof mockMCQs] || mockMCQs.Easy;
+    const randomMCQ = difficultyMCQs[Math.floor(Math.random() * difficultyMCQs.length)];
+    const randomAttempt = mockAttempts[Math.floor(Math.random() * mockAttempts.length)];
+    
+    return {
+      mcq_id: `mcq_${Math.random().toString(36).substr(2, 9)}`,
+      stem: randomMCQ.stem,
+      learning_gap: randomMCQ.learning_gap,
+      subject: randomAttempt.subject,
+      chapter: randomAttempt.chapter,
+      topic: randomAttempt.topic,
+      is_correct: Math.random() > 0.5,
+      response_time_sec: Math.floor(Math.random() * 70) + 20,
+      attempt_time: new Date().toISOString(),
+      difficulty,
+    };
+  };
+
+  // Handle bubble click
+  const handleBubbleClick = (data: any) => {
+    if (data && data.activePayload && data.activePayload.length > 0) {
+      const dataPoint = data.activePayload[0].payload;
+      const mockData = generateMockMCQData(dataPoint.difficulty);
+      setSelectedMCQ(mockData);
+    }
+  };
+
   // Calculate difficulty metrics
   const calculateMetrics = (data: DifficultyData[]): DifficultyMetrics => {
     const easy = data.find(d => d.difficulty === 'Easy');
@@ -95,14 +232,17 @@ export default function AdaptiveDifficultyResponse() {
     const data = processAttempts();
     setProcessedData(data);
     setDifficultyMetrics(calculateMetrics(data));
-  }, []);
+  }, [selectedSubject, selectedChapter, selectedTopic, timeRange]);
 
   // Custom tooltip for the chart
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload, coordinate }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <View className="bg-slate-800/95 rounded-lg p-3 border border-slate-600/50 shadow-xl">
+        <Pressable 
+          onPress={() => handleBubbleClick({ activePayload: payload })}
+          className="bg-slate-800/95 rounded-lg p-3 border border-slate-600/50 shadow-xl active:scale-95"
+        >
           <Text className="text-slate-100 font-semibold text-sm mb-2">
             {data.difficulty} Questions
           </Text>
@@ -115,7 +255,10 @@ export default function AdaptiveDifficultyResponse() {
           <Text className="text-slate-400 text-sm">
             Attempts: {data.correctAttempts}/{data.totalAttempts}
           </Text>
-        </View>
+          <Text className="text-slate-400 text-xs mt-2">
+            💡 Tap to see sample MCQ
+          </Text>
+        </Pressable>
       );
     }
     return null;
@@ -164,10 +307,193 @@ export default function AdaptiveDifficultyResponse() {
           <View className="flex-1">
             <Text className="text-xl font-bold text-slate-100">Adaptive Difficulty Response</Text>
             <Text className="text-slate-400 text-sm">
-              Performance across difficulty levels • Bubble size = response time
+              Performance across difficulty levels • Bubble size = response time • Click bubbles for details
             </Text>
           </View>
         </View>
+
+        {/* Filter Toggle */}
+        <Pressable
+          onPress={() => setShowFilters(!showFilters)}
+          className="flex-row items-center bg-slate-700/50 rounded-lg px-3 py-2 active:scale-95"
+        >
+          <Filter size={16} color="#94a3b8" />
+          <Text className="text-slate-300 text-sm ml-2">{selectedSubject}</Text>
+          <ChevronDown 
+            size={16} 
+            color="#94a3b8" 
+            style={{ 
+              transform: [{ rotate: showFilters ? '180deg' : '0deg' }] 
+            }} 
+          />
+        </Pressable>
+      </View>
+
+      {/* Filter Controls */}
+      {showFilters && (
+        <MotiView
+          from={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          transition={{ type: 'spring', duration: 400 }}
+          className="mb-6 bg-slate-700/40 rounded-xl p-4 border border-slate-600/30"
+        >
+          {/* Time Range Filter */}
+          <View className="mb-4">
+            <Text className="text-slate-300 font-semibold mb-2">Time Range:</Text>
+            <View className="flex-row space-x-2">
+              {(['today', 'week', 'month'] as TimeRange[]).map((range) => (
+                <Pressable
+                  key={range}
+                  onPress={() => setTimeRange(range)}
+                  className={`px-4 py-2 rounded-lg ${
+                    timeRange === range
+                      ? 'bg-blue-600/30 border border-blue-500/50'
+                      : 'bg-slate-700/40 border border-slate-600/30'
+                  }`}
+                >
+                  <Text className={`text-sm font-medium capitalize ${
+                    timeRange === range ? 'text-blue-300' : 'text-slate-400'
+                  }`}>
+                    {range}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+
+          {/* Subject Filter */}
+          <View className="mb-4">
+            <Text className="text-slate-300 font-semibold mb-2">Subject:</Text>
+            <View className="flex-row flex-wrap space-x-2">
+              <Pressable
+                onPress={() => {
+                  setSelectedSubject('all');
+                  setSelectedChapter('all');
+                  setSelectedTopic('all');
+                }}
+                className={`px-4 py-2 rounded-lg mb-2 ${
+                  selectedSubject === 'all'
+                    ? 'bg-blue-600/30 border border-blue-500/50'
+                    : 'bg-slate-700/40 border border-slate-600/30'
+                }`}
+              >
+                <Text className={`text-sm font-medium ${
+                  selectedSubject === 'all' ? 'text-blue-300' : 'text-slate-400'
+                }`}>
+                  All Subjects
+                </Text>
+              </Pressable>
+              {subjects.map((subject) => (
+                <Pressable
+                  key={subject}
+                  onPress={() => {
+                    setSelectedSubject(subject);
+                    setSelectedChapter('all');
+                    setSelectedTopic('all');
+                  }}
+                  className={`px-4 py-2 rounded-lg mb-2 ${
+                    selectedSubject === subject
+                      ? 'bg-blue-600/30 border border-blue-500/50'
+                      : 'bg-slate-700/40 border border-slate-600/30'
+                  }`}
+                >
+                  <Text className={`text-sm font-medium ${
+                    selectedSubject === subject ? 'text-blue-300' : 'text-slate-400'
+                  }`}>
+                    {subject}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+
+          {/* Chapter Filter */}
+          {selectedSubject !== 'all' && (
+            <View className="mb-4">
+              <Text className="text-slate-300 font-semibold mb-2">Chapter:</Text>
+              <View className="flex-row flex-wrap space-x-2">
+                <Pressable
+                  onPress={() => {
+                    setSelectedChapter('all');
+                    setSelectedTopic('all');
+                  }}
+                  className={`px-3 py-1 rounded-lg mb-2 ${
+                    selectedChapter === 'all'
+                      ? 'bg-blue-600/30 border border-blue-500/50'
+                      : 'bg-slate-700/40 border border-slate-600/30'
+                  }`}
+                >
+                  <Text className={`text-xs ${
+                    selectedChapter === 'all' ? 'text-blue-300' : 'text-slate-400'
+                  }`}>
+                    All Chapters
+                  </Text>
+                </Pressable>
+                {chapters.map((chapter) => (
+                  <Pressable
+                    key={chapter}
+                    onPress={() => {
+                      setSelectedChapter(chapter);
+                      setSelectedTopic('all');
+                    }}
+                    className={`px-3 py-1 rounded-lg mb-2 ${
+                      selectedChapter === chapter
+                        ? 'bg-blue-600/30 border border-blue-500/50'
+                        : 'bg-slate-700/40 border border-slate-600/30'
+                    }`}
+                  >
+                    <Text className={`text-xs ${
+                      selectedChapter === chapter ? 'text-blue-300' : 'text-slate-400'
+                    }`}>
+                      {chapter}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Topic Filter */}
+          {selectedChapter !== 'all' && (
+            <View>
+              <Text className="text-slate-300 font-semibold mb-2">Topic:</Text>
+              <View className="flex-row flex-wrap space-x-2">
+                <Pressable
+                  onPress={() => setSelectedTopic('all')}
+                  className={`px-3 py-1 rounded-lg mb-2 ${
+                    selectedTopic === 'all'
+                      ? 'bg-blue-600/30 border border-blue-500/50'
+                      : 'bg-slate-700/40 border border-slate-600/30'
+                  }`}
+                >
+                  <Text className={`text-xs ${
+                    selectedTopic === 'all' ? 'text-blue-300' : 'text-slate-400'
+                  }`}>
+                    All Topics
+                  </Text>
+                </Pressable>
+                {topics.map((topic) => (
+                  <Pressable
+                    key={topic}
+                    onPress={() => setSelectedTopic(topic)}
+                    className={`px-3 py-1 rounded-lg mb-2 ${
+                      selectedTopic === topic
+                        ? 'bg-blue-600/30 border border-blue-500/50'
+                        : 'bg-slate-700/40 border border-slate-600/30'
+                    }`}
+                  >
+                    <Text className={`text-xs ${
+                      selectedTopic === topic ? 'text-blue-300' : 'text-slate-400'
+                    }`}>
+                      {topic}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          )}
+        </MotiView>
+      )}
 
         {/* Adaptability Score Badge */}
         <View className="items-center">
@@ -223,6 +549,10 @@ export default function AdaptiveDifficultyResponse() {
                     key={`cell-${index}`} 
                     fill={getBubbleColor(entry.difficulty)}
                     r={Math.max(8, Math.min(25, entry.avgTime / 3))} // Scale bubble size based on avgTime
+                    onClick={() => {
+                      const mockData = generateMockMCQData(entry.difficulty);
+                      setSelectedMCQ(mockData);
+                    }}
                   />
                 ))}
               </Scatter>
@@ -383,6 +713,170 @@ export default function AdaptiveDifficultyResponse() {
           </View>
         </View>
       </MotiView>
+
+      {/* MCQ Details Modal */}
+      {selectedMCQ && (
+        <MotiView
+          from={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: 'spring', duration: 400 }}
+          className="absolute inset-4 bg-slate-800/95 rounded-xl p-6 border border-slate-600/50 shadow-xl z-50"
+          style={{
+            shadowColor: '#3b82f6',
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.3,
+            shadowRadius: 16,
+            elevation: 12,
+          }}
+        >
+          {/* Modal Header */}
+          <View className="flex-row items-center justify-between mb-4">
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg items-center justify-center mr-3">
+                <BookOpen size={16} color="#ffffff" />
+              </View>
+              <Text className="text-xl font-bold text-slate-100">
+                {selectedMCQ.difficulty} MCQ Analysis
+              </Text>
+            </View>
+            <Pressable
+              onPress={() => setSelectedMCQ(null)}
+              className="w-8 h-8 rounded-full bg-slate-700/50 items-center justify-center"
+            >
+              <X size={16} color="#94a3b8" />
+            </Pressable>
+          </View>
+
+          {/* MCQ Details */}
+          <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+            <View className="space-y-4">
+              {/* Difficulty Badge */}
+              <View className="flex-row items-center justify-between">
+                <View className="bg-slate-700/40 rounded-lg p-3">
+                  <Text className="text-slate-300 text-sm">
+                    <Text className="font-bold text-blue-400">{selectedMCQ.subject}</Text> • {selectedMCQ.chapter} • {selectedMCQ.topic}
+                  </Text>
+                </View>
+                <View 
+                  className="px-3 py-1 rounded-full border"
+                  style={{ 
+                    backgroundColor: `${getBubbleColor(selectedMCQ.difficulty)}20`,
+                    borderColor: `${getBubbleColor(selectedMCQ.difficulty)}50`
+                  }}
+                >
+                  <Text 
+                    className="font-bold text-sm"
+                    style={{ color: getBubbleColor(selectedMCQ.difficulty) }}
+                  >
+                    {selectedMCQ.difficulty} Level
+                  </Text>
+                </View>
+              </View>
+
+              {/* MCQ Stem */}
+              <View>
+                <Text className="text-slate-100 font-semibold mb-2">Question:</Text>
+                <View className="bg-slate-700/40 rounded-lg p-4">
+                  <Text className="text-slate-200 text-base leading-6">
+                    {selectedMCQ.stem}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Learning Gap */}
+              <View>
+                <Text className="text-slate-100 font-semibold mb-2">Learning Gap Identified:</Text>
+                <View className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+                  <Text className="text-amber-200 text-sm leading-5">
+                    💡 {selectedMCQ.learning_gap}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Performance Data */}
+              <View>
+                <Text className="text-slate-100 font-semibold mb-2">Performance Data:</Text>
+                <View className="bg-slate-700/40 rounded-lg p-3 space-y-2">
+                  <View className="flex-row justify-between">
+                    <Text className="text-slate-400 text-sm">Difficulty Level:</Text>
+                    <Text 
+                      className="text-sm font-semibold"
+                      style={{ color: getBubbleColor(selectedMCQ.difficulty) }}
+                    >
+                      {selectedMCQ.difficulty}
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-slate-400 text-sm">Result:</Text>
+                    <Text className={`text-sm font-semibold ${
+                      selectedMCQ.is_correct ? 'text-emerald-400' : 'text-red-400'
+                    }`}>
+                      {selectedMCQ.is_correct ? '✓ Correct' : '✗ Incorrect'}
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-slate-400 text-sm">Response Time:</Text>
+                    <Text className="text-slate-300 text-sm">
+                      {selectedMCQ.response_time_sec}s
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-slate-400 text-sm">Attempted:</Text>
+                    <Text className="text-slate-300 text-sm">
+                      {new Date(selectedMCQ.attempt_time).toLocaleString()}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Difficulty-Specific Insights */}
+              <View>
+                <Text className="text-slate-100 font-semibold mb-2">Difficulty Analysis:</Text>
+                <View className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4">
+                  <Text className="text-emerald-200 text-sm leading-5">
+                    {selectedMCQ.difficulty === 'Easy' && 
+                      "Easy questions test fundamental knowledge. Focus on building strong conceptual foundations."
+                    }
+                    {selectedMCQ.difficulty === 'Moderate' && 
+                      "Moderate questions require application of concepts. Practice connecting ideas across topics."
+                    }
+                    {selectedMCQ.difficulty === 'Hard' && 
+                      "Hard questions test deep understanding and integration. Focus on complex problem-solving strategies."
+                    }
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+
+          {/* Action Buttons */}
+          <View className="flex-row space-x-3 mt-6">
+            <Pressable
+              onPress={() => setSelectedMCQ(null)}
+              className="flex-1 bg-slate-700/50 border border-slate-600/50 rounded-xl py-3 px-4"
+            >
+              <Text className="text-slate-300 text-center font-semibold">Close</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                // Handle practice similar questions action
+                setSelectedMCQ(null);
+              }}
+              className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl py-3 px-4"
+            >
+              <Text className="text-white text-center font-semibold">Practice Similar</Text>
+            </Pressable>
+          </View>
+        </MotiView>
+      )}
+
+      {/* Modal Overlay */}
+      {selectedMCQ && (
+        <Pressable
+          onPress={() => setSelectedMCQ(null)}
+          className="absolute inset-0 bg-black/50 z-40"
+        />
+      )}
     </MotiView>
   );
 }

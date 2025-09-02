@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Dimensions } from 'react-native';
+import { View, Text, ScrollView, Dimensions, Pressable } from 'react-native';
 import { MotiView } from 'moti';
-import { TrendingDown, Clock, Target, Brain, TriangleAlert as AlertTriangle } from 'lucide-react-native';
+import { TrendingDown, Clock, Target, Brain, TriangleAlert as AlertTriangle, Filter, ChevronDown, X, Calendar, BookOpen } from 'lucide-react-native';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { mockAttempts } from '@/data/mockAttempts';
 
@@ -11,6 +11,18 @@ interface ProcessedDataPoint {
   recursiveAccuracy: number | null;
   pyqCount: number;
   recursiveCount: number;
+}
+
+interface MCQModalData {
+  mcq_id: string;
+  stem: string;
+  learning_gap: string;
+  subject: string;
+  chapter: string;
+  topic: string;
+  is_correct: boolean;
+  response_time_sec: number;
+  attempt_time: string;
 }
 
 interface FatigueMetrics {
@@ -24,17 +36,57 @@ interface FatigueMetrics {
   fatigueOnsetTime: number;
 }
 
+type TimeRange = 'today' | 'week' | 'month';
+
 export default function FatigueImpactCurve() {
   const { width } = Dimensions.get('window');
   const isMobile = width < 768;
   
   const [processedData, setProcessedData] = useState<ProcessedDataPoint[]>([]);
   const [fatigueMetrics, setFatigueMetrics] = useState<FatigueMetrics | null>(null);
+  const [selectedSubject, setSelectedSubject] = useState<string>('all');
+  const [selectedChapter, setSelectedChapter] = useState<string>('all');
+  const [selectedTopic, setSelectedTopic] = useState<string>('all');
+  const [timeRange, setTimeRange] = useState<TimeRange>('week');
+  const [showFilters, setShowFilters] = useState(false);
+  const [selectedMCQ, setSelectedMCQ] = useState<MCQModalData | null>(null);
 
   // Process mock attempts data
   const processAttempts = () => {
+    // Apply filters
+    let filteredAttempts = [...mockAttempts];
+    
+    if (selectedSubject !== 'all') {
+      filteredAttempts = filteredAttempts.filter(attempt => attempt.subject === selectedSubject);
+    }
+    if (selectedChapter !== 'all') {
+      filteredAttempts = filteredAttempts.filter(attempt => attempt.chapter === selectedChapter);
+    }
+    if (selectedTopic !== 'all') {
+      filteredAttempts = filteredAttempts.filter(attempt => attempt.topic === selectedTopic);
+    }
+    
+    // Apply time range filter
+    const now = new Date();
+    const timeThreshold = new Date();
+    switch (timeRange) {
+      case 'today':
+        timeThreshold.setHours(0, 0, 0, 0);
+        break;
+      case 'week':
+        timeThreshold.setDate(now.getDate() - 7);
+        break;
+      case 'month':
+        timeThreshold.setDate(now.getDate() - 30);
+        break;
+    }
+    
+    filteredAttempts = filteredAttempts.filter(attempt => 
+      new Date(attempt.attempt_time) >= timeThreshold
+    );
+
     // Sort attempts by time
-    const sortedAttempts = [...mockAttempts].sort((a, b) => 
+    const sortedAttempts = filteredAttempts.sort((a, b) => 
       new Date(a.attempt_time).getTime() - new Date(b.attempt_time).getTime()
     );
 
@@ -81,6 +133,79 @@ export default function FatigueImpactCurve() {
     });
 
     return dataPoints;
+  };
+
+  // Get unique filter options
+  const getFilterOptions = () => {
+    const subjects = Array.from(new Set(mockAttempts.map(a => a.subject)));
+    const chapters = Array.from(new Set(
+      mockAttempts
+        .filter(a => selectedSubject === 'all' || a.subject === selectedSubject)
+        .map(a => a.chapter)
+    ));
+    const topics = Array.from(new Set(
+      mockAttempts
+        .filter(a => 
+          (selectedSubject === 'all' || a.subject === selectedSubject) &&
+          (selectedChapter === 'all' || a.chapter === selectedChapter)
+        )
+        .map(a => a.topic)
+    ));
+    
+    return { subjects, chapters, topics };
+  };
+
+  const { subjects, chapters, topics } = getFilterOptions();
+
+  // Generate mock MCQ modal data
+  const generateMockMCQData = (dataPoint: ProcessedDataPoint, isRecursive: boolean): MCQModalData => {
+    const mockMCQs = [
+      {
+        stem: "What happens to the oxygen dissociation curve during exercise at high altitude?",
+        learning_gap: "Confusion between Bohr effect and altitude physiology adaptations"
+      },
+      {
+        stem: "Which enzyme is the rate-limiting step in glycolysis?",
+        learning_gap: "Mixing up regulatory enzymes in different metabolic pathways"
+      },
+      {
+        stem: "How does cardiac output change during the transition from rest to exercise?",
+        learning_gap: "Not understanding the relationship between stroke volume and heart rate"
+      },
+      {
+        stem: "What is the primary mechanism of action for ACE inhibitors?",
+        learning_gap: "Confusing renin-angiotensin system components and their interactions"
+      },
+      {
+        stem: "Which neurotransmitter is primarily involved in synaptic transmission at the NMJ?",
+        learning_gap: "Mixing up cholinergic and adrenergic neurotransmitter systems"
+      }
+    ];
+    
+    const randomMCQ = mockMCQs[Math.floor(Math.random() * mockMCQs.length)];
+    const randomAttempt = mockAttempts[Math.floor(Math.random() * mockAttempts.length)];
+    
+    return {
+      mcq_id: `mcq_${Math.random().toString(36).substr(2, 9)}`,
+      stem: randomMCQ.stem,
+      learning_gap: randomMCQ.learning_gap,
+      subject: randomAttempt.subject,
+      chapter: randomAttempt.chapter,
+      topic: randomAttempt.topic,
+      is_correct: Math.random() > 0.5,
+      response_time_sec: Math.floor(Math.random() * 70) + 20,
+      attempt_time: new Date().toISOString(),
+    };
+  };
+
+  // Handle data point click
+  const handleDataPointClick = (data: any, dataKey: string) => {
+    if (data && data.activePayload && data.activePayload.length > 0) {
+      const dataPoint = data.activePayload[0].payload;
+      const isRecursive = dataKey === 'recursiveAccuracy';
+      const mockData = generateMockMCQData(dataPoint, isRecursive);
+      setSelectedMCQ(mockData);
+    }
   };
 
   // Calculate fatigue metrics
@@ -132,14 +257,17 @@ export default function FatigueImpactCurve() {
     const data = processAttempts();
     setProcessedData(data);
     setFatigueMetrics(calculateFatigueMetrics(data));
-  }, []);
+  }, [selectedSubject, selectedChapter, selectedTopic, timeRange]);
 
   // Custom tooltip for the chart
-  const CustomTooltip = ({ active, payload, label }: any) => {
+  const CustomTooltip = ({ active, payload, label, coordinate }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
       return (
-        <View className="bg-slate-800/95 rounded-lg p-3 border border-slate-600/50 shadow-xl">
+        <Pressable 
+          onPress={() => handleDataPointClick({ activePayload: payload }, payload[0].dataKey)}
+          className="bg-slate-800/95 rounded-lg p-3 border border-slate-600/50 shadow-xl active:scale-95"
+        >
           <Text className="text-slate-100 font-semibold text-sm mb-2">
             {label} minutes
           </Text>
@@ -150,7 +278,10 @@ export default function FatigueImpactCurve() {
               {entry.dataKey === 'recursiveAccuracy' && data.recursiveCount > 0 && ` (${data.recursiveCount} MCQs)`}
             </Text>
           ))}
-        </View>
+          <Text className="text-slate-400 text-xs mt-2">
+            💡 Tap to see sample MCQ
+          </Text>
+        </Pressable>
       );
     }
     return null;
@@ -189,10 +320,193 @@ export default function FatigueImpactCurve() {
           <View className="flex-1">
             <Text className="text-xl font-bold text-slate-100">Fatigue Impact Curve</Text>
             <Text className="text-slate-400 text-sm">
-              Accuracy decline over study time • {processedData.length} data points
+              Accuracy decline over study time • {processedData.length} data points • Click chart for details
             </Text>
           </View>
         </View>
+
+        {/* Filter Toggle */}
+        <Pressable
+          onPress={() => setShowFilters(!showFilters)}
+          className="flex-row items-center bg-slate-700/50 rounded-lg px-3 py-2 active:scale-95"
+        >
+          <Filter size={16} color="#94a3b8" />
+          <Text className="text-slate-300 text-sm ml-2">{selectedSubject}</Text>
+          <ChevronDown 
+            size={16} 
+            color="#94a3b8" 
+            style={{ 
+              transform: [{ rotate: showFilters ? '180deg' : '0deg' }] 
+            }} 
+          />
+        </Pressable>
+      </View>
+
+      {/* Filter Controls */}
+      {showFilters && (
+        <MotiView
+          from={{ opacity: 0, height: 0 }}
+          animate={{ opacity: 1, height: 'auto' }}
+          transition={{ type: 'spring', duration: 400 }}
+          className="mb-6 bg-slate-700/40 rounded-xl p-4 border border-slate-600/30"
+        >
+          {/* Time Range Filter */}
+          <View className="mb-4">
+            <Text className="text-slate-300 font-semibold mb-2">Time Range:</Text>
+            <View className="flex-row space-x-2">
+              {(['today', 'week', 'month'] as TimeRange[]).map((range) => (
+                <Pressable
+                  key={range}
+                  onPress={() => setTimeRange(range)}
+                  className={`px-4 py-2 rounded-lg ${
+                    timeRange === range
+                      ? 'bg-red-600/30 border border-red-500/50'
+                      : 'bg-slate-700/40 border border-slate-600/30'
+                  }`}
+                >
+                  <Text className={`text-sm font-medium capitalize ${
+                    timeRange === range ? 'text-red-300' : 'text-slate-400'
+                  }`}>
+                    {range}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+
+          {/* Subject Filter */}
+          <View className="mb-4">
+            <Text className="text-slate-300 font-semibold mb-2">Subject:</Text>
+            <View className="flex-row flex-wrap space-x-2">
+              <Pressable
+                onPress={() => {
+                  setSelectedSubject('all');
+                  setSelectedChapter('all');
+                  setSelectedTopic('all');
+                }}
+                className={`px-4 py-2 rounded-lg mb-2 ${
+                  selectedSubject === 'all'
+                    ? 'bg-red-600/30 border border-red-500/50'
+                    : 'bg-slate-700/40 border border-slate-600/30'
+                }`}
+              >
+                <Text className={`text-sm font-medium ${
+                  selectedSubject === 'all' ? 'text-red-300' : 'text-slate-400'
+                }`}>
+                  All Subjects
+                </Text>
+              </Pressable>
+              {subjects.map((subject) => (
+                <Pressable
+                  key={subject}
+                  onPress={() => {
+                    setSelectedSubject(subject);
+                    setSelectedChapter('all');
+                    setSelectedTopic('all');
+                  }}
+                  className={`px-4 py-2 rounded-lg mb-2 ${
+                    selectedSubject === subject
+                      ? 'bg-red-600/30 border border-red-500/50'
+                      : 'bg-slate-700/40 border border-slate-600/30'
+                  }`}
+                >
+                  <Text className={`text-sm font-medium ${
+                    selectedSubject === subject ? 'text-red-300' : 'text-slate-400'
+                  }`}>
+                    {subject}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+
+          {/* Chapter Filter */}
+          {selectedSubject !== 'all' && (
+            <View className="mb-4">
+              <Text className="text-slate-300 font-semibold mb-2">Chapter:</Text>
+              <View className="flex-row flex-wrap space-x-2">
+                <Pressable
+                  onPress={() => {
+                    setSelectedChapter('all');
+                    setSelectedTopic('all');
+                  }}
+                  className={`px-3 py-1 rounded-lg mb-2 ${
+                    selectedChapter === 'all'
+                      ? 'bg-red-600/30 border border-red-500/50'
+                      : 'bg-slate-700/40 border border-slate-600/30'
+                  }`}
+                >
+                  <Text className={`text-xs ${
+                    selectedChapter === 'all' ? 'text-red-300' : 'text-slate-400'
+                  }`}>
+                    All Chapters
+                  </Text>
+                </Pressable>
+                {chapters.map((chapter) => (
+                  <Pressable
+                    key={chapter}
+                    onPress={() => {
+                      setSelectedChapter(chapter);
+                      setSelectedTopic('all');
+                    }}
+                    className={`px-3 py-1 rounded-lg mb-2 ${
+                      selectedChapter === chapter
+                        ? 'bg-red-600/30 border border-red-500/50'
+                        : 'bg-slate-700/40 border border-slate-600/30'
+                    }`}
+                  >
+                    <Text className={`text-xs ${
+                      selectedChapter === chapter ? 'text-red-300' : 'text-slate-400'
+                    }`}>
+                      {chapter}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          )}
+
+          {/* Topic Filter */}
+          {selectedChapter !== 'all' && (
+            <View>
+              <Text className="text-slate-300 font-semibold mb-2">Topic:</Text>
+              <View className="flex-row flex-wrap space-x-2">
+                <Pressable
+                  onPress={() => setSelectedTopic('all')}
+                  className={`px-3 py-1 rounded-lg mb-2 ${
+                    selectedTopic === 'all'
+                      ? 'bg-red-600/30 border border-red-500/50'
+                      : 'bg-slate-700/40 border border-slate-600/30'
+                  }`}
+                >
+                  <Text className={`text-xs ${
+                    selectedTopic === 'all' ? 'text-red-300' : 'text-slate-400'
+                  }`}>
+                    All Topics
+                  </Text>
+                </Pressable>
+                {topics.map((topic) => (
+                  <Pressable
+                    key={topic}
+                    onPress={() => setSelectedTopic(topic)}
+                    className={`px-3 py-1 rounded-lg mb-2 ${
+                      selectedTopic === topic
+                        ? 'bg-red-600/30 border border-red-500/50'
+                        : 'bg-slate-700/40 border border-slate-600/30'
+                    }`}
+                  >
+                    <Text className={`text-xs ${
+                      selectedTopic === topic ? 'text-red-300' : 'text-slate-400'
+                    }`}>
+                      {topic}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            </View>
+          )}
+        </MotiView>
+      )}
 
         {/* Fatigue Severity Badge */}
         <View className="items-center">
@@ -253,6 +567,7 @@ export default function FatigueImpactCurve() {
                 dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
                 name="PYQ Accuracy"
                 connectNulls={false}
+                onClick={(data) => handleDataPointClick(data, 'pyqAccuracy')}
               />
               
               {/* Recursive Accuracy Line */}
@@ -265,6 +580,7 @@ export default function FatigueImpactCurve() {
                 dot={{ fill: '#ef4444', strokeWidth: 2, r: 4 }}
                 name="Recursive MCQ Accuracy"
                 connectNulls={false}
+                onClick={(data) => handleDataPointClick(data, 'recursiveAccuracy')}
               />
             </LineChart>
           </ResponsiveContainer>
@@ -425,6 +741,138 @@ export default function FatigueImpactCurve() {
           </View>
         </View>
       </MotiView>
+
+      {/* MCQ Details Modal */}
+      {selectedMCQ && (
+        <MotiView
+          from={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ type: 'spring', duration: 400 }}
+          className="absolute inset-4 bg-slate-800/95 rounded-xl p-6 border border-slate-600/50 shadow-xl z-50"
+          style={{
+            shadowColor: '#ef4444',
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.3,
+            shadowRadius: 16,
+            elevation: 12,
+          }}
+        >
+          {/* Modal Header */}
+          <View className="flex-row items-center justify-between mb-4">
+            <View className="flex-row items-center">
+              <View className="w-8 h-8 bg-gradient-to-br from-red-500 to-rose-600 rounded-lg items-center justify-center mr-3">
+                <BookOpen size={16} color="#ffffff" />
+              </View>
+              <Text className="text-xl font-bold text-slate-100">MCQ Analysis</Text>
+            </View>
+            <Pressable
+              onPress={() => setSelectedMCQ(null)}
+              className="w-8 h-8 rounded-full bg-slate-700/50 items-center justify-center"
+            >
+              <X size={16} color="#94a3b8" />
+            </Pressable>
+          </View>
+
+          {/* MCQ Details */}
+          <ScrollView showsVerticalScrollIndicator={false} className="flex-1">
+            <View className="space-y-4">
+              {/* Subject/Chapter/Topic */}
+              <View className="bg-slate-700/40 rounded-lg p-3">
+                <Text className="text-slate-300 text-sm">
+                  <Text className="font-bold text-red-400">{selectedMCQ.subject}</Text> • {selectedMCQ.chapter} • {selectedMCQ.topic}
+                </Text>
+              </View>
+
+              {/* MCQ Stem */}
+              <View>
+                <Text className="text-slate-100 font-semibold mb-2">Question:</Text>
+                <View className="bg-slate-700/40 rounded-lg p-4">
+                  <Text className="text-slate-200 text-base leading-6">
+                    {selectedMCQ.stem}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Learning Gap */}
+              <View>
+                <Text className="text-slate-100 font-semibold mb-2">Learning Gap Identified:</Text>
+                <View className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4">
+                  <Text className="text-amber-200 text-sm leading-5">
+                    💡 {selectedMCQ.learning_gap}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Performance Data */}
+              <View>
+                <Text className="text-slate-100 font-semibold mb-2">Performance Data:</Text>
+                <View className="bg-slate-700/40 rounded-lg p-3 space-y-2">
+                  <View className="flex-row justify-between">
+                    <Text className="text-slate-400 text-sm">Result:</Text>
+                    <Text className={`text-sm font-semibold ${
+                      selectedMCQ.is_correct ? 'text-emerald-400' : 'text-red-400'
+                    }`}>
+                      {selectedMCQ.is_correct ? '✓ Correct' : '✗ Incorrect'}
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-slate-400 text-sm">Response Time:</Text>
+                    <Text className="text-slate-300 text-sm">
+                      {selectedMCQ.response_time_sec}s
+                    </Text>
+                  </View>
+                  <View className="flex-row justify-between">
+                    <Text className="text-slate-400 text-sm">Attempted:</Text>
+                    <Text className="text-slate-300 text-sm">
+                      {new Date(selectedMCQ.attempt_time).toLocaleString()}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+
+              {/* Recommendations */}
+              <View>
+                <Text className="text-slate-100 font-semibold mb-2">AI Recommendations:</Text>
+                <View className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4">
+                  <Text className="text-emerald-200 text-sm leading-5">
+                    {selectedMCQ.is_correct 
+                      ? "Great job! Consider reviewing related concepts to strengthen understanding."
+                      : "Focus on the identified learning gap. Review fundamental concepts and practice similar questions."
+                    }
+                  </Text>
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+
+          {/* Action Buttons */}
+          <View className="flex-row space-x-3 mt-6">
+            <Pressable
+              onPress={() => setSelectedMCQ(null)}
+              className="flex-1 bg-slate-700/50 border border-slate-600/50 rounded-xl py-3 px-4"
+            >
+              <Text className="text-slate-300 text-center font-semibold">Close</Text>
+            </Pressable>
+            <Pressable
+              onPress={() => {
+                // Handle study this gap action
+                setSelectedMCQ(null);
+              }}
+              className="flex-1 bg-gradient-to-r from-red-600 to-rose-600 rounded-xl py-3 px-4"
+            >
+              <Text className="text-white text-center font-semibold">Study This Gap</Text>
+            </Pressable>
+          </View>
+        </MotiView>
+      )}
+
+      {/* Modal Overlay */}
+      {selectedMCQ && (
+        <Pressable
+          onPress={() => setSelectedMCQ(null)}
+          className="absolute inset-0 bg-black/50 z-40"
+        />
+      )}
     </MotiView>
   );
 }
