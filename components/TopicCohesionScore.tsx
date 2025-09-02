@@ -961,7 +961,7 @@ export default function TopicCohesionScore({
                 </Text>
               </MotiView>
             </View>
-          </View>
+          </MotiView>
 
           {/* Cohesion Scale Reference */}
           <MotiView
