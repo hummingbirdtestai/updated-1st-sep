@@ -9,14 +9,13 @@ import ConfidenceVsRealityPage from "@/app/confidence-vs-reality";
 import SmartRevisionPage from "@/app/SmartRevisionPage";
 import QuickFixLessonsPage from "@/app/QuickFixLessonsPage";
 import AchievementsRewardsPage from '@/app/AchievementsRewardsPage';
-import PeerComparisonPage from '@/app/PeerComparisonPage';
 
 export default function LayoutWithSidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const { width } = Dimensions.get("window");
   const isMobile = width < 768;
   const sidebarWidth = 240;
-  const [currentView, setCurrentView] = useState<"home" | "exam" | "subject" | "analytics" | "concept-map" | "confidence" | "smart-revision" | "quick-fix" | "achievements" | "peer-comparison">("analytics");
+  const [currentView, setCurrentView] = useState<"home" | "exam" | "subject" | "analytics" | "concept-map" | "confidence" | "smart-revision" | "quick-fix" | "achievements">("analytics");
   const [analyticsRoute, setAnalyticsRoute] = useState("/analytics/prep-overview");
   const [examId, setExamId] = useState<string | null>(null);
   const [subjectId, setSubjectId] = useState<string | null>(null);
@@ -71,7 +70,7 @@ export default function LayoutWithSidebar() {
           setCurrentView("achievements");
           if (isMobile) setSidebarOpen(false);
         }}
-
+        onPeerComparisonNavigate={() => { setCurrentView("peer-comparison"); if (isMobile) setSidebarOpen(false); }}
       />
 
       {/* Main Content */}
