@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import Svg, { Circle, Text as SvgText, Line, Defs, LinearGradient, Stop, Path } from 'react-native-svg';
 import PeerProgressSyncMeter from '@/components/PeerProgressSyncMeter';
 import AccountabilityNudges from '@/components/AccountabilityNudges';
+import CoopChallenges from '@/components/CoopChallenges';
 
 // Mock data
 const buddyData = {
@@ -644,11 +645,15 @@ export default function BuddyModePage() {
           onNudgeAction={(nudge) => console.log('Action on nudge:', nudge)}
         />
 
-        {/* Section 3: Buddy Gap Radar */}
-        <BuddyGapRadar gapData={mockGapData} />
+        {/* Section 3: Co-op Challenges */}
+        <CoopChallenges 
+          challenges={mockChallenges}
+          onChallengeStart={(challenge) => console.log('Starting challenge:', challenge)}
+          onChallengeComplete={(challenge) => console.log('Completed challenge:', challenge)}
+        />
 
-        {/* Section 4: Co-op Challenges */}
-        <CoopChallenges challenges={mockChallenges} />
+        {/* Section 4: Buddy Gap Radar */}
+        <BuddyGapRadar gapData={mockGapData} />
 
         {/* Motivational Footer */}
         <MotiView
