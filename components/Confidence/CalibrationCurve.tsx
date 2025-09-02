@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { Target, TrendingUp, AlertTriangle, CheckCircle } from 'lucide-react-native';
+import { Target, TrendingUp, TriangleAlert as AlertTriangle, CircleCheck as CheckCircle } from 'lucide-react-native';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, ReferenceLine, Scatter, ScatterChart, Cell } from 'recharts';
 import confidenceData from '@/data/confidence-data.json';
 
