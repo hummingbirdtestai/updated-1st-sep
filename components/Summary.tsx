@@ -241,19 +241,17 @@ export default function Summary({
         <Pressable
           onPress={prevCard}
           disabled={totalCards <= 1}
-          className="px-4 py-2 bg-slate-700/60 rounded-xl"
+          className="px-4 py-2 bg-slate-700/60 rounded-xl flex-row items-center"
         >
-          <ChevronLeft size={16} color="#94a3b8" />
-          <Text className="ml-1 text-sm text-slate-300">Prev</Text>
+          <ChevronLeft size={16} color="#94a3b8" /><Text className="ml-1 text-sm text-slate-300">Prev</Text>
         </Pressable>
 
         <Pressable
           onPress={nextCard}
           disabled={totalCards <= 1}
-          className="px-4 py-2 bg-slate-700/60 rounded-xl"
+          className="px-4 py-2 bg-slate-700/60 rounded-xl flex-row items-center"
         >
-          <Text className="mr-1 text-sm text-slate-300">Next</Text>
-          <ChevronRight size={16} color="#94a3b8" />
+          <Text className="mr-1 text-sm text-slate-300">Next</Text><ChevronRight size={16} color="#94a3b8" />
         </Pressable>
       </View>
     </MotiView>
