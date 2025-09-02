@@ -506,7 +506,7 @@ function SubjectChainTabs({ data = mockSubjectChainData }: SubjectChainTabsProps
                         <Text className="text-slate-400 text-xs">
                           perfect (MCQ1)
                         </Text>
-                      </div>
+                      </View>
                     </View>
                   </MotiView>
                 );
