@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { Chrome as Home, Map, GitBranch, CircleAlert as AlertCircle, Radar, Clock, Navigation, ChartBar as BarChart3, Zap, Target, RotateCcw, BookMarked, Award, Users, UserCheck, UsersRound, Heart, TrendingUp } from 'lucide-react-native';
+import { Chromium as Home, Map, GitBranch, CircleAlert as AlertCircle, Radar, Clock, Navigation, ChartBar as BarChart3, Zap, Target, RotateCcw, BookMarked, Award, Users, UserCheck, UsersRound, Heart, TrendingUp } from 'lucide-react-native';
 import PrepOverviewPage from './PrepOverviewPage';
 import NeuralRadar from './NeuralRadar';
 import MotivationProgressChart from './MotivationProgressChart';
