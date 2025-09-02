@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, Dimensions } from 'react-native';
+import { View, Text, ScrollView, Dimensions,Pressable  } from 'react-native';
 import { MotiView } from 'moti';
 import { TriangleAlert as AlertTriangle, Clock, Target, TrendingDown, Gauge } from 'lucide-react-native';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
