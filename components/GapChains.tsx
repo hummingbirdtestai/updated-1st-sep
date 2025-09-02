@@ -971,36 +971,28 @@ export default function TopicCohesionScore({
             className="mt-6 bg-slate-700/40 rounded-xl p-4 border border-slate-600/30"
           >
             <Text className="text-slate-100 font-semibold mb-3 text-center">Cohesion Scale</Text>
-            <View className="space-y-3">
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center">
-                  <View className="w-4 h-4 rounded-full bg-emerald-500 mr-3" />
-                  <Text className="text-slate-300 text-sm">High Cohesion (70%+)</Text>
-                </View>
-                <Text className="text-emerald-400 text-sm">Strong alignment, excellent for group study</Text>
+            <View className="space-y-2">
+              <View className="flex-row items-center">
+                <View className="w-4 h-4 rounded-full bg-emerald-500 mr-3" />
+                <Text className="text-slate-300 text-sm">High Cohesion (&gt;=70%)</Text>
               </View>
-              
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center">
-                  <View className="w-4 h-4 rounded-full bg-amber-500 mr-3" />
-                  <Text className="text-slate-300 text-sm">Moderate Cohesion (35-69%)</Text>
-                </View>
-                <Text className="text-amber-400 text-sm">Some alignment, mixed study approaches</Text>
-              </View>
-              
-              <View className="flex-row items-center justify-between">
-                <View className="flex-row items-center">
-                  <View className="w-4 h-4 rounded-full bg-red-500 mr-3" />
-                  <Text className="text-slate-300 text-sm">Low Cohesion (&lt;35%)</Text>
-                </View>
-                <Text className="text-red-400 text-sm">Diverse patterns, individual mentoring needed</Text>
-              </View>
+              <Text className="text-emerald-400 text-sm">Strong alignment, group study recommended</Text>
             </View>
             
-            <View className="mt-4 pt-3 border-t border-slate-600/30">
-              <Text className="text-slate-400 text-xs text-center">
-                💡 Cohesion Score = (Top 3 Topics Time) ÷ (Total Cohort Time)
-              </Text>
+            <View className="space-y-2">
+              <View className="flex-row items-center">
+                <View className="w-4 h-4 rounded-full bg-amber-500 mr-3" />
+                <Text className="text-slate-300 text-sm">Moderate Cohesion (40-69%)</Text>
+              </View>
+              <Text className="text-amber-400 text-sm">Mixed patterns, balanced approach needed</Text>
+            </View>
+            
+            <View className="space-y-2">
+              <View className="flex-row items-center">
+                <View className="w-4 h-4 rounded-full bg-red-500 mr-3" />
+                <Text className="text-slate-300 text-sm">Low Cohesion (&lt;40%)</Text>
+              </View>
+              <Text className="text-red-400 text-sm">Diverse patterns, individual mentoring needed</Text>
             </View>
           </MotiView>
         </View>
