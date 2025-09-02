@@ -645,6 +645,7 @@ export default function TopicCohesionScore({
               elevation: 8,
             }}
           >
+            <View>
             <View className="flex-row items-center mb-4">
               <MotiView
                 from={{ scale: 0, rotate: -90 }}
@@ -695,6 +696,7 @@ export default function TopicCohesionScore({
                   alignment leader
                 </Text>
               </View>
+            </View>
             </View>
           </MotiView>
         </View>
