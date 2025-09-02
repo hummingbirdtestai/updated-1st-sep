@@ -118,6 +118,7 @@ interface SidebarProps {
   onQuickFixNavigate?: () => void;
   onAchievementsNavigate?: () => void;
   onPeerComparisonNavigate?: () => void;
+  onBuddyModeNavigate?: () => void;
 }
 
 export default function Sidebar({
@@ -134,6 +135,7 @@ export default function Sidebar({
   onQuickFixNavigate,
   onAchievementsNavigate,
   onPeerComparisonNavigate,
+  onBuddyModeNavigate,
 }: SidebarProps) {
   const [isExamsExpanded, setIsExamsExpanded] = useState(false);
   const [isSubjectsExpanded, setIsSubjectsExpanded] = useState(false);
@@ -193,6 +195,8 @@ export default function Sidebar({
       onAchievementsNavigate?.();
     } else if (item.route === '/analytics/peer-comparison') {
       onPeerComparisonNavigate?.();
+    } else if (item.id === 'buddy-mode') {
+      onBuddyModeNavigate?.();
     } else {
       onAnalyticsNavigate?.(item.route);
     }
