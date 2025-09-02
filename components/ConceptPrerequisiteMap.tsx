@@ -41,7 +41,11 @@ interface SidePanelData {
   timeBlocked: number;
 }
 
-export default function ConceptPrerequisiteMap() {
+interface ConceptPrerequisiteMapProps {
+  onConceptClick?: (concept: any) => void;
+}
+
+export default function ConceptPrerequisiteMap({ onConceptClick }: ConceptPrerequisiteMapProps) {
   const { width, height } = Dimensions.get('window');
   const isMobile = width < 768;
   
@@ -200,6 +204,14 @@ export default function ConceptPrerequisiteMap() {
         newExpanded.add(node.id);
       }
       setExpandedConcepts(newExpanded);
+
+      // Call parent callback for concept clicks
+      if (onConceptClick) {
+        const matchingConcept = mockRootCausesData.concept_prerequisites.find(c => c.concept === node.id);
+        if (matchingConcept) {
+          onConceptClick(matchingConcept);
+        }
+      }
 
       // Show side panel
       const conceptData = mockRootCausesData.concept_prerequisites.find(c => c.concept === node.id);
