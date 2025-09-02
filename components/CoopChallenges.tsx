@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { Trophy, Target, Calendar, BookOpen, Lock, CheckCircle, Clock, Star, Zap, Users } from 'lucide-react-native';
+import { Trophy, Target, Calendar, BookOpen, Lock, CircleCheck as CheckCircle, Clock, Star, Zap, Users } from 'lucide-react-native';
 import Svg, { Circle, Text as SvgText, Defs, LinearGradient, Stop } from 'react-native-svg';
 import ConfettiCannon from 'react-native-confetti-cannon';
 
