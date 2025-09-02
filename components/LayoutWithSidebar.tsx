@@ -6,6 +6,7 @@ import AdaptiveChat from "@/components/AdaptiveChat";
 import AnalyticsPage from "@/components/AnalyticsPage";
 import ConceptPrerequisiteMap from "@/components/ConceptPrerequisiteMap";
 import ConfidenceVsRealityPage from "@/app/confidence-vs-reality";
+import SmartRevisionPage from "@/app/SmartRevisionPage";
 
 export default function LayoutWithSidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -14,6 +15,7 @@ export default function LayoutWithSidebar() {
   const sidebarWidth = 240;
 
   const [currentView, setCurrentView] = useState<"home" | "exam" | "subject" | "analytics" | "concept-map" | "confidence">("analytics");
+  const [currentView, setCurrentView] = useState<"home" | "exam" | "subject" | "analytics" | "concept-map" | "confidence" | "smart-revision">("analytics");
   const [analyticsRoute, setAnalyticsRoute] = useState("/analytics/prep-overview");
   const [examId, setExamId] = useState<string | null>(null);
   const [subjectId, setSubjectId] = useState<string | null>(null);
@@ -56,6 +58,10 @@ export default function LayoutWithSidebar() {
           setCurrentView("confidence");
           if (isMobile) setSidebarOpen(false);
         }}
+        onSmartRevisionNavigate={() => {
+          setCurrentView("smart-revision");
+          if (isMobile) setSidebarOpen(false);
+        }}
       />
 
       {/* Main Content */}
@@ -78,6 +84,7 @@ export default function LayoutWithSidebar() {
           {currentView === "analytics" && <AnalyticsPage route={analyticsRoute} />}
           {currentView === "concept-map" && <ConceptPrerequisiteMap />}
           {currentView === "confidence" && <ConfidenceVsRealityPage />}
+          {currentView === "smart-revision" && <SmartRevisionPage />}
           {(currentView === "exam" || currentView === "subject") && (
             <AdaptiveChat examId={examId || ""} subjectId={subjectId || ""} />
           )}

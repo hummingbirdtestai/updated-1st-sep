@@ -66,7 +66,7 @@ const navigationGroups: NavigationGroup[] = [
       { id: 'speed-accuracy', name: 'Speed & Accuracy', icon: Zap, route: '/analytics/speed-accuracy' },
       { id: 'confidence-reality', name: 'Confidence vs Reality', icon: Target, route: '/analytics/confidence-reality' },
      { id: 'confidence-vs-reality', name: 'Confidence vs Reality', icon: Gauge, route: '/confidence-vs-reality' },
-      { id: 'smart-revision', name: 'Smart Revision', icon: RotateCcw, route: '/analytics/smart-revision' },
+      { id: 'smart-revision', name: 'Smart Revision', icon: RotateCcw, route: '/SmartRevisionPage' },
       { id: 'quick-fix-lessons', name: 'Quick Fix Lessons', icon: Zap, route: '/analytics/quick-fix-lessons' },
       { id: 'mistakes-correct', name: 'Mistakes to Correct', icon: AlertCircle, route: '/analytics/mistakes-correct' },
     ]
@@ -112,6 +112,7 @@ interface SidebarProps {
   onAnalyticsNavigate?: (route: string) => void;
   onConceptMapNavigate?: () => void;
   onConfidenceNavigate?: () => void;
+  onSmartRevisionNavigate?: () => void;
 }
 
 export default function Sidebar({
@@ -124,6 +125,7 @@ export default function Sidebar({
   onHomeClick,
   onAnalyticsNavigate,
   onConceptMapNavigate,
+  onSmartRevisionNavigate,
 }: SidebarProps) {
   const [isExamsExpanded, setIsExamsExpanded] = useState(false);
   const [isSubjectsExpanded, setIsSubjectsExpanded] = useState(false);
@@ -173,7 +175,14 @@ export default function Sidebar({
 
   const handleAnalyticsItemClick = (item: NavigationItem) => {
     setActiveItem(item.id);
-    onAnalyticsNavigate?.(item.route);
+    
+    // Handle special routes
+    if (item.route === '/SmartRevisionPage') {
+      onSmartRevisionNavigate?.();
+    } else {
+      onAnalyticsNavigate?.(item.route);
+    }
+    
     if (isMobile) {
       onToggle(false);
     }
