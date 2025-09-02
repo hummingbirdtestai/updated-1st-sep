@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions, Alert } from 'react-native';
 import { MotiView } from 'moti';
-import { Zap, BookOpen, Play, Info, Clock, Target, TrendingUp, Calendar, CheckCircle, AlertTriangle, X } from 'lucide-react-native';
+import { Zap, BookOpen, Play, Info, Clock, Target, TrendingUp, Calendar, CircleCheck as CheckCircle, TriangleAlert as AlertTriangle, X } from 'lucide-react-native';
 import { StatusBar } from 'expo-status-bar';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip } from 'recharts';
 import quickfixData from '@/data/quickfix-data.json';
