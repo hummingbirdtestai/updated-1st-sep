@@ -503,7 +503,7 @@ export default function ConfidenceDriftTracker() {
         </View>
         <View className="flex-row items-center">
           <View className="w-4 h-4 rounded-full bg-cyan-500 mr-2" />
-          <Text className="text-slate-300 text-sm">Underconfident (<-15%)</Text>
+          <Text className="text-slate-300 text-sm">Underconfident (&lt;-15%)</Text>
         </View>
         <View className="flex-row items-center">
           <View className="w-4 h-1 bg-slate-500 rounded mr-2 border-dashed border border-slate-500" />
