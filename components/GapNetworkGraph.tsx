@@ -522,15 +522,15 @@ export default function GapNetworkGraph({ data = mockData }: GapNetworkGraphProp
                   
                   {/* Main node bubble */}
                   <G onPress={(event) => handleNodePress(node, event)}>
-  <Circle
-    cx={node.x}
-    cy={node.y}
-    r={nodeSize * pulseScale}
-    fill={colors.fill}
-    stroke={colors.stroke}
-    strokeWidth="3"
-  />
-</G>
+                    <Circle
+                      cx={node.x}
+                      cy={node.y}
+                      r={nodeSize * pulseScale}
+                      fill={colors.fill}
+                      stroke={colors.stroke}
+                      strokeWidth="3"
+                    />
+                  </G>
 
 
                   {/* Inner highlight */}
