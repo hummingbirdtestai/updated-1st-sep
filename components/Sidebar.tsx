@@ -186,6 +186,8 @@ export default function Sidebar({
       onSmartRevisionNavigate?.();
     } else if (item.route === '/QuickFixLessonsPage') {
       onQuickFixNavigate?.();
+    } else if (item.route === '/AchievementsRewardsPage') {
+      onAchievementsNavigate?.();
     } else {
       onAnalyticsNavigate?.(item.route);
     }
