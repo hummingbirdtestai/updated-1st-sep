@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, ScrollView, Dimensions } from 'react-native';
 import { MotiView } from 'moti';
-import { GitBranch, Target, TrendingUp, Filter, ChevronDown, X, CircleCheck as CheckCircle, CircleX as XCircle, Circle, TriangleAlert as AlertTriangle, Award, Clock, ChartBar as BarChart3, Play, BookOpen, Video, RotateCcw, ExternalLink, Lightbulb } from 'lucide-react-native';
+import { GitBranch, Target, TrendingUp, ListFilter as Filter, ChevronDown, X, CircleCheck as CheckCircle, CircleX as XCircle, Circle, TriangleAlert as AlertTriangle, Award, Clock, ChartBar as BarChart3, Play, BookOpen, Video, RotateCcw, ExternalLink, Lightbulb } from 'lucide-react-native';
 import Svg, { Circle as SvgCircle, Line, Text as SvgText, Path, Defs, LinearGradient, Stop, G } from 'react-native-svg';
 import gapChainsData from '@/data/gap-chains-data.json';
 
