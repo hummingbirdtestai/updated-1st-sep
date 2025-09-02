@@ -316,7 +316,7 @@ export default function ConfidenceDriftTracker() {
             {driftMetrics?.underconfidentDays || 0}
           </Text>
           <Text className="text-cyan-300/80 text-xs">
-            days (<-15% gap)
+            days (&lt;-15% gap)
           </Text>
         </MotiView>
 
