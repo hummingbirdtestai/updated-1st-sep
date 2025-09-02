@@ -8,7 +8,7 @@ import ConceptPrerequisiteMap from "@/components/ConceptPrerequisiteMap";
 import ConfidenceVsRealityPage from "@/app/confidence-vs-reality";
 import SmartRevisionPage from "@/app/SmartRevisionPage";
 import QuickFixLessonsPage from "@/app/QuickFixLessonsPage";
-import AchievementsRewardsPage from "@/app/AchievementsRewardsPage";
+import AchievementsRewardsPage from "@/app/AchievementsRewardsPage.tsx";
 
 export default function LayoutWithSidebar() {
   const [sidebarOpen, setSidebarOpen] = useState(true);
