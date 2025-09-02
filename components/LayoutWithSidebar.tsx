@@ -95,6 +95,7 @@ export default function LayoutWithSidebar() {
           {currentView === "smart-revision" && <SmartRevisionPage />}
           {currentView === "quick-fix" && <QuickFixLessonsPage />}
           {currentView === "achievements" && <AchievementsRewardsPage />}
+          {currentView === "peer-comparison" && <PeerComparisonPage />}
           {(currentView === "exam" || currentView === "subject") && (
             <AdaptiveChat examId={examId || ""} subjectId={subjectId || ""} />
           )}
