@@ -1,0 +1,102 @@
+[
+  {
+    "student_id": "stu_001",
+    "name": "Arjun Sharma",
+    "pyqs_attempted": 650,
+    "total_minutes_spent": 2925,
+    "subject_focus": {
+      "Physiology": 0.35,
+      "Biochemistry": 0.30,
+      "Anatomy": 0.25,
+      "Pharmacology": 0.10
+    },
+    "topic_gap_sentences": [
+      { "topic": "Action Potential Propagation", "gap_intensity": 0.8 },
+      { "topic": "Enzyme Kinetics Michaelis-Menten", "gap_intensity": 0.7 },
+      { "topic": "Cardiac Output Regulation", "gap_intensity": 0.6 },
+      { "topic": "Renal Clearance Calculations", "gap_intensity": 0.5 },
+      { "topic": "Neurotransmitter Synthesis", "gap_intensity": 0.4 },
+      { "topic": "Brachial Plexus Anatomy", "gap_intensity": 0.3 }
+    ]
+  },
+  {
+    "student_id": "stu_002",
+    "name": "Meera Patel",
+    "pyqs_attempted": 720,
+    "total_minutes_spent": 3240,
+    "subject_focus": {
+      "Anatomy": 0.40,
+      "Pathology": 0.30,
+      "Physiology": 0.20,
+      "Biochemistry": 0.10
+    },
+    "topic_gap_sentences": [
+      { "topic": "Long Tracts Neuroanatomy", "gap_intensity": 0.9 },
+      { "topic": "Inflammation Mechanisms", "gap_intensity": 0.7 },
+      { "topic": "Cranial Nerve Pathways", "gap_intensity": 0.6 },
+      { "topic": "Hemoglobin Oxygen Dissociation", "gap_intensity": 0.5 },
+      { "topic": "Cell Death Pathways", "gap_intensity": 0.4 },
+      { "topic": "Respiratory Muscle Coordination", "gap_intensity": 0.3 }
+    ]
+  },
+  {
+    "student_id": "stu_003",
+    "name": "Rahul Kumar",
+    "pyqs_attempted": 480,
+    "total_minutes_spent": 2160,
+    "subject_focus": {
+      "Biochemistry": 0.45,
+      "Pharmacology": 0.25,
+      "Physiology": 0.20,
+      "Pathology": 0.10
+    },
+    "topic_gap_sentences": [
+      { "topic": "Glycolysis Regulation Enzymes", "gap_intensity": 0.8 },
+      { "topic": "Drug Metabolism Pathways", "gap_intensity": 0.7 },
+      { "topic": "Protein Synthesis Mechanisms", "gap_intensity": 0.6 },
+      { "topic": "Adrenergic Receptor Types", "gap_intensity": 0.5 },
+      { "topic": "Acid-Base Balance Compensation", "gap_intensity": 0.4 },
+      { "topic": "Tumor Suppressor Genes", "gap_intensity": 0.3 }
+    ]
+  },
+  {
+    "student_id": "stu_004",
+    "name": "Priya Singh",
+    "pyqs_attempted": 590,
+    "total_minutes_spent": 2655,
+    "subject_focus": {
+      "Pathology": 0.35,
+      "Anatomy": 0.30,
+      "Pharmacology": 0.25,
+      "Physiology": 0.10
+    },
+    "topic_gap_sentences": [
+      { "topic": "Neoplasia Classification", "gap_intensity": 0.9 },
+      { "topic": "Autonomic Nervous System Drugs", "gap_intensity": 0.8 },
+      { "topic": "Embryological Development", "gap_intensity": 0.6 },
+      { "topic": "Cardiovascular Pathology", "gap_intensity": 0.5 },
+      { "topic": "Endocrine System Integration", "gap_intensity": 0.4 },
+      { "topic": "Immunology Mechanisms", "gap_intensity": 0.3 }
+    ]
+  },
+  {
+    "student_id": "stu_005",
+    "name": "Vikram Reddy",
+    "pyqs_attempted": 380,
+    "total_minutes_spent": 1710,
+    "subject_focus": {
+      "Physiology": 0.40,
+      "Anatomy": 0.35,
+      "Biochemistry": 0.15,
+      "Pathology": 0.10
+    },
+    "topic_gap_sentences": [
+      { "topic": "Starling Forces Microcirculation", "gap_intensity": 0.9 },
+      { "topic": "Muscle Contraction Mechanisms", "gap_intensity": 0.8 },
+      { "topic": "Digestive System Anatomy", "gap_intensity": 0.7 },
+      { "topic": "Metabolic Pathway Integration", "gap_intensity": 0.6 },
+      { "topic": "Respiratory Physiology", "gap_intensity": 0.5 },
+      { "topic": "General Pathology Principles", "gap_intensity": 0.4 }
+    ]
+  }
+]
