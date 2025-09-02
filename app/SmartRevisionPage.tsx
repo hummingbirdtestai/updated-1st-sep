@@ -31,6 +31,7 @@ export default function SmartRevisionPage() {
               Spaced repetition engine for MCQs + flashcards
             </Text>
           </View>
+        </View>
       </MotiView>
 
       {/* Main Content */}
@@ -190,7 +191,7 @@ export default function SmartRevisionPage() {
               </View>
               <Text className="text-emerald-200 text-xl font-bold">15</Text>
               <Text className="text-emerald-300/80 text-xs">For retry</Text>
-            </View>
+            </MotiView>
           </View>
 
           {/* Revision Queue Placeholder */}
