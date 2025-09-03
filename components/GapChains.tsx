@@ -219,7 +219,7 @@ interface SubjectChainTabsProps {
   data?:any[];
 }
 
-function SubjectChainTabs({ data = mockSubjectChainData }: SubjectChainTabsProps) {
+function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
   const { width } = Dimensions.get('window');
   const isMobile = width < 768;
   
