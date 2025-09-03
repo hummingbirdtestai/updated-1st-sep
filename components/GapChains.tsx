@@ -1168,8 +1168,12 @@ fetchSubjectChains();
                   {/* Chain Data Points */}
                   {/* Subject Data Points */}
 {subjectChains.map((subject) => {
-  const x = padding.left + (subject.avg_chain_length / 6) * plotWidth;
-  const y = padding.top + plotHeight - (subject.avg_score / 100) * plotHeight;
+  const avgLength = Number(subject.avg_chain_length) || 0;
+  const avgScore = Number(subject.avg_score) || 0;
+
+  const x = padding.left + (avgLength / 6) * plotWidth;
+  const y = padding.top + plotHeight - (avgScore / 100) * plotHeight;
+
   const subjectColor = getSubjectColor(subject.subject_name);
 
   return (
