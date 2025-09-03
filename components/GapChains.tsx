@@ -1341,11 +1341,21 @@ fetchSubjectChains();
             </Text>
             
             <Text className="text-slate-300 text-sm">
-              <Text className="font-bold text-red-400">Needs Focus:</Text> {
-                chainData.reduce((worst, c) => c.chain_health_score < worst.chain_health_score ? c : worst, chainData[0] || { subject: 'N/A', topic: 'N/A' }).subject
-               } - {
-                 chainData.reduce((worst, c) => c.chain_health_score < worst.chain_health_score ? c : worst, chainData[0] || { subject: 'N/A', topic: 'N/A' }).topic
-              }
+              <Text className="font-bold text-red-400">Needs Focus:</Text>{(() => {
+  if (subjectChains && subjectChains.length > 0) {
+    const worst = subjectChains.reduce(
+      (worst, s) => (s.avg_score < worst.avg_score ? s : worst),
+      subjectChains[0]
+    );
+    return (
+      <>
+        {worst.subject_name}
+      </>
+    );
+  }
+  return "N/A";
+})()}
+
             </Text>
             
             <Text className="text-slate-400 text-xs leading-4 mt-3">
