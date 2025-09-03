@@ -250,18 +250,27 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
 
   // Process data for stacked bar chart
   const processStackedData = () => {
-    return data.map(subject => ({
-      subject:subject.subject_name,
-      mcq1: subject.chains_mcq1,
-      mcq2: subject.chains_mcq2,
-      mcq3: subject.chains_mcq3,
-      mcq4: subject.chains_mcq4,
-      mcq5: subject.chains_mcq5,
-      mcq6: subject.chains_mcq6,
-      total: subject.chains_mcq1 + subject.chains_mcq2 + subject.chains_mcq3 + 
-             subject.chains_mcq4 + subject.chains_mcq5 + subject.chains_mcq6,
-    }));
-  };
+  return data.map(subject => {
+    const mcq1 = subject.chains_mcq1 || 0;
+    const mcq2 = subject.chains_mcq2 || 0;
+    const mcq3 = subject.chains_mcq3 || 0;
+    const mcq4 = subject.chains_mcq4 || 0;
+    const mcq5 = subject.chains_mcq5 || 0;
+    const mcq6 = subject.chains_mcq6 || 0;
+
+    return {
+      subject: subject.subject_name,
+      mcq1,
+      mcq2,
+      mcq3,
+      mcq4,
+      mcq5,
+      mcq6,
+      total: mcq1 + mcq2 + mcq3 + mcq4 + mcq5 + mcq6,
+    };
+  });
+};
+
 
   const stackedData = processStackedData();
 
