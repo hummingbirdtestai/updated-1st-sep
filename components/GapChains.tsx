@@ -578,7 +578,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
                       {data.map((entry, index) => (
                         <Cell 
                           key={`cell-${index}`} 
-                          fill={getSubjectColor(entry.subject)}
+                          fill={getSubjectColor(entry.subject_name)}
                         />
                       ))}
                     </Bar>
