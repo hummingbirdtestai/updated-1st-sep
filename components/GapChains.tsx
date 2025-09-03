@@ -5,7 +5,6 @@ import { GitBranch, Target, TrendingUp, ListFilter as Filter, ChevronDown, X, Ci
 import { supabase } from '../lib/supabaseClient';
 import Svg, { Circle as SvgCircle, Line, Text as SvgText, Path, Defs, LinearGradient, Stop, G } from 'react-native-svg';
 import gapChainsData from '@/data/gap-chains-data.json';
-import { supabase } from '@/lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 
 
