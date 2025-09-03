@@ -420,7 +420,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
                   >
                     <CartesianGrid strokeDasharray="3,3" stroke="#334155" opacity={0.3} />
                     <XAxis 
-                      dataKey="subject"
+                      dataKey="subject_name"
                       stroke="#94a3b8"
                       fontSize={12}
                       angle={-45}
@@ -661,7 +661,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
                 
                 <Text className="text-slate-300 text-sm">
                   <Text className="font-bold text-red-400">Needs Most Work:</Text> {
-                    data.reduce((max, s) => s.avg_chain_length > max.avg_chain_length ? s : max).subject
+                    data.reduce((max, s) => s.avg_chain_length > max.avg_chain_length ? s : max).subject_name
                   } (avg {data.reduce((max, s) => s.avg_chain_length > max.avg_chain_length ? s : max).avg_chain_length} MCQs)
                 </Text>
                 
