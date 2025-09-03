@@ -498,7 +498,6 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
   (subject.chains_mcq6 || 0);
 
 const perfectRate = totalChains > 0 ? ((subject.chains_mcq1 || 0) / totalChains) * 100 : 0;
-
                 const subjectColor = getSubjectColor(subject.subject_name);
                 
                 return (
