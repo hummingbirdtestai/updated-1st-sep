@@ -1152,51 +1152,36 @@ fetchSubjectChains();
                   })}
 
                   {/* Chain Data Points */}
-                  {chainData.map((chain, index) => {
-                    const position = getChainPosition(chain, index);
-                    const colors = getChainColor(chain.chain_health_score);
-                    const subjectColor = getSubjectColor(chain.subject);
-                    const bubbleSize = 6 + (chain.chain.length * 2); // Size based on chain length
+                  {/* Subject Data Points */}
+{subjectChains.map((subject) => {
+  const x = padding.left + (subject.avg_chain_length / 6) * plotWidth;
+  const y = padding.top + plotHeight - (subject.avg_score / 100) * plotHeight;
+  const subjectColor = getSubjectColor(subject.subject_name);
 
-                    return (
-                      <G key={chain.pyq_id}>
-                        {/* Glow effect */}
-                        <SvgCircle
-                          cx={position.x}
-                          cy={position.y}
-                          r={bubbleSize + 8}
-                          fill={`url(#${colors.glow})`}
-                          opacity="0.6"
-                        />
-                        
-                        {/* Main bubble */}
-                        <Pressable onPress={() => handleChainPress(chain, position.x, position.y)}>
-                          <SvgCircle
-                            cx={position.x}
-                            cy={position.y}
-                            r={bubbleSize}
-                            fill={colors.color}
-                            stroke={subjectColor}
-                            strokeWidth="2"
-                          />
-                        </Pressable>
-
-
-
-                        {/* Chain length indicator */}
-                        <SvgText
-                          x={position.x}
-                          y={position.y + 2}
-                          textAnchor="middle"
-                          fontSize="10"
-                          fontWeight="bold"
-                          fill="#ffffff"
-                        >
-                          {chain.chain.length}
-                        </SvgText>
-                      </G>
-                    );
-                  })}
+  return (
+    <G key={subject.subject_name}>
+      {/* Main bubble */}
+      <SvgCircle
+        cx={x}
+        cy={y}
+        r={12}
+        fill={subjectColor}
+        stroke="#fff"
+        strokeWidth="2"
+      />
+      {/* Label above bubble */}
+      <SvgText
+        x={x}
+        y={y - 16}
+        textAnchor="middle"
+        fontSize="10"
+        fill="#ffffff"
+      >
+        {subject.subject_name}
+      </SvgText>
+    </G>
+  );
+})}
 
                   {/* Axis Labels */}
                   <SvgText
