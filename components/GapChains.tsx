@@ -250,7 +250,9 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
 
   // Process data for stacked bar chart
  const processStackedData = () => {
-  return (data || []).map(subject => {
+  return (data || [])
+  .filter(subject => subject.subject_name && subject.subject_name.trim() !== '')  // 👈 skip invalid subjects
+  .map(subject => {
     const mcq1 = Number(subject.chains_mcq1 ?? 0);
     const mcq2 = Number(subject.chains_mcq2 ?? 0);
     const mcq3 = Number(subject.chains_mcq3 ?? 0);
@@ -259,7 +261,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
     const mcq6 = Number(subject.chains_mcq6 ?? 0);
 
     return {
-      subject_name: subject.subject_name || 'Unknown',
+      subject_name: subject.subject_name?.trim() || '(Unlabeled)',
       mcq1,
       mcq2,
       mcq3,
@@ -267,10 +269,9 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
       mcq5,
       mcq6,
       total: mcq1 + mcq2 + mcq3 + mcq4 + mcq5 + mcq6,
-      avg_chain_length: Number(subject.avg_chain_length ?? 0),
+      avg_chain_length: Number(subject.avg_chain_length) || 0,
     };
   });
-};
 
 
   const stackedData = processStackedData();
