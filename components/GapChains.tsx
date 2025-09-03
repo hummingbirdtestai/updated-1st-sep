@@ -251,7 +251,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
   // Process data for stacked bar chart
   const processStackedData = () => {
     return data.map(subject => ({
-      subject: subject.subject,
+      subject:row.subject_name,
       mcq1: subject.chains_mcq1,
       mcq2: subject.chains_mcq2,
       mcq3: subject.chains_mcq3,
