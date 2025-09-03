@@ -1321,8 +1321,10 @@ fetchSubjectChains();
           <View className="space-y-2">
             <Text className="text-slate-300 text-sm">
               <Text className="font-bold text-emerald-400">Best Performance:</Text> {
-                chainData.reduce((best, c) => c.chain_health_score > best.chain_health_score ? c : best, chainData[0] || { subject: 'N/A', topic: 'N/A' }).subject
-              } - {
+               chainData.length > 0
+  ? chainData.reduce((best, c) => c.chain_health_score > best.chain_health_score ? c : best, chainData[0])
+  : { subject: 'N/A', topic: 'N/A', chain_health_score: 0 }
+ - {
                 chainData.reduce((best, c) => c.chain_health_score > best.chain_health_score ? c : best, chainData[0] || { subject: 'N/A', topic: 'N/A' }).topic
               }
             </Text>
