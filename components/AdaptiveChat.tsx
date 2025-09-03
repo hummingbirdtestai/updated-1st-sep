@@ -266,7 +266,7 @@ const saveAnswerAndProgress = async (
   console.log("📤 Inserting into student_answers:", answerPayload);
 
   const { error: ansError } = await supabase
-    .from("student_answers")
+    .from("student_answers_inbox")
     .insert([answerPayload]); // ✅ insert ONLY, no onConflict
 
   if (ansError) {
