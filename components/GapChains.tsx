@@ -711,36 +711,33 @@ export default function GapChains() {
   const chainData = getFilteredData();
   const subjects = Array.from(new Set(gapChainsData.map(chain => chain.subject)));
 
-  useEffect(() => {
+useEffect(() => {
+  if (!user?.id) return;
+
   const fetchGapChains = async () => {
     const { data, error } = await supabase
       .from('gap_chains')
-      .select('chains_mcq1, avg_score, avg_chain_length, total_chains');
+      .select('chains_mcq1, avg_score, avg_chain_length, total_chains')
+      .eq('student_id', user.id)   // ✅ only this student
+      .maybeSingle();              // ✅ single row expected
 
     if (error) {
       console.error('Error fetching gap_chains:', error);
       return;
     }
 
-    if (data && data.length > 0) {
-      const totalStudents = data.length;
-
-      const totalPerfect = data.reduce((sum, row) => sum + (row.chains_mcq1 || 0), 0);
-      const avgHealth = data.reduce((sum, row) => sum + (Number(row.avg_score) || 0), 0) / totalStudents;
-      const avgLength = data.reduce((sum, row) => sum + (Number(row.avg_chain_length) || 0), 0) / totalStudents;
-      const totalChains = data.reduce((sum, row) => sum + (row.total_chains || 0), 0);
-
+    if (data) {
       setStats({
-        perfectChains: totalPerfect,
-        averageHealth: avgHealth,
-        averageLength: avgLength,
-        totalChains: totalChains,
+        perfectChains: data.chains_mcq1 || 0,
+        averageHealth: Number(data.avg_score) || 0,
+        averageLength: Number(data.avg_chain_length) || 0,
+        totalChains: data.total_chains || 0,
       });
     }
   };
 
   fetchGapChains();
-}, []);
+}, [user?.id]);
 
 
 
