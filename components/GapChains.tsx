@@ -6,6 +6,17 @@ import { supabase } from '../lib/supabaseClient';
 import Svg, { Circle as SvgCircle, Line, Text as SvgText, Path, Defs, LinearGradient, Stop, G } from 'react-native-svg';
 import gapChainsData from '@/data/gap-chains-data.json';
 import { useAuth } from '../contexts/AuthContext';
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer, // 👈 this was missing
+  Cell
+} from 'recharts';
+
 
 
 interface ChainLink {
