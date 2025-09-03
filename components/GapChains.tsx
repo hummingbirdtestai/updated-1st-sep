@@ -259,7 +259,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
     const mcq6 = Number(subject.chains_mcq6) || 0;
 
     return {
-      subject: subject.subject_name || 'Unknown',
+      subject_name: subject.subject_name || 'Unknown',
       mcq1,
       mcq2,
       mcq3,
@@ -267,6 +267,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
       mcq5,
       mcq6,
       total: mcq1 + mcq2 + mcq3 + mcq4 + mcq5 + mcq6,
+      avg_chain_length: Number(subject.avg_chain_length) || 0,
     };
   });
 };
@@ -428,7 +429,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
                   >
                     <CartesianGrid strokeDasharray="3,3" stroke="#334155" opacity={0.3} />
                     <XAxis 
-                      dataKey="subject"
+                      dataKey="subject_name"
                       stroke="#94a3b8"
                       fontSize={12}
                       angle={-45}
@@ -1321,19 +1322,20 @@ fetchSubjectChains();
           <View className="space-y-2">
             <Text className="text-slate-300 text-sm">
               <Text className="font-bold text-emerald-400">Best Performance:</Text>{(() => {
-  if (chainData && chainData.length > 0) {
-    const best = chainData.reduce(
-      (best, c) => (c.chain_health_score > best.chain_health_score ? c : best),
-      chainData[0]
+  if (subjectChains && subjectChains.length > 0) {
+    const best = subjectChains.reduce(
+      (best, s) => (s.avg_score > best.avg_score ? s : best),
+      subjectChains[0]
     );
     return (
       <>
-        {best.subject} - {best.topic}
+        {best.subject_name}
       </>
     );
   }
-  return "N/A - N/A";
+  return "N/A";
 })()}
+
 
 
             </Text>
