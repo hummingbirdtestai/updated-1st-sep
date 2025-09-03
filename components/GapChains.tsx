@@ -5,6 +5,8 @@ import { GitBranch, Target, TrendingUp, ListFilter as Filter, ChevronDown, X, Ci
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import Svg, { Circle as SvgCircle, Line, Text as SvgText, Path, Defs, LinearGradient, Stop, G } from 'react-native-svg';
 import gapChainsData from '@/data/gap-chains-data.json';
+import { supabase } from '@/lib/supabase';
+
 
 interface ChainLink {
   mcq_id: string;
@@ -674,6 +676,13 @@ export default function GapChains() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedChain, setSelectedChain] = useState<{ chain: GapChain; position: { x: number; y: number } } | null>(null);
   const [sortBy, setSortBy] = useState<'health' | 'length' | 'subject'>('health');
+  const [stats, setStats] = useState<{
+  perfectChains: number;
+  averageHealth: number;
+  averageLength: number;
+  totalChains: number;
+} | null>(null);
+
 
   // Process and filter data
   const getFilteredData = () => {
@@ -699,11 +708,37 @@ export default function GapChains() {
   const chainData = getFilteredData();
   const subjects = Array.from(new Set(gapChainsData.map(chain => chain.subject)));
 
-  // Calculate metrics
-  const totalChains = chainData.length;
-  const perfectChains = chainData.filter(c => c.chain_health_score === 100).length;
-  const averageHealth = chainData.reduce((sum, c) => sum + c.chain_health_score, 0) / Math.max(totalChains, 1);
-  const averageLength = chainData.reduce((sum, c) => sum + c.chain.length, 0) / Math.max(totalChains, 1);
+  useEffect(() => {
+  const fetchGapChains = async () => {
+    const { data, error } = await supabase
+      .from('gap_chains')
+      .select('chains_mcq1, avg_score, avg_chain_length, total_chains');
+
+    if (error) {
+      console.error('Error fetching gap_chains:', error);
+      return;
+    }
+
+    if (data && data.length > 0) {
+      const totalStudents = data.length;
+
+      const totalPerfect = data.reduce((sum, row) => sum + (row.chains_mcq1 || 0), 0);
+      const avgHealth = data.reduce((sum, row) => sum + (Number(row.avg_score) || 0), 0) / totalStudents;
+      const avgLength = data.reduce((sum, row) => sum + (Number(row.avg_chain_length) || 0), 0) / totalStudents;
+      const totalChains = data.reduce((sum, row) => sum + (row.total_chains || 0), 0);
+
+      setStats({
+        perfectChains: totalPerfect,
+        averageHealth: avgHealth,
+        averageLength: avgLength,
+        totalChains: totalChains,
+      });
+    }
+  };
+
+  fetchGapChains();
+}, []);
+
 
   // Chart dimensions
   const chartWidth = Math.min(width - 64, 800);
@@ -895,80 +930,81 @@ export default function GapChains() {
           </MotiView>
         )}
 
-        {/* Summary Metrics */}
-        <View className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-          <MotiView
-            from={{ opacity: 0, translateY: 20 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ type: 'spring', duration: 600, delay: 200 }}
-            className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4"
-          >
-            <View className="flex-row items-center mb-2">
-              <Award size={16} color="#10b981" />
-              <Text className="text-emerald-400 font-semibold text-sm ml-2">Perfect Chains</Text>
-            </View>
-            <Text className="text-emerald-200 text-xl font-bold">
-              {perfectChains}
-            </Text>
-            <Text className="text-emerald-300/80 text-xs">
-              Solved at MCQ 1
-            </Text>
-          </MotiView>
+       {/* Summary Metrics */}
+<View className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+  <MotiView
+    from={{ opacity: 0, translateY: 20 }}
+    animate={{ opacity: 1, translateY: 0 }}
+    transition={{ type: 'spring', duration: 600, delay: 200 }}
+    className="bg-emerald-500/10 border border-emerald-500/20 rounded-lg p-4"
+  >
+    <View className="flex-row items-center mb-2">
+      <Award size={16} color="#10b981" />
+      <Text className="text-emerald-400 font-semibold text-sm ml-2">Perfect Chains</Text>
+    </View>
+    <Text className="text-emerald-200 text-xl font-bold">
+      {stats ? stats.perfectChains : 0}
+    </Text>
+    <Text className="text-emerald-300/80 text-xs">
+      Solved at MCQ 1
+    </Text>
+  </MotiView>
 
-          <MotiView
-            from={{ opacity: 0, translateY: 20 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ type: 'spring', duration: 600, delay: 300 }}
-            className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4"
-          >
-            <View className="flex-row items-center mb-2">
-              <Target size={16} color="#3b82f6" />
-              <Text className="text-blue-400 font-semibold text-sm ml-2">Avg Health</Text>
-            </View>
-            <Text className="text-blue-200 text-xl font-bold">
-              {averageHealth.toFixed(0)}
-            </Text>
-            <Text className="text-blue-300/80 text-xs">
-              Out of 100
-            </Text>
-          </MotiView>
+  <MotiView
+    from={{ opacity: 0, translateY: 20 }}
+    animate={{ opacity: 1, translateY: 0 }}
+    transition={{ type: 'spring', duration: 600, delay: 300 }}
+    className="bg-blue-500/10 border border-blue-500/20 rounded-lg p-4"
+  >
+    <View className="flex-row items-center mb-2">
+      <Target size={16} color="#3b82f6" />
+      <Text className="text-blue-400 font-semibold text-sm ml-2">Avg Health</Text>
+    </View>
+    <Text className="text-blue-200 text-xl font-bold">
+      {stats ? stats.averageHealth.toFixed(0) : 0}
+    </Text>
+    <Text className="text-blue-300/80 text-xs">
+      Out of 100
+    </Text>
+  </MotiView>
 
-          <MotiView
-            from={{ opacity: 0, translateY: 20 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ type: 'spring', duration: 600, delay: 400 }}
-            className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4"
-          >
-            <View className="flex-row items-center mb-2">
-              <GitBranch size={16} color="#f59e0b" />
-              <Text className="text-amber-400 font-semibold text-sm ml-2">Avg Length</Text>
-            </View>
-            <Text className="text-amber-200 text-xl font-bold">
-              {averageLength.toFixed(1)}
-            </Text>
-            <Text className="text-amber-300/80 text-xs">
-              MCQs per chain
-            </Text>
-          </MotiView>
+  <MotiView
+    from={{ opacity: 0, translateY: 20 }}
+    animate={{ opacity: 1, translateY: 0 }}
+    transition={{ type: 'spring', duration: 600, delay: 400 }}
+    className="bg-amber-500/10 border border-amber-500/20 rounded-lg p-4"
+  >
+    <View className="flex-row items-center mb-2">
+      <GitBranch size={16} color="#f59e0b" />
+      <Text className="text-amber-400 font-semibold text-sm ml-2">Avg Length</Text>
+    </View>
+    <Text className="text-amber-200 text-xl font-bold">
+      {stats ? stats.averageLength.toFixed(1) : 0}
+    </Text>
+    <Text className="text-amber-300/80 text-xs">
+      MCQs per chain
+    </Text>
+  </MotiView>
 
-          <MotiView
-            from={{ opacity: 0, translateY: 20 }}
-            animate={{ opacity: 1, translateY: 0 }}
-            transition={{ type: 'spring', duration: 600, delay: 500 }}
-            className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4"
-          >
-            <View className="flex-row items-center mb-2">
-              <BarChart3 size={16} color="#8b5cf6" />
-              <Text className="text-purple-400 font-semibold text-sm ml-2">Total Chains</Text>
-            </View>
-            <Text className="text-purple-200 text-xl font-bold">
-              {totalChains}
-            </Text>
-            <Text className="text-purple-300/80 text-xs">
-              PYQs analyzed
-            </Text>
-          </MotiView>
-        </View>
+  <MotiView
+    from={{ opacity: 0, translateY: 20 }}
+    animate={{ opacity: 1, translateY: 0 }}
+    transition={{ type: 'spring', duration: 600, delay: 500 }}
+    className="bg-purple-500/10 border border-purple-500/20 rounded-lg p-4"
+  >
+    <View className="flex-row items-center mb-2">
+      <BarChart3 size={16} color="#8b5cf6" />
+      <Text className="text-purple-400 font-semibold text-sm ml-2">Total Chains</Text>
+    </View>
+    <Text className="text-purple-200 text-xl font-bold">
+      {stats ? stats.totalChains : 0}
+    </Text>
+    <Text className="text-purple-300/80 text-xs">
+      PYQs analyzed
+    </Text>
+  </MotiView>
+</View>
+
 
         {/* Chain Scatter Plot */}
         <MotiView
