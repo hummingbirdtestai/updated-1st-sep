@@ -1192,7 +1192,7 @@ fetchSubjectChains();
                     fontWeight="600"
                     fill="#94a3b8"
                   >
-                    Chain Length (MCQs)
+                    Avg Chain Length (MCQs)
                   </SvgText>
                   <SvgText
                     x={20}
@@ -1203,7 +1203,7 @@ fetchSubjectChains();
                     fill="#94a3b8"
                     transform={`rotate(-90 20 ${padding.top + plotHeight / 2})`}
                   >
-                    Health Score
+                   Avg Health Score
                   </SvgText>
                 </Svg>
               </View>
