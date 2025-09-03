@@ -234,7 +234,7 @@ export default function GapChains() {
               {unhealthyChains}
             </Text>
             <Text className="text-red-300/80 text-xs">
-              <60% score
+              {"<60% score"}
             </Text>
           </MotiView>
 
