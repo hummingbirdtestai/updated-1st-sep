@@ -1341,7 +1341,7 @@ fetchSubjectChains();
             <Text className="text-slate-300 text-sm">
               <Text className="font-bold text-red-400">Needs Focus:</Text> {
                 chainData.reduce((worst, c) => c.chain_health_score < worst.chain_health_score ? c : worst, chainData[0] || { subject: 'N/A', topic: 'N/A' }).subject
-              } - {
+ {
                 chainData.reduce((worst, c) => c.chain_health_score < worst.chain_health_score ? c : worst, chainData[0] || { subject: 'N/A', topic: 'N/A' }).topic
               }
             </Text>
