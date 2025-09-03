@@ -489,12 +489,12 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
               <Text className="text-lg font-semibold text-slate-100">Subject Performance Summary</Text>
               {data.map((subject, index) => {
                 const totalChains = 
-  (subject.chains_mcq1 || 0) +
-  (subject.chains_mcq2 || 0) +
-  (subject.chains_mcq3 || 0) +
-  (subject.chains_mcq4 || 0) +
-  (subject.chains_mcq5 || 0) +
-  (subject.chains_mcq6 || 0);
+  (Number(subject.chains_mcq1) || 0) +
+(Number(subject.chains_mcq2) || 0) +
+(Number(subject.chains_mcq3) || 0) +
+(Number(subject.chains_mcq4) || 0) +
+(Number(subject.chains_mcq5) || 0) +
+(Number(subject.chains_mcq6) || 0);
 
 const perfectRate = totalChains > 0 ? ((subject.chains_mcq1 || 0) / totalChains) * 100 : 0;
                 const subjectColor = getSubjectColor(subject.subject_name);
