@@ -489,9 +489,16 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
             <View className="space-y-3">
               <Text className="text-lg font-semibold text-slate-100">Subject Performance Summary</Text>
               {data.map((subject, index) => {
-                const totalChains = subject.chains_mcq1 + subject.chains_mcq2 + subject.chains_mcq3 + 
-                                  subject.chains_mcq4 + subject.chains_mcq5 + subject.chains_mcq6;
-                const perfectRate = totalChains > 0 ? (subject.chains_mcq1 / totalChains) * 100 : 0;
+                const totalChains = 
+  (subject.chains_mcq1 || 0) +
+  (subject.chains_mcq2 || 0) +
+  (subject.chains_mcq3 || 0) +
+  (subject.chains_mcq4 || 0) +
+  (subject.chains_mcq5 || 0) +
+  (subject.chains_mcq6 || 0);
+
+const perfectRate = totalChains > 0 ? ((subject.chains_mcq1 || 0) / totalChains) * 100 : 0;
+
                 const subjectColor = getSubjectColor(subject.subject_name);
                 
                 return (
