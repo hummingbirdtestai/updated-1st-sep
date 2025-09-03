@@ -160,7 +160,7 @@ function ChainTooltip({ chain, position, onClose }: ChainTooltipProps) {
 }
 
 // Mock data for tabbed charts
-const mockSubjectChainData = [
+/* const mockSubjectChainData = [
   {
     "subject": "Anatomy",
     "chains_mcq1": 20,
@@ -211,12 +211,12 @@ const mockSubjectChainData = [
     "chains_mcq6": 1,
     "avg_chain_length": 3.1
   }
-];
+]; */
 
 type TabKey = 'overview' | 'distribution' | 'length';
 
 interface SubjectChainTabsProps {
-  data?: typeof mockSubjectChainData;
+  data?:any[];
 }
 
 function SubjectChainTabs({ data = mockSubjectChainData }: SubjectChainTabsProps) {
