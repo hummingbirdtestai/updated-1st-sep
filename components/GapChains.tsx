@@ -622,7 +622,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
                         
                         <View className="flex-row items-center">
                           <Text className="text-slate-300 text-sm mr-3">
-                            {subject.avg_chain_length.toFixed(1)} MCQs
+                            {Number(subject.avg_chain_length).toFixed(1)} MCQs
                           </Text>
                           <View 
                             className="px-2 py-1 rounded-full border"
