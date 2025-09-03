@@ -315,7 +315,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
             {label}
           </Text>
           <Text className="text-amber-300 text-sm">
-            Average Length: {data.avg_chain_length.toFixed(1)} MCQs
+            Average Length:{Number(data.avg_chain_length || 0).toFixed(1)} MCQs
           </Text>
           <Text className="text-slate-400 text-xs mt-1">
             {data.avg_chain_length <= 2 ? 'Strong subject' : 
