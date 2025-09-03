@@ -483,11 +483,11 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
                 const totalChains = subject.chains_mcq1 + subject.chains_mcq2 + subject.chains_mcq3 + 
                                   subject.chains_mcq4 + subject.chains_mcq5 + subject.chains_mcq6;
                 const perfectRate = totalChains > 0 ? (subject.chains_mcq1 / totalChains) * 100 : 0;
-                const subjectColor = getSubjectColor(subject.subject);
+                const subjectColor = getSubjectColor(subject.subject_name);
                 
                 return (
                   <MotiView
-                    key={subject.subject}
+                    key={subject.subject_name}
                     from={{ opacity: 0, translateX: -20 }}
                     animate={{ opacity: 1, translateX: 0 }}
                     transition={{ type: 'spring', duration: 600, delay: index * 100 + 200 }}
@@ -501,7 +501,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
                         />
                         <View>
                           <Text className="text-slate-100 font-semibold text-base">
-                            {subject.subject}
+                            {subject.subject_name}
                           </Text>
                           <Text className="text-slate-400 text-sm">
                             {totalChains} total chains
@@ -601,7 +601,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
                     
                     return (
                       <MotiView
-                        key={subject.subject}
+                        key={subject.subject_name}
                         from={{ opacity: 0, translateX: -20 }}
                         animate={{ opacity: 1, translateX: 0 }}
                         transition={{ type: 'spring', duration: 600, delay: index * 100 + 200 }}
@@ -613,10 +613,10 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
                           </Text>
                           <View 
                             className="w-3 h-3 rounded-full mx-3"
-                            style={{ backgroundColor: getSubjectColor(subject.subject) }}
+                            style={{ backgroundColor: getSubjectColor(subject.subject_name) }}
                           />
                           <Text className="text-slate-100 font-medium">
-                            {subject.subject}
+                            {subject.subject_name}
                           </Text>
                         </View>
                         
