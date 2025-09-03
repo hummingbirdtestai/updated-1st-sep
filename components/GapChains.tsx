@@ -6,6 +6,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import Svg, { Circle as SvgCircle, Line, Text as SvgText, Path, Defs, LinearGradient, Stop, G } from 'react-native-svg';
 import gapChainsData from '@/data/gap-chains-data.json';
 import { supabase } from '@/lib/supabase';
+import { useAuth } from '../contexts/AuthContext';
 
 
 interface ChainLink {
@@ -682,6 +683,8 @@ export default function GapChains() {
   averageLength: number;
   totalChains: number;
 } | null>(null);
+  const { user } = useAuth();
+
 
 
   // Process and filter data
@@ -738,6 +741,7 @@ export default function GapChains() {
 
   fetchGapChains();
 }, []);
+
 
 
   // Chart dimensions
