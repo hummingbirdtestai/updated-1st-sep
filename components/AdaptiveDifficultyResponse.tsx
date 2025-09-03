@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, Dimensions, Pressable } from 'react-native';
 import { MotiView } from 'moti';
-import { TrendingUp, Clock, Target, Zap, TriangleAlert as AlertTriangle, ListFilter as Filter, ChevronDown, X, BookOpen } from 'lucide-react-native';
+import { TrendingUp, Clock, Target, Zap, TriangleAlert as AlertTriangle, Filter, ChevronDown, X, BookOpen } from 'lucide-react-native';
 import { ScatterChart, Scatter, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { mockAttempts } from '@/data/mockAttempts';
 
@@ -105,13 +105,13 @@ export default function AdaptiveDifficultyResponse() {
       }
 
       const correctAttempts = attempts.filter(attempt => attempt.is_correct).length;
-      const accuracy = attempts.length > 0 ? (correctAttempts / attempts.length) * 100 : 0;
-      const avgTime = attempts.length > 0 ? attempts.reduce((sum, attempt) => sum + attempt.response_time_sec, 0) / attempts.length : 0;
+      const accuracy = (correctAttempts / attempts.length) * 100;
+      const avgTime = attempts.reduce((sum, attempt) => sum + attempt.response_time_sec, 0) / attempts.length;
 
       difficultyData.push({
         difficulty,
-        accuracy: Number.isFinite(accuracy) ? accuracy : 0,
-        avgTime: Number.isFinite(avgTime) ? avgTime : 0,
+        accuracy,
+        avgTime,
         totalAttempts: attempts.length,
         correctAttempts,
       });
@@ -524,46 +524,40 @@ export default function AdaptiveDifficultyResponse() {
         </Text>
         
         <View style={{ width: '100%', height: 300 }}>
-          {processedData.length > 0 && processedData.every(d => Number.isFinite(d.accuracy) && Number.isFinite(d.avgTime)) ? (
-            <ResponsiveContainer width="100%" height="100%">
-              <ScatterChart
-                data={processedData}
-                margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
-              >
-                <CartesianGrid strokeDasharray="3,3" stroke="#334155" opacity={0.3} />
-                <XAxis 
-                  dataKey="difficulty"
-                  stroke="#94a3b8"
-                  fontSize={12}
-                  type="category"
-                />
-                <YAxis 
-                  stroke="#94a3b8"
-                  fontSize={12}
-                  domain={[0, 100]}
-                  tickFormatter={(value) => `${value}%`}
-                />
-                <Tooltip content={<CustomTooltip />} />
-                <Scatter dataKey="accuracy">
-                  {processedData.map((entry, index) => (
-                    <Cell 
-                      key={`cell-${index}`} 
-                      fill={getBubbleColor(entry.difficulty)}
-                      r={Math.max(8, Math.min(25, Number.isFinite(entry.avgTime) ? entry.avgTime / 3 : 8))} // Scale bubble size based on avgTime
-                      onClick={() => {
-                        const mockData = generateMockMCQData(entry.difficulty);
-                        setSelectedMCQ(mockData);
-                      }}
-                    />
-                  ))}
-                </Scatter>
-              </ScatterChart>
-            </ResponsiveContainer>
-          ) : (
-            <View className="bg-slate-700/40 rounded-lg p-8 items-center justify-center">
-              <Text className="text-slate-400 text-sm">No valid chart data available</Text>
-            </View>
-          )}
+          <ResponsiveContainer width="100%" height="100%">
+            <ScatterChart
+              data={processedData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 20 }}
+            >
+              <CartesianGrid strokeDasharray="3,3" stroke="#334155" opacity={0.3} />
+              <XAxis 
+                dataKey="difficulty"
+                stroke="#94a3b8"
+                fontSize={12}
+                type="category"
+              />
+              <YAxis 
+                stroke="#94a3b8"
+                fontSize={12}
+                domain={[0, 100]}
+                tickFormatter={(value) => `${value}%`}
+              />
+              <Tooltip content={<CustomTooltip />} />
+              <Scatter dataKey="accuracy">
+                {processedData.map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={getBubbleColor(entry.difficulty)}
+                    r={Math.max(8, Math.min(25, entry.avgTime / 3))} // Scale bubble size based on avgTime
+                    onClick={() => {
+                      const mockData = generateMockMCQData(entry.difficulty);
+                      setSelectedMCQ(mockData);
+                    }}
+                  />
+                ))}
+              </Scatter>
+            </ScatterChart>
+          </ResponsiveContainer>
         </View>
       </View>
 
