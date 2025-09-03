@@ -420,7 +420,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
                   >
                     <CartesianGrid strokeDasharray="3,3" stroke="#334155" opacity={0.3} />
                     <XAxis 
-                      dataKey="subject_name"
+                      dataKey="subject"
                       stroke="#94a3b8"
                       fontSize={12}
                       angle={-45}
