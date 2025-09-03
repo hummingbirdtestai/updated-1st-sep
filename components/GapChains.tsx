@@ -1301,7 +1301,7 @@ fetchSubjectChains();
         </MotiView>
 
         {/* Subject Analysis Tabs */}
-        <SubjectChainTabs />
+        <SubjectChainTabs data={subjectChains} />
 
         {/* Insights Panel */}
         <MotiView
