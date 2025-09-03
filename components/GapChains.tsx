@@ -655,7 +655,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
               <View className="space-y-2">
                 <Text className="text-slate-300 text-sm">
                   <Text className="font-bold text-emerald-400">Strongest Subject:</Text> {
-                    data.reduce((min, s) => s.avg_chain_length < min.avg_chain_length ? s : min).subject
+                    data.reduce((min, s) => s.avg_chain_length < min.avg_chain_length ? s : min).subject_name
                   } (avg {data.reduce((min, s) => s.avg_chain_length < min.avg_chain_length ? s : min).avg_chain_length} MCQs)
                 </Text>
                 
