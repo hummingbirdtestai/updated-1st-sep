@@ -423,7 +423,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
               <View style={{ width: '100%', height: 400 }}>
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart
-                    data={stackedData || []}
+                    data={processStackedData()}
                     margin={{ top: 20, right: 30, left: 20, bottom: 60 }}
                   >
                     <CartesianGrid strokeDasharray="3,3" stroke="#334155" opacity={0.3} />
