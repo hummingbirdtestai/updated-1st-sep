@@ -1305,12 +1305,13 @@ export default function GapChains() {
             </Text>
             
             <Text className="text-slate-400 text-xs leading-4 mt-3">
-              {perfectChains > 0 
-                ? `Great job! ${perfectChains} chains solved perfectly at MCQ 1. Focus on improving longer chains to boost overall efficiency.`
-                : averageHealth >= 70
-                ? "Good progress! Most chains are resolved efficiently. Work on solving more at MCQ 1 for perfect scores."
-                : "Consider reviewing fundamental concepts. Longer chains indicate knowledge gaps that need reinforcement."
-              }
+              {stats && stats.perfectChains > 0 
+  ? `Great job! ${stats.perfectChains} chains solved perfectly at MCQ 1. Focus on improving longer chains to boost overall efficiency.`
+  : stats && stats.averageHealth >= 70
+  ? "Good progress! Most chains are resolved efficiently. Work on solving more at MCQ 1 for perfect scores."
+  : "Consider reviewing fundamental concepts. Longer chains indicate knowledge gaps that need reinforcement."
+}
+
             </Text>
           </View>
         </MotiView>
