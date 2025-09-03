@@ -251,12 +251,12 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
   // Process data for stacked bar chart
  const processStackedData = () => {
   return (data || []).map(subject => {
-    const mcq1 = Number(subject.chains_mcq1) || 0;
-    const mcq2 = Number(subject.chains_mcq2) || 0;
-    const mcq3 = Number(subject.chains_mcq3) || 0;
-    const mcq4 = Number(subject.chains_mcq4) || 0;
-    const mcq5 = Number(subject.chains_mcq5) || 0;
-    const mcq6 = Number(subject.chains_mcq6) || 0;
+    const mcq1 = Number(subject.chains_mcq1 ?? 0);
+    const mcq2 = Number(subject.chains_mcq2 ?? 0);
+    const mcq3 = Number(subject.chains_mcq3 ?? 0);
+    const mcq4 = Number(subject.chains_mcq4 ?? 0);
+    const mcq5 = Number(subject.chains_mcq5 ?? 0);
+    const mcq6 = Number(subject.chains_mcq6 ?? 0);
 
     return {
       subject_name: subject.subject_name || 'Unknown',
@@ -267,10 +267,11 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
       mcq5,
       mcq6,
       total: mcq1 + mcq2 + mcq3 + mcq4 + mcq5 + mcq6,
-      avg_chain_length: Number(subject.avg_chain_length) || 0,
+      avg_chain_length: Number(subject.avg_chain_length ?? 0),
     };
   });
 };
+
 
   const stackedData = processStackedData();
 
