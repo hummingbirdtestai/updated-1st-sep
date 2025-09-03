@@ -559,7 +559,7 @@ function SubjectChainTabs({ data = [] }: SubjectChainTabsProps) {
                   >
                     <CartesianGrid strokeDasharray="3,3" stroke="#334155" opacity={0.3} />
                     <XAxis 
-                      dataKey="subject"
+                      dataKey="subject_name"
                       stroke="#94a3b8"
                       fontSize={12}
                       angle={-45}
@@ -752,7 +752,7 @@ useEffect(() => {
 const fetchSubjectChains = async () => {
   const { data, error } = await supabase
     .from('gap_chains_persubject')
-    .select('subject_name, chains_mcq1, chains_mcq2, chains_mcq3, chains_mcq4, chains_mcq5, chains_mcq6, avg_chain_length')
+    .select('subject_name, avg_score, avg_chain_length')
     .eq('student_id', user.id);
 
   if (error) {
