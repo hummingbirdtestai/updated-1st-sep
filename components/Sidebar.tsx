@@ -183,15 +183,19 @@ export default function Sidebar({
   }, []);
 
   const fetchNeetpgSubjects = async () => {
-    try {
-      const res = await fetch(`${API_BASE}/api/exams/with-subjects`);
-      const data = await res.json();
-      const neetpg = data.exams.find((e: Exam) => e.name === "NEETPG");
-      setSubjects(neetpg?.subjects || []);
-    } catch (err) {
-      console.error("Error fetching subjects:", err);
-    }
-  };
+  try {
+    const { data, error } = await supabase
+      .from("subjects")
+      .select("id, name, exam_id")
+      .eq("exam_id", "948b081c-06da-40ed-b8bd-3e307b445a6c")
+      .order("name", { ascending: true });
+
+    if (error) throw error;
+    setSubjects(data || []);
+  } catch (err) {
+    console.error("Error fetching subjects from Supabase:", err);
+  }
+};
 
   const toggleGroup = (groupId: string) => {
     const newExpanded = new Set(expandedGroups);
