@@ -105,7 +105,7 @@ export default function FatigueImpactCurve() {
       // Calculate rolling PYQ accuracy up to this point
       const pyqsUpToNow = pyqAttempts.slice(0, index + 1);
       const pyqCorrect = pyqsUpToNow.filter(attempt => attempt.is_correct).length;
-      const pyqAccuracy = (pyqCorrect / pyqsUpToNow.length) * 100;
+      const pyqAccuracy = pyqsUpToNow.length > 0 ? (pyqCorrect / pyqsUpToNow.length) * 100 : 0;
 
       // Find recursive attempts that occurred around this time
       const pyqTime = new Date(pyq.attempt_time).getTime();
@@ -120,13 +120,13 @@ export default function FatigueImpactCurve() {
       let recursiveAccuracy = null;
       if (recursivesInWindow.length > 0) {
         const recursiveCorrect = recursivesInWindow.filter(attempt => attempt.is_correct).length;
-        recursiveAccuracy = (recursiveCorrect / recursivesInWindow.length) * 100;
+        recursiveAccuracy = recursivesInWindow.length > 0 ? (recursiveCorrect / recursivesInWindow.length) * 100 : 0;
       }
 
       dataPoints.push({
         elapsedMin,
-        pyqAccuracy,
-        recursiveAccuracy,
+        pyqAccuracy: Number.isFinite(pyqAccuracy) ? pyqAccuracy : 0,
+        recursiveAccuracy: recursiveAccuracy !== null && Number.isFinite(recursiveAccuracy) ? recursiveAccuracy : null,
         pyqCount: pyqsUpToNow.length,
         recursiveCount: recursivesInWindow.length,
       });
