@@ -34,8 +34,6 @@ import PhoneLoginModal from "./modals/PhoneLoginModal";
 import OTPModal from "./modals/OTPModal";
 import RegistrationModal from "./modals/RegistrationModal";
 import ErrorModal from "./modals/ErrorModal";
-import { supabase } from "../lib/supabaseClient"; // ✅ add this
-
 
 import { useAuth } from "../contexts/AuthContext";
 
@@ -47,6 +45,7 @@ interface Subject {
   name: string;
   exam_id: string;
 }
+
 interface Exam {
   id: string;
   name: string;
@@ -73,13 +72,48 @@ const navigationGroups: NavigationGroup[] = [
     name: "My Learning Path",
     icon: Map,
     items: [
-      { id: "prep-overview", name: "Prep Overview", icon: Home, route: "/analytics/prep-overview" },
-      { id: "mastery-map", name: "Mastery Map", icon: Map, route: "/analytics/mastery-map" },
-      { id: "gap-chains", name: "Gap Chains", icon: GitBranch, route: "/analytics/gap-chains" },
-      { id: "root-causes", name: "Root Causes", icon: AlertCircle, route: "/analytics/root-causes" },
-      { id: "neural-radar", name: "Neural Radar", icon: Radar, route: "/analytics/neural-radar" },
-      { id: "time-to-mastery", name: "Time-to-Mastery Clock", icon: Clock, route: "/analytics/time-to-mastery" },
-      { id: "mentor-flight-path", name: "Mentor Flight Path", icon: Navigation, route: "/analytics/mentor-flight-path" },
+      {
+        id: "prep-overview",
+        name: "Prep Overview",
+        icon: Home,
+        route: "/analytics/prep-overview",
+      },
+      {
+        id: "mastery-map",
+        name: "Mastery Map",
+        icon: Map,
+        route: "/analytics/mastery-map",
+      },
+      {
+        id: "gap-chains",
+        name: "Gap Chains",
+        icon: GitBranch,
+        route: "/analytics/gap-chains",
+      },
+      {
+        id: "root-causes",
+        name: "Root Causes",
+        icon: AlertCircle,
+        route: "/analytics/root-causes",
+      },
+      {
+        id: "neural-radar",
+        name: "Neural Radar",
+        icon: Radar,
+        route: "/analytics/neural-radar",
+      },
+      {
+        id: "time-to-mastery",
+        name: "Time-to-Mastery Clock",
+        icon: Clock,
+        route: "/analytics/time-to-mastery",
+      },
+      {
+        id: "mentor-flight-path",
+        name: "Mentor Flight Path",
+        icon: Navigation,
+        route: "/analytics/mentor-flight-path",
+      },
     ],
   },
   {
@@ -87,14 +121,54 @@ const navigationGroups: NavigationGroup[] = [
     name: "Study Efficiency & Revision",
     icon: BarChart3,
     items: [
-      { id: "study-sessions", name: "Study Sessions", icon: BarChart3, route: "/analytics/study-sessions" },
-      { id: "speed-accuracy", name: "Speed & Accuracy", icon: Zap, route: "/analytics/speed-accuracy" },
-      { id: "confidence-reality", name: "Confidence vs Reality", icon: Target, route: "/analytics/confidence-reality" },
-      { id: "confidence-vs-reality", name: "Confidence vs Reality", icon: Gauge, route: "/confidence-vs-reality" },
-      { id: "smart-revision", name: "Smart Revision", icon: RotateCcw, route: "/SmartRevisionPage" },
-      { id: "quick-fix-lessons", name: "Quick Fix Lessons", icon: Wrench, route: "/QuickFixLessonsPage" },
-      { id: "mistakes-correct", name: "Mistakes to Correct", icon: AlertCircle, route: "/analytics/mistakes-correct" },
-      { id: "achievements-rewards", name: "Achievements & Rewards", icon: Award, route: "/AchievementsRewardsPage" },
+      {
+        id: "study-sessions",
+        name: "Study Sessions",
+        icon: BarChart3,
+        route: "/analytics/study-sessions",
+      },
+      {
+        id: "speed-accuracy",
+        name: "Speed & Accuracy",
+        icon: Zap,
+        route: "/analytics/speed-accuracy",
+      },
+      {
+        id: "confidence-reality",
+        name: "Confidence vs Reality",
+        icon: Target,
+        route: "/analytics/confidence-reality",
+      },
+      {
+        id: "confidence-vs-reality",
+        name: "Confidence vs Reality",
+        icon: Gauge,
+        route: "/confidence-vs-reality",
+      },
+      {
+        id: "smart-revision",
+        name: "Smart Revision",
+        icon: RotateCcw,
+        route: "/SmartRevisionPage",
+      },
+      {
+        id: "quick-fix-lessons",
+        name: "Quick Fix Lessons",
+        icon: Wrench,
+        route: "/QuickFixLessonsPage",
+      },
+      {
+        id: "mistakes-correct",
+        name: "Mistakes to Correct",
+        icon: AlertCircle,
+        route: "/analytics/mistakes-correct",
+      },
+      {
+        id: "achievements-rewards",
+        name: "Achievements & Rewards",
+        icon: Award,
+        route: "/AchievementsRewardsPage",
+      },
     ],
   },
   {
@@ -102,7 +176,12 @@ const navigationGroups: NavigationGroup[] = [
     name: "Knowledge Assets",
     icon: BookMarked,
     items: [
-      { id: "flashcards-bookmarks", name: "Flashcards & Bookmarks", icon: BookMarked, route: "/analytics/flashcards-bookmarks" },
+      {
+        id: "flashcards-bookmarks",
+        name: "Flashcards & Bookmarks",
+        icon: BookMarked,
+        route: "/analytics/flashcards-bookmarks",
+      },
     ],
   },
   {
@@ -110,10 +189,30 @@ const navigationGroups: NavigationGroup[] = [
     name: "Peer & Cohorts",
     icon: Users2,
     items: [
-      { id: "peer-comparison", name: "Peer Comparison", icon: Users2, route: "/analytics/peer-comparison" },
-      { id: "buddy-mode", name: "Buddy Mode", icon: UserCheck, route: "/analytics/buddy-mode" },
-      { id: "dynamic-cohorts", name: "Dynamic Cohorts", icon: Flame, route: "/analytics/dynamic-cohorts" },
-      { id: "wellness-balance", name: "Wellness & Balance", icon: Heart, route: "/analytics/wellness-balance" },
+      {
+        id: "peer-comparison",
+        name: "Peer Comparison",
+        icon: Users2,
+        route: "/analytics/peer-comparison",
+      },
+      {
+        id: "buddy-mode",
+        name: "Buddy Mode",
+        icon: UserCheck,
+        route: "/analytics/buddy-mode",
+      },
+      {
+        id: "dynamic-cohorts",
+        name: "Dynamic Cohorts",
+        icon: Flame,
+        route: "/analytics/dynamic-cohorts",
+      },
+      {
+        id: "wellness-balance",
+        name: "Wellness & Balance",
+        icon: Heart,
+        route: "/analytics/wellness-balance",
+      },
     ],
   },
   {
@@ -121,7 +220,12 @@ const navigationGroups: NavigationGroup[] = [
     name: "Performance Simulation",
     icon: TrendingUp,
     items: [
-      { id: "rank-score-simulator", name: "Rank & Score Simulator", icon: TrendingUp, route: "/analytics/rank-score-simulator" },
+      {
+        id: "rank-score-simulator",
+        name: "Rank & Score Simulator",
+        icon: TrendingUp,
+        route: "/analytics/rank-score-simulator",
+      },
     ],
   },
 ];
@@ -160,7 +264,9 @@ export default function Sidebar({
   onDynamicCohortsNavigate,
 }: SidebarProps) {
   const [isSubjectsExpanded, setIsSubjectsExpanded] = useState(false);
-  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(new Set(["learning-path"]));
+  const [expandedGroups, setExpandedGroups] = useState<Set<string>>(
+    new Set(["learning-path"])
+  );
   const [activeItem, setActiveItem] = useState("prep-overview");
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [subjects, setSubjects] = useState<Subject[]>([]);
@@ -179,42 +285,51 @@ export default function Sidebar({
 
   // fetch NEETPG subjects only
   useEffect(() => {
-    fetchNeetpgSubjects();
+    const fetchSubjects = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/exams/with-subjects`);
+        const data = await res.json();
+        const neetpg = data.exams.find((e: Exam) => e.name === "NEETPG");
+        setSubjects(neetpg?.subjects || []);
+      } catch (err) {
+        console.error("Error fetching NEETPG subjects:", err);
+      }
+    };
+    fetchSubjects();
   }, []);
-
-  const fetchNeetpgSubjects = async () => {
-  try {
-    const { data, error } = await supabase
-      .from("subjects")
-      .select("id, name, exam_id")
-      .eq("exam_id", "948b081c-06da-40ed-b8bd-3e307b445a6c")
-      .order("name", { ascending: true });
-
-    if (error) throw error;
-    setSubjects(data || []);
-  } catch (err) {
-    console.error("Error fetching subjects from Supabase:", err);
-  }
-};
 
   const toggleGroup = (groupId: string) => {
     const newExpanded = new Set(expandedGroups);
-    if (newExpanded.has(groupId)) newExpanded.delete(groupId);
-    else newExpanded.add(groupId);
+    if (newExpanded.has(groupId)) {
+      newExpanded.delete(groupId);
+    } else {
+      newExpanded.add(groupId);
+    }
     setExpandedGroups(newExpanded);
   };
 
   const handleAnalyticsItemClick = (item: NavigationItem) => {
     setActiveItem(item.id);
-    if (item.route === "/SmartRevisionPage") onSmartRevisionNavigate?.();
-    else if (item.route === "/QuickFixLessonsPage") onQuickFixNavigate?.();
-    else if (item.route === "/AchievementsRewardsPage") onAchievementsNavigate?.();
-    else if (item.route === "/analytics/peer-comparison") onPeerComparisonNavigate?.();
-    else if (item.id === "buddy-mode") onBuddyModeNavigate?.();
-    else if (item.id === "dynamic-cohorts") onDynamicCohortsNavigate?.();
-    else onAnalyticsNavigate?.(item.route);
 
-    if (isMobile) onToggle(false);
+    if (item.route === "/SmartRevisionPage") {
+      onSmartRevisionNavigate?.();
+    } else if (item.route === "/QuickFixLessonsPage") {
+      onQuickFixNavigate?.();
+    } else if (item.route === "/AchievementsRewardsPage") {
+      onAchievementsNavigate?.();
+    } else if (item.route === "/analytics/peer-comparison") {
+      onPeerComparisonNavigate?.();
+    } else if (item.id === "buddy-mode") {
+      onBuddyModeNavigate?.();
+    } else if (item.id === "dynamic-cohorts") {
+      onDynamicCohortsNavigate?.();
+    } else {
+      onAnalyticsNavigate?.(item.route);
+    }
+
+    if (isMobile) {
+      onToggle(false);
+    }
   };
 
   const handleSubjectSelect = (subject: Subject) => {
@@ -233,12 +348,16 @@ export default function Sidebar({
       const res = await fetch(`${API_BASE}/auth/otp/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ country_code: "+91", phone }),
+        body: JSON.stringify({
+          country_code: "+91",
+          phone,
+        }),
       });
       if (!res.ok) {
         const errMsg = await res.text();
         throw new Error(`Failed to send OTP: ${errMsg}`);
       }
+
       setPendingPhone(phone);
       setShowPhoneModal(false);
       setShowOTPModal(true);
@@ -258,7 +377,9 @@ export default function Sidebar({
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "OTP failed");
 
-      const profileRes = await fetch(`${API_BASE}/users/phone/${pendingPhone}`);
+      const profileRes = await fetch(
+        `${API_BASE}/users/phone/${pendingPhone}`
+      );
       if (profileRes.ok) {
         const profile = await profileRes.json();
         login(data.token, profile);
@@ -278,14 +399,22 @@ export default function Sidebar({
   const handleRegister = async (name: string) => {
     try {
       if (!pendingPhone) throw new Error("Missing phone");
+
       const res = await fetch(`${API_BASE}/users/register`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ country_code: "+91", phone: pendingPhone, name }),
+        body: JSON.stringify({
+          country_code: "+91",
+          phone: pendingPhone,
+          name,
+        }),
       });
+
       const data = await res.json();
       if (!res.ok) throw new Error(data.message || "Registration failed");
+
       login(localStorage.getItem("auth_token") || "", data);
+
       setShowRegModal(false);
       setPendingPhone(null);
       setTempUserId(null);
@@ -299,7 +428,11 @@ export default function Sidebar({
     <>
       {/* Overlay for mobile */}
       {isMobile && isOpen && (
-        <MotiView from={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 bg-black/50 z-40">
+        <MotiView
+          from={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute inset-0 bg-black/50 z-40"
+        >
           <Pressable onPress={() => onToggle(false)} className="flex-1" />
         </MotiView>
       )}
@@ -323,24 +456,36 @@ export default function Sidebar({
             <View className="w-8 h-8 rounded-lg bg-teal-500 items-center justify-center mr-3">
               <Bird size={16} color="#fff" />
             </View>
-            <Text className="text-slate-100 text-lg font-bold">HummingBird</Text>
+            <Text className="text-slate-100 text-lg font-bold">
+              HummingBird
+            </Text>
           </Pressable>
         </MotiView>
 
         <ScrollView className="flex-1 p-2">
-          {/* Analytics Groups */}
+          {/* Analytics Navigation Groups */}
           {navigationGroups.map((group) => {
             const isExpanded = expandedGroups.has(group.id);
             const IconComponent = group.icon;
+
             return (
               <View key={group.id} className="mb-2">
-                <Pressable onPress={() => toggleGroup(group.id)} className="flex-row items-center p-3 bg-slate-800/40 rounded-xl">
+                <Pressable
+                  onPress={() => toggleGroup(group.id)}
+                  className="flex-row items-center p-3 bg-slate-800/40 rounded-xl"
+                >
                   <IconComponent size={16} color="#94a3b8" />
-                  <Text className="flex-1 text-slate-300 ml-2 font-medium">{group.name}</Text>
-                  <MotiView animate={{ rotate: isExpanded ? 90 : 0 }} transition={{ type: "spring", duration: 300 }}>
+                  <Text className="flex-1 text-slate-300 ml-2 font-medium">
+                    {group.name}
+                  </Text>
+                  <MotiView
+                    animate={{ rotate: isExpanded ? 90 : 0 }}
+                    transition={{ type: "spring", duration: 300 }}
+                  >
                     <ChevronRight size={16} color="#64748b" />
                   </MotiView>
                 </Pressable>
+
                 {isExpanded && (
                   <MotiView
                     from={{ opacity: 0, height: 0 }}
@@ -351,16 +496,28 @@ export default function Sidebar({
                     {group.items.map((item) => {
                       const ItemIcon = item.icon;
                       const isActive = activeItem === item.id;
+
                       return (
                         <Pressable
                           key={item.id}
                           onPress={() => handleAnalyticsItemClick(item)}
                           className={`flex-row items-center p-2 rounded-lg mb-1 ${
-                            isActive ? "bg-teal-600/30 border border-teal-500/50" : "bg-slate-800/30 hover:bg-slate-700/40"
+                            isActive
+                              ? "bg-teal-600/30 border border-teal-500/50"
+                              : "bg-slate-800/30 hover:bg-slate-700/40"
                           }`}
                         >
-                          <ItemIcon size={14} color={isActive ? "#5eead4" : "#94a3b8"} />
-                          <Text className={`text-sm ml-2 ${isActive ? "text-teal-300 font-medium" : "text-slate-400"}`}>
+                          <ItemIcon
+                            size={14}
+                            color={isActive ? "#5eead4" : "#94a3b8"}
+                          />
+                          <Text
+                            className={`text-sm ml-2 ${
+                              isActive
+                                ? "text-teal-300 font-medium"
+                                : "text-slate-400"
+                            }`}
+                          >
                             {item.name}
                           </Text>
                         </Pressable>
@@ -372,7 +529,7 @@ export default function Sidebar({
             );
           })}
 
-          {/* Subjects (NEETPG only) */}
+          {/* Subjects */}
           {subjects.length > 0 && (
             <>
               <Pressable
@@ -383,11 +540,17 @@ export default function Sidebar({
                 className="flex-row items-center p-3 bg-slate-800/40 rounded-xl mt-2"
               >
                 <BookMarked size={16} color="#94a3b8" />
-                <Text className="flex-1 text-slate-300 ml-2">{selectedSubject ? selectedSubject.name : "Subjects"}</Text>
+                <Text className="flex-1 text-slate-300 ml-2">
+                  {selectedSubject ? selectedSubject.name : "Subjects"}
+                </Text>
                 <ChevronRight
                   size={16}
                   color="#64748b"
-                  style={{ transform: [{ rotate: isSubjectsExpanded ? "90deg" : "0deg" }] }}
+                  style={{
+                    transform: [
+                      { rotate: isSubjectsExpanded ? "90deg" : "0deg" },
+                    ],
+                  }}
                 />
               </Pressable>
               {isSubjectsExpanded &&
@@ -396,12 +559,16 @@ export default function Sidebar({
                     key={subject.id}
                     onPress={() => handleSubjectSelect(subject)}
                     className={`p-2 ml-4 rounded-lg ${
-                      selectedSubject?.id === subject.id ? "bg-teal-600/30 border border-teal-500/50" : "bg-slate-800/30"
+                      selectedSubject?.id === subject.id
+                        ? "bg-teal-600/30 border border-teal-500/50"
+                        : "bg-slate-800/30"
                     }`}
                   >
                     <Text
                       className={`text-sm ${
-                        selectedSubject?.id === subject.id ? "text-teal-300" : "text-slate-400"
+                        selectedSubject?.id === subject.id
+                          ? "text-teal-300"
+                          : "text-slate-400"
                       }`}
                     >
                       {subject.name}
@@ -411,7 +578,7 @@ export default function Sidebar({
             </>
           )}
 
-          {/* Concept Map */}
+          {/* Concept Prerequisite Map */}
           <Pressable
             onPress={() => {
               onConceptMapNavigate?.();
@@ -444,15 +611,30 @@ export default function Sidebar({
             className="flex-row items-center p-3 mt-2 bg-slate-800/40 rounded-xl"
           >
             <LogOut size={16} color="#94a3b8" />
-            <Text className="ml-2 text-slate-300">{session ? "Logout" : "Login"}</Text>
+            <Text className="ml-2 text-slate-300">
+              {session ? "Logout" : "Login"}
+            </Text>
           </Pressable>
         </ScrollView>
       </MotiView>
 
       {/* Modals */}
-      <PhoneLoginModal isVisible={showPhoneModal} onClose={() => setShowPhoneModal(false)} onSendOTP={handleSendOTP} />
-      <OTPModal isVisible={showOTPModal} onClose={() => setShowOTPModal(false)} onSubmitOTP={handleSubmitOTP} phoneNumber={pendingPhone || ""} />
-      <RegistrationModal isVisible={showRegModal} onClose={() => setShowRegModal(false)} onRegister={handleRegister} />
+      <PhoneLoginModal
+        isVisible={showPhoneModal}
+        onClose={() => setShowPhoneModal(false)}
+        onSendOTP={handleSendOTP}
+      />
+      <OTPModal
+        isVisible={showOTPModal}
+        onClose={() => setShowOTPModal(false)}
+        onSubmitOTP={handleSubmitOTP}
+        phoneNumber={pendingPhone || ""}
+      />
+      <RegistrationModal
+        isVisible={showRegModal}
+        onClose={() => setShowRegModal(false)}
+        onRegister={handleRegister}
+      />
       <ErrorModal isVisible={showError} onClose={() => setShowError(false)} />
     </>
   );
