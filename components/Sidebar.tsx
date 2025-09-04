@@ -34,6 +34,8 @@ import PhoneLoginModal from "./modals/PhoneLoginModal";
 import OTPModal from "./modals/OTPModal";
 import RegistrationModal from "./modals/RegistrationModal";
 import ErrorModal from "./modals/ErrorModal";
+import { supabase } from "../lib/supabaseClient"; // ✅ add this
+
 
 import { useAuth } from "../contexts/AuthContext";
 
