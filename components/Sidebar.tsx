@@ -257,9 +257,6 @@ export default function Sidebar({
     });
     if (error) throw error;
 
-    // ✅ Save session in context
-    login(data.session?.access_token || "", data.user);
-
     setShowOTPModal(false);
     setPendingPhone(null);
 
