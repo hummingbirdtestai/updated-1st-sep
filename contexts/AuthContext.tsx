@@ -94,15 +94,11 @@ useEffect(() => {
   };
 
   // 🔹 Clear session on logout
-  const logout = async () => {
-    try {
-      await storage.removeItem("auth_token");
-      await storage.removeItem("auth_profile");
-      setSession(null);
-    } catch (err) {
-      console.error("❌ Error clearing session:", err);
-    }
-  };
+ const logout = async () => {
+  await supabase.auth.signOut();
+  setSession(null);
+};
+
 
   return (
     <AuthContext.Provider
