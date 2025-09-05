@@ -1,5 +1,7 @@
 // src/contexts/AuthContext.tsx
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
+import { Session, User } from "@supabase/supabase-js";
 
 // ✅ Create a wrapper so both web + native storage behave the same (async)
 let storage: {
@@ -30,18 +32,13 @@ try {
   };
 }
 
-interface Session {
-  token: string;
-  profile?: any;
-}
-
 interface AuthContextType {
   session: Session | null;
-  user: any;
+  user: User | null;
   loading: boolean;
-  login: (token: string, profile?: any) => Promise<void>;
   logout: () => Promise<void>;
 }
+
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
@@ -61,24 +58,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   // 🔹 Load session from storage on mount
-  useEffect(() => {
-    const loadSession = async () => {
-      try {
-        const token = await storage.getItem("auth_token");
-        const profileStr = await storage.getItem("auth_profile");
+useEffect(() => {
+  const getInitialSession = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    setSession(session);
+    setLoading(false);
+  };
 
-        if (token) {
-          const parsedProfile = profileStr ? JSON.parse(profileStr) : null;
-          setSession({ token, profile: normalizeProfile(parsedProfile) });
-        }
-      } catch (err) {
-        console.error("❌ Error loading session:", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadSession();
-  }, []);
+  getInitialSession();
+
+  const { data: listener } = supabase.auth.onAuthStateChange(
+    (_event, session) => {
+      setSession(session);
+    }
+  );
+
+  return () => {
+    listener.subscription.unsubscribe();
+  };
+}, []);
+
 
   // 🔹 Save login state
   const login = async (token: string, profile?: any) => {
