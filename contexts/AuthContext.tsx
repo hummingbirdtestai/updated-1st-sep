@@ -104,7 +104,7 @@ useEffect(() => {
     <AuthContext.Provider
       value={{
         session,
-        user: session?.profile ?? null, // ✅ now guaranteed to have id
+        user: session?.user ?? null, // ✅ now guaranteed to have id
         loading,
         login,
         logout,
