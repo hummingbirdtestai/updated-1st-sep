@@ -15,7 +15,7 @@ import RegistrationModal from "./modals/RegistrationModal";
 import ErrorModal from "./modals/ErrorModal";
 
 import { useAuth } from "../contexts/AuthContext";
-import { supabase } from "@/lib/supabase"; // make sure you have this client set up
+import { supabase } from "../lib/supabaseClient"; // make sure you have this client set up
 
 
 // ✅ API Base URL
