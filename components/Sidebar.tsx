@@ -278,8 +278,6 @@ export default function Sidebar({
     });
     if (error) throw error;
 
-    login(data.session?.access_token || "", data.user);
-
     setShowRegModal(false);
     setPendingPhone(null);
     setTempUserId(null);
