@@ -260,10 +260,22 @@ export default function Sidebar({
     setShowOTPModal(false);
     setPendingPhone(null);
 
-    // If user is new and has no name set, show registration modal
-    if (!data.user?.user_metadata?.name) {
+    // 🔹 Always check in public.users
+    const { data: appUser, error: userError } = await supabase
+      .from("users")
+      .select("*")
+      .eq("id", data.user.id)
+      .single();
+
+    if (userError) throw userError;
+
+    if (!appUser?.name) {
+      // New user → registration needed
       setTempUserId(data.user.id);
       setShowRegModal(true);
+    } else {
+      // Existing user → directly logged in
+      console.log("✅ Logged in:", appUser);
     }
   } catch (err) {
     console.error("OTP verification failed:", err);
@@ -271,21 +283,32 @@ export default function Sidebar({
   }
 };
 
- const handleRegister = async (name: string) => {
+ const handleRegister = async (name: string, countryCode: string = "+91") => {
   try {
-    const { data, error } = await supabase.auth.updateUser({
-      data: { name },
-    });
+    if (!tempUserId) throw new Error("No user to register");
+
+    const { error } = await supabase
+      .from("users")
+      .update({
+        name,
+        is_active: true,
+        country_code: countryCode,
+      })
+      .eq("id", tempUserId);
+
     if (error) throw error;
 
     setShowRegModal(false);
     setPendingPhone(null);
     setTempUserId(null);
+
+    console.log("✅ User registered successfully");
   } catch (err) {
     console.error("Registration failed:", err);
     setShowError(true);
   }
 };
+
 
 
 
