@@ -274,25 +274,14 @@ export default function Sidebar({
   }
 };
 
-  const handleRegister = async (name: string) => {
+ const handleRegister = async (name: string) => {
   try {
-    if (!pendingPhone) throw new Error("Missing phone");
-
-    const res = await fetch(`${API_BASE}/users/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        country_code: "+91",   // ✅ required
-        phone: pendingPhone,   // ✅ required
-        name                  // ✅ required
-      }),
+    const { data, error } = await supabase.auth.updateUser({
+      data: { name },
     });
+    if (error) throw error;
 
-    const data = await res.json();
-    if (!res.ok) throw new Error(data.message || "Registration failed");
-
-    // save session
-    login(localStorage.getItem("auth_token") || "", data);
+    login(data.session?.access_token || "", data.user);
 
     setShowRegModal(false);
     setPendingPhone(null);
@@ -302,6 +291,7 @@ export default function Sidebar({
     setShowError(true);
   }
 };
+
 
 
   return (
