@@ -233,18 +233,11 @@ export default function Sidebar({
   // 🔹 OTP flow
   const handleSendOTP = async (phone: string) => {
   try {
-    const res = await fetch(`${API_BASE}/auth/otp/start`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        country_code: "+91",   // ✅ required
-        phone                // ✅ required
-      }),
+    const { error } = await supabase.auth.signInWithOtp({
+      phone,
+      options: { shouldCreateUser: true } // creates user if not exists
     });
-    if (!res.ok) {
-      const errMsg = await res.text();
-      throw new Error(`Failed to send OTP: ${errMsg}`);
-    }
+    if (error) throw error;
 
     setPendingPhone(phone);
     setShowPhoneModal(false);
