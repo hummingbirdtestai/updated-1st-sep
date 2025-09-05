@@ -249,33 +249,30 @@ export default function Sidebar({
 };
 
   const handleSubmitOTP = async (otp: string) => {
-    try {
-      const res = await fetch(`${API_BASE}/auth/otp/verify`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: pendingPhone, otp }),
-      });
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.message || "OTP failed");
+  try {
+    const { data, error } = await supabase.auth.verifyOtp({
+      phone: pendingPhone!,
+      token: otp,
+      type: "sms",
+    });
+    if (error) throw error;
 
-      // check if user exists
-      const profileRes = await fetch(`${API_BASE}/users/phone/${pendingPhone}`);
-      if (profileRes.ok) {
-        const profile = await profileRes.json();
-        login(data.token, profile); // ✅ save in context
-        setShowOTPModal(false);
-        setPendingPhone(null);
-      } else {
-        // user not found -> registration
-        setTempUserId(data.userId);
-        setShowOTPModal(false);
-        setShowRegModal(true);
-      }
-    } catch (err) {
-      console.error("OTP verification failed:", err);
-      setShowError(true);
+    // ✅ Save session in context
+    login(data.session?.access_token || "", data.user);
+
+    setShowOTPModal(false);
+    setPendingPhone(null);
+
+    // If user is new and has no name set, show registration modal
+    if (!data.user?.user_metadata?.name) {
+      setTempUserId(data.user.id);
+      setShowRegModal(true);
     }
-  };
+  } catch (err) {
+    console.error("OTP verification failed:", err);
+    setShowError(true);
+  }
+};
 
   const handleRegister = async (name: string) => {
   try {
